@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Date** | October 19, 2026 |
-| **Status** | Draft |
+| **Date** | October 20, 2026 |
+| **Status** | Draft v2 |
 | **Companion doc** | [Technical Specification](TECH_SPEC.md) |
 
 > **Disclaimer.** This is an independent educational project. It is not affiliated with, endorsed by, or sponsored by Aritzia. Product data is collected within the site's terms of use, and product images are not redistributed.
@@ -12,19 +12,22 @@
 
 ## 1. Problem & Motivation
 
-Aritzia sells clothes; it doesn't help anyone decide what to wear. A shopper can filter by size, color, or category, and browse an editorial lookbook, but neither answers the question people actually ask on a Tuesday morning: *"I have a closet full of options. What do I put together today?"*
+Aritzia sells clothes, but it doesn't help anyone decide what to wear. A shopper can filter by size, color, or category, or browse an editorial lookbook. Neither answers the question people actually ask on a Tuesday morning: *"I have a closet full of options. What do I put together today?"*
 
 Lookbooks are static: they show one stylist's answer to a question you didn't ask. Filtered search is atomic: it returns individual items and leaves the hard part, composing them into something coherent, to the user. Neither responds to taste, and neither improves when you say "not quite."
 
-This project treats styling as a conversation. The user describes a mood, an occasion, or the weather in plain language. The system regenerates around that feedback until the outfit is something the user would actually wear.
+This project treats styling as a conversation. The user describes a mood, an occasion, or the weather in plain language. The system keeps regenerating from that feedback until the outfit is something the user would actually wear.
 
 ### Why this project
 
-Beyond the product gap, this is a deliberate assistant for applying computer vision and embedding-based retrieval to a real, visually driven problem, not a toy dataset. Fashion is a demanding domain for these techniques:
+The project has two aims:
 
-- Labels like "cozy" or "going-out" are subjective and visual, which makes them a good test of zero-shot CLIP classification.
-- Outfit coherence depends on relationships between items (color harmony, formality match), not on any single item, which is a retrieval-plus-scoring problem.
-- The feedback loop needs a preference signal that changes within a session, which turns static retrieval into an interactive system.
+1. **Applied ML on a real, visual problem.** CLIP embeddings drive retrieval and item similarity. An LLM turns free text into structured constraints. Outfit coherence is a scoring problem over relationships between items, not over any single item.
+2. **Production-style software engineering.** It is built as a small full-stack service, with a typed REST API, a SQL-backed data layer, a React + TypeScript client, automated tests, CI, and Docker.
+
+### Scoping principle 
+
+Every feature has to answer one question: *does it show up in the demo or the README?* Anything that would be research rather than engineering is left out, including a two-source tag merge, approximate-nearest-neighbour indexes, beam search, and a multi-rater study. Each of these is still listed in §8 as a stretch goal, with a design sketch in the tech spec.
 
 ---
 
@@ -33,28 +36,29 @@ Beyond the product gap, this is a deliberate assistant for applying computer vis
 ### Goals
 
 1. **G1.** Turn a free-text style request into a complete, coherent outfit made of real Aritzia catalog items.
-2. **G2.** Let the user refine that outfit conversationally, with each regeneration moving measurably closer to what they want.
-3. **G3.** Build an automated tagging pipeline (season, vibe, formality) whose accuracy is validated against human labels.
-4. **G4.** Resolve Aritzia product names typed by the user reliably.
-5. **G5.** Ship a working, demoable web app that runs in real time.
+2. **G2.** Let the user refine that outfit through chat or buttons (lock, reject, swap, nudge) until they accept it.
+3. **G3.** Auto-tag the catalog (season, vibe, formality) and measure the tagging accuracy against a small hand-labeled set.
+4. **G4.** Reliably resolve Aritzia product names that the user types.
+5. **G5.** Ship a tested, containerized, demoable web app: a REST API plus a web client, running with one command.
 
 ### Non-Goals
 
-- **Purchasing or checkout.** The system recommends; it does not sell. Links to product pages are fine.
-- **Sizing and fit.** No size recommendations or body-shape modeling.
-- **Inventory and stock.** The catalog is a snapshot. Live availability is out of scope.
-- **Trend forecasting or editorial content.** The system styles from the catalog it has; it does not predict what's fashionable.
-- **Official Aritzia integration.** No partner APIs, no brand affiliation.
+- **Purchasing or checkout.** The system recommends. It does not sell, though links to product pages are fine.
+- **Sizing and fit.** No size recommendations and no body-shape modeling.
+- **Inventory and stock.** The catalog is a snapshot, and live availability is out of scope.
+- **User accounts and authentication.** Sessions are anonymous and live on the server.
+- **Production deployment at scale.** Deploying to one free-tier host is a stretch goal (S-5). There is no autoscaling and no multi-region setup.
+- **Official Aritzia integration.** No partner APIs and no brand affiliation.
 
 ---
 
 ## 3. Target Users & Personas
 
-The core user owns or shops Aritzia, has a rough sense of the feeling they're going for, and wants help turning that feeling into a specific combination of pieces.
+The core user owns Aritzia clothes or shops there. They have a rough sense of the feeling they're going for and want help turning that feeling into a specific combination of pieces.
 
 | Persona | Situation | What they say |
 |---|---|---|
-| **Maya, the weather-driven commuter** | Gets dressed in ten minutes and cares mostly that she's warm, appropriate for the office, and not boring. | *"It's 8°C and rainy, I have meetings all day. Something polished but comfortable."* |
+| **Maya, the weather-driven commuter** | Gets dressed in ten minutes and cares mostly about being warm, office-appropriate, and not boring. | *"It's 8°C and rainy, I have meetings all day. Something polished but comfortable."* |
 | **Jordan, the event planner** | Has a specific occasion coming up and wants to explore options before committing. | *"Rooftop birthday dinner Saturday, going-out but not trying too hard."* |
 | **Sam, the anchor-piece builder** | Owns (or has their eye on) one specific Aritzia piece and wants to build around it. | *"I just got the Effortless Pant in black. What do I wear with it for a weekend brunch?"* |
 
@@ -64,112 +68,104 @@ The core user owns or shops Aritzia, has a rough sense of the feeling they're go
 
 ### Flow A: Mood request
 1. Maya types *"cozy fall Sunday, running errands."*
-2. The system returns an outfit: a knit top, a relaxed bottom, a jacket, sneakers, and optionally an accessory. Each piece shows its image, name, brand line, and price.
-3. Maya accepts. Done in one turn.
+2. The system returns an outfit: a top, a bottom, shoes, and outerwear or an accessory when relevant. Each piece shows its image, name, brand line, and price.
+3. Maya accepts, and she's done in one turn.
 
 ### Flow B: Occasion + weather request
 1. Jordan types *"rooftop birthday dinner, it might get chilly."*
-2. The system parses the request into occasion (dinner/party), vibe (going-out), weather (cool evening), and target formality (3 of 5), then returns an outfit that includes outerwear.
+2. The system parses the request into an occasion (dinner), a vibe (going-out), weather (cool), and a target formality (3 out of 5). It returns an outfit that includes outerwear.
 
 ### Flow C: Named-item request
 1. Sam types *"build something around the Effortless Pant."*
-2. The system resolves "Effortless Pant" to the catalog item, locks it into the bottom slot, and fills the other slots around it.
-3. If the name matches several items (e.g. different cuts or lengths), the system asks Sam to choose.
+2. The system resolves "Effortless Pant" to a catalog item, locks it into the bottom slot, and fills the other slots around it.
+3. If the name matches several items, the system asks Sam to choose (P1).
 
 ### Flow D: Refinement loop
 1. After any generated outfit, the user can:
+   - **Lock** a piece (*"keep the coat"* or the 🔒 button), which keeps it through all later regenerations.
+   - **Reject** a piece (*"not that top"* or the ✕ button), which excludes it for the rest of the session.
    - **Swap** a piece (*"different shoes"*), which replaces that slot only.
-   - **Lock** a piece (*"keep the coat"*), which keeps it through all later regenerations.
-   - **Reject** a piece (*"not that top"*), which excludes it for the rest of the session.
-   - **More like this** (*"more like the blazer"*), which pushes later picks toward that item's style.
-   - **Nudge the vibe** (*"a bit more relaxed"*, *"dressier"*), which shifts the target vibe or formality.
-   - **Name a swap** (*"swap in the Effortless Pant"*), which resolves the item and puts it in its slot.
-2. The system regenerates and shows what changed.
-3. The loop repeats until the user **accepts**, and the system then shows a final summary of the outfit.
+   - **Nudge** the outfit (*"dressier"*, *"more relaxed"*), which shifts the target formality or vibe.
+   - **More like this** (*"more like the blazer"*, P1), which pushes later picks toward that item's style.
+2. The system regenerates and shows the new outfit.
+3. The loop repeats until the user **accepts**. The system then shows a summary of the final outfit.
 
 ---
 
 ## 5. Functional Requirements
 
-Priority key: **P0** = required for MVP · **P1** = expected for a strong demo · **P2** = nice to have.
+Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · **P2** = stretch.
 
 ### 5.1 Catalog (`FR-CAT`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-CAT-1 | Store a product catalog with: name, brand line (e.g. Babaton, Wilfred, TNA, Sunday Best), slot, primary color, fabric, price, description, image, and product URL. | P0 | Every catalog record has all required fields populated, or an explicit null with a logged reason. |
-| FR-CAT-2 | Assign every item to exactly one slot: `top`, `bottom`, `dress`, `outerwear`, `shoes`, `accessory`. | P0 | 100% of items have a valid slot; a sampled audit of 30 items shows 0 misassignments. |
-| FR-CAT-3 | The catalog covers enough items per slot to make generation meaningful. | P0 | At least 150 items total *(proposed)*, at least 15 per slot *(proposed)*. |
-| FR-CAT-4 | Collect data within the site's terms of use (rate-limited, respecting robots.txt), or fall back to a hand-collected catalog. | P0 | The collection script documents its rate limits; no blocked or disallowed paths are fetched. |
-| FR-CAT-5 | Re-running ingestion updates existing records without creating duplicates. | P1 | Running ingestion twice produces the same item count. |
+| FR-CAT-1 | Store a product catalog in SQL with: name, brand line, slot, color name, price, description, image URL, and product URL. | P0 | Every row passes schema validation on load. Rows that fail are logged and skipped, not silently dropped. |
+| FR-CAT-2 | Assign every item to exactly one slot: `top`, `bottom`, `dress`, `outerwear`, `shoes`, or `accessory`. | P0 | 100% of items have a valid slot. |
+| FR-CAT-3 | Cover enough items to make generation meaningful. | P0 | At least 90 items in total and at least 10 per slot. |
+| FR-CAT-4 | Collect data within the site's terms: respect robots.txt, rate-limit requests, and send a descriptive User-Agent. Otherwise, fall back to a hand-curated CSV. | P0 | The collector documents its rate limit. Scraper work is timeboxed to 3 hours, after which the CSV fallback is used. |
+| FR-CAT-5 | Re-running ingestion updates existing records without creating duplicates. | P0 | Ingesting twice produces the same row count, which a test checks. |
 
 ### 5.2 Tagging (`FR-TAG`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-TAG-1 | Label each item with one or more **season** tags from a fixed set (see [Appendix A](#appendix-a-tag-taxonomy)). | P0 | 100% of items have at least 1 season tag. |
-| FR-TAG-2 | Label each item with one or more **vibe** tags from a fixed set. | P0 | 100% of items have 1–3 vibe tags. |
-| FR-TAG-3 | Label each item with a **formality** score on a 1–5 scale. | P0 | 100% of items have an integer formality score. |
-| FR-TAG-4 | Derive tags from the product image (zero-shot vision) and the product description (LLM), then combine the two. | P0 | Each tag records its source (`clip`, `llm`, `merged`) and a confidence value. |
-| FR-TAG-5 | Flag low-confidence or conflicting tags for manual review. | P1 | Items where the two sources disagree are listed in a review report. |
-| FR-TAG-6 | Maintain a hand-labeled validation set for measuring tagging accuracy. | P0 | At least 50 items, stratified across slots *(proposed)*. |
+| FR-TAG-1 | Tag each item with 1 or more **season** tags, 1 to 3 **vibe** tags, 1 to 3 **color** tags, and a **formality** score from 1 to 5 (see [Appendix A](#appendix-a-tag-taxonomy)). | P0 | 100% of items are tagged, and the tags validate against the schema. |
+| FR-TAG-2 | Produce the tags with a single batch LLM pass over each item's name, brand line, color, and description. Use structured output. | P0 | The tagging job is idempotent and cached, so re-running it costs nothing. |
+| FR-TAG-3 | Maintain a hand-labeled gold set, labeled **before** looking at model output. | P0 | 30 items, stratified across slots (5 per slot). |
+| FR-TAG-4 | Report tagging accuracy against the gold set. | P0 | `eval/tagging_report.md` reports accuracy for each axis. |
+| FR-TAG-5 | Use CLIP zero-shot image tagging as a second signal, and compare it with the LLM on the gold set. | P1 | The report includes a CLIP-vs-LLM accuracy table. |
 
 ### 5.3 Request Parsing (`FR-REQ`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-REQ-1 | Accept free-text requests describing any mix of mood/vibe, occasion, weather, and named items. | P0 | All four request types in §4 parse without error. |
-| FR-REQ-2 | Convert a request into structured constraints: target vibes, target formality, season or weather, required slots (e.g. outerwear when it's cold), and named items. | P0 | Parsed output validates against the schema in the tech spec. |
-| FR-REQ-3 | When a request is too vague to act on (e.g. *"something nice"*), fall back to sensible defaults instead of failing. | P1 | Vague requests still produce an outfit. |
-| FR-REQ-4 | When the request mentions weather, include or exclude outerwear accordingly. | P1 | Cold or rainy requests include outerwear in at least 90% of test cases *(proposed)*. |
+| FR-REQ-1 | Accept free-text requests that mix mood, occasion, weather, and named items. | P0 | All four flows in §4 parse without error. |
+| FR-REQ-2 | Convert each message into either a `ParsedRequest` or a `FeedbackIntent`, validated by schema. | P0 | Invalid LLM output is retried once and then falls back to keyword rules. It never crashes the API. |
+| FR-REQ-3 | When a request is too vague (e.g. *"something nice"*), fall back to sensible defaults. | P0 | Vague requests still produce an outfit. |
+| FR-REQ-4 | Cold or rainy weather requires outerwear. | P0 | A unit test covers this. |
 
 ### 5.4 Outfit Generation (`FR-GEN`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-GEN-1 | Generate a complete outfit with one item per slot: either top + bottom or a dress, plus shoes, plus outerwear and an accessory when relevant. | P0 | No generated outfit has a dress together with a top or bottom, and none is missing a required slot. |
-| FR-GEN-2 | Use only real catalog items, referenced by their actual product names. | P0 | Every item in an outfit exists in the catalog. |
-| FR-GEN-3 | Score candidate outfits on vibe coherence, formality match, and color harmony, and return the highest-scoring one. | P0 | The score breakdown is logged for each generated outfit. |
-| FR-GEN-4 | Respect hard constraints: locked items always appear, rejected items never do, and season matches. | P0 | 0 violations across the evaluation sessions. |
-| FR-GEN-5 | Give a short natural-language explanation of why the outfit works. | P1 | Each outfit comes with a 1–3 sentence rationale. |
-| FR-GEN-6 | Avoid repeating an identical outfit within a session unless the user asks for it. | P1 | No two consecutive outfits in a session are identical. |
+| FR-GEN-1 | Generate a valid outfit: either top + bottom or a dress, plus shoes, plus optional outerwear and an optional accessory. | P0 | No outfit has a dress together with a top or bottom, and no outfit is missing a required slot. Tests check this. |
+| FR-GEN-2 | Use only real catalog items. | P0 | Every `item_id` in an outfit exists in the database. |
+| FR-GEN-3 | Score candidate outfits on query relevance, vibe match, formality match, and color harmony, and return the best one. | P0 | The API response includes the score breakdown. |
+| FR-GEN-4 | Respect hard constraints: locked items always appear, rejected items never do, and the season matches. | P0 | Zero violations in tests and in logged sessions. |
+| FR-GEN-5 | Avoid showing the same outfit twice in a row. | P1 | A test checks this. |
+| FR-GEN-6 | Give a 1–2 sentence explanation of why the outfit works. | P1 | Built from a template using the score breakdown, so it needs no extra LLM call. |
 
 ### 5.5 Named-Item Resolution (`FR-NAME`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-NAME-1 | Resolve product names the user types (*"the Effortless Pant"*) to catalog items, tolerating typos, missing words, and casing differences. | P0 | At least 90% top-1 accuracy on the named-item test set *(proposed)*. |
-| FR-NAME-2 | When several items match closely, ask the user to choose. | P1 | Ambiguous queries trigger a choice prompt instead of a silent guess. |
-| FR-NAME-3 | When nothing matches, say so and suggest the closest alternatives. | P1 | Queries with no match return a clear message and up to 3 suggestions. |
+| FR-NAME-1 | Resolve typed product names, tolerating typos, missing words, and differences in casing. | P0 | At least 90% top-1 accuracy on a 30-query test set. |
+| FR-NAME-2 | When nothing matches, say so and suggest up to 3 close alternatives. | P0 | Covered by a test case. |
+| FR-NAME-3 | When several items match closely, ask the user to choose. | P1 | Ambiguous queries return a `choices` response. |
 
 ### 5.6 Feedback Loop (`FR-FB`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-FB-1 | **Lock**: a locked item stays in its slot through every later regeneration until the user unlocks it. | P0 | Locked items persist across 100% of regenerations. |
-| FR-FB-2 | **Reject**: a rejected item is excluded for the rest of the session. | P0 | Rejected items never reappear in the session. |
-| FR-FB-3 | **Swap**: replace a single slot and leave the other slots unchanged unless they are now incompatible. | P0 | After a swap, slots that weren't swapped are unchanged in at least 80% of cases *(proposed)*. |
-| FR-FB-4 | **More like this**: shift later selections toward the referenced item's style. | P1 | The next outfit's embedding similarity to the referenced item increases. |
-| FR-FB-5 | **Nudge**: adjust the target vibe or formality from relative language (*"dressier"*, *"more relaxed"*). | P0 | A formality nudge moves the outfit's mean formality in the requested direction. |
-| FR-FB-6 | Keep a session preference signal that builds up across turns, not just the most recent instruction. | P0 | The session state records the full feedback history and the current preference vector. |
-| FR-FB-7 | Accept feedback in natural language and through UI controls (lock/reject buttons). | P1 | Both input paths produce the same state change. |
+| FR-FB-1 | **Lock / unlock**: a locked item stays in its slot through every regeneration. | P0 | Unit test. |
+| FR-FB-2 | **Reject**: a rejected item never reappears in the session. | P0 | Unit test. |
+| FR-FB-3 | **Swap**: replace one slot and keep the others unchanged. | P0 | Unit test. |
+| FR-FB-4 | **Nudge**: relative formality or vibe changes move the outfit in the requested direction. | P0 | A test checks that the mean formality moves in the requested direction after "dressier." |
+| FR-FB-5 | **Accept**: end the session and show a summary with links and the total price. | P0 | API and UI. |
+| FR-FB-6 | **More like this**: shift the session preference vector toward an item. | P1 | A test checks that similarity to that item increases in the next outfit. |
+| FR-FB-7 | Buttons and chat produce the same state change through the same code path. Buttons skip the LLM. | P0 | Both inputs call `apply_feedback`. |
 
-### 5.7 Session End (`FR-STOP`)
-
-| ID | Requirement | Priority | Acceptance criteria |
-|---|---|---|---|
-| FR-STOP-1 | Keep iterating until the user explicitly accepts the outfit; do not stop after one best guess. | P0 | A session ends only on an accept intent or when the user leaves. |
-| FR-STOP-2 | On acceptance, show a final summary: each piece with its image, name, brand, price, and link, plus the total price. | P1 | The summary renders for every accepted outfit. |
-| FR-STOP-3 | Log turns-to-accept and the outcome of each session for evaluation. | P0 | Each session writes a log record. |
-
-### 5.8 Interface (`FR-UI`)
+### 5.7 API & Interface (`FR-API`, `FR-UI`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-UI-1 | A web UI that shows the current outfit as a set of item cards (image, name, brand line, price). | P0 | The outfit renders after each turn. |
-| FR-UI-2 | A chat input for requests and follow-up feedback, with visible conversation history. | P0 | Previous turns stay visible within the session. |
-| FR-UI-3 | Lock and reject controls on each item card. | P1 | Clicking a control updates the session state and triggers regeneration. |
-| FR-UI-4 | Show what changed between consecutive outfits. | P2 | Changed slots are visually highlighted. |
+| FR-API-1 | A versioned REST API (`/api/v1`) for sessions, messages, actions, and catalog lookups. | P0 | OpenAPI docs are served at `/docs`, and every endpoint has an integration test. |
+| FR-API-2 | Consistent error responses (`4xx` for client errors, never a raw `500` for bad input). | P0 | Tests cover an unknown session, an invalid slot, and an unknown item. |
+| FR-UI-1 | A web client showing the current outfit as item cards (image, name, brand line, price). | P0 | Renders after each turn. |
+| FR-UI-2 | A chat panel with visible conversation history. | P0 | Earlier turns stay visible. |
+| FR-UI-3 | Lock and reject buttons on each card. | P0 | Each click calls the actions endpoint and re-renders the outfit. |
+| FR-UI-4 | Highlight the slots that changed since the last outfit. | P2 | Changed cards get a visible border. |
 
 ---
 
@@ -177,85 +173,108 @@ Priority key: **P0** = required for MVP · **P1** = expected for a strong demo �
 
 | ID | Category | Requirement |
 |---|---|---|
-| NFR-1 | **Latency** | Regenerating an outfit takes 5 seconds or less end to end, p90 *(proposed)*. The first request may take longer while models load. |
-| NFR-2 | **Cost** | At most 2 LLM calls per user turn *(proposed)*. Tagging is a one-time batch job, not done per request. |
-| NFR-3 | **Reproducibility** | Pinned dependencies, seeded randomness, and versioned tagging output, so evaluation results can be reproduced. |
-| NFR-4 | **Data ethics** | Rate-limited collection that respects the site's terms; images are cached locally for processing only and never redistributed; no personal user data is stored in the MVP. |
-| NFR-5 | **Portability** | Runs locally on a laptop CPU, with an optional GPU only for the batch tagging step. |
-| NFR-6 | **Observability** | Each turn logs the parsed request, candidate scores, and chosen outfit, for debugging and evaluation. |
+| NFR-1 | **Latency** | A button action returns in 500 ms or less (p90), since it makes no LLM call. A chat turn returns in 4 s or less (p90), with one LLM call. |
+| NFR-2 | **Cost** | At most one LLM call per chat turn and none per button action. Tagging is a one-time cached batch job. |
+| NFR-3 | **Quality gates** | CI runs lint, type checks, and tests on every PR. `main` is always green. |
+| NFR-4 | **Testability** | The LLM and the embedding model sit behind interfaces, so tests run offline with fakes, with no API key and no model download. |
+| NFR-5 | **Reproducibility** | Pinned dependencies and a lockfile, `docker compose up` runs the whole app, and a single command reproduces the evaluation numbers. |
+| NFR-6 | **Observability** | Structured logs for each turn (parsed intent, scores, chosen outfit, latency). Every session and turn is persisted to SQL. |
+| NFR-7 | **Security & ethics** | API keys come from environment variables and are never committed. Collection is rate-limited. Images are referenced or cached locally and never re-hosted. No personal data is stored. |
 
 ---
 
 ## 7. Success Metrics
 
-The original outline described success qualitatively. The thresholds below make it measurable; all of them are **proposed** and will be revisited once there is baseline data.
+All targets are sized for a 3.5-day build. Each one will be reported in the README, whether or not it is met.
 
-| Goal | Metric | Target *(proposed)* | How it's measured |
+| Goal | Metric | Target | How it's measured |
 |---|---|---|---|
-| G3 Tagging accuracy | Agreement with the hand-labeled validation set | At least 80% top-1 for season and vibe; formality within ±1 for at least 85% of items | 50-item stratified validation set (FR-TAG-6) |
-| G1 Outfit quality | Share of outfits that human raters judge coherent (color, formality, vibe) | At least 70% rated coherent by a majority of 3 raters | Blind rating of 30–50 generated outfits |
-| G2 Loop effectiveness | Median regenerations before acceptance | 4 or fewer | Session logs (FR-STOP-3) |
-| G2 Loop effectiveness | Eventual acceptance rate | At least 75% of sessions | Session logs |
-| G4 Named-item handling | Top-1 resolution accuracy | At least 90% | 30–50 query test set with typos and partial names |
-| G5 Deliverable | Working real-time demo | All four flows in §4 work end to end | Recorded demo walkthrough |
+| G1 Outfit quality | Share of outfits I rate coherent against a written rubric | At least 70% of 20 outfits | `eval/coherence.csv` (self-rated, rubric committed). A multi-rater study is stretch goal S-3. |
+| G2 Loop works | Constraint violations (lock, reject, slot rules) | 0 | Tests plus a scan of the session table |
+| G3 Tagging | Agreement with the gold set | Season and vibe top-1 at least 75%; formality within ±1 for at least 85% of items | `eval/tagging_report.md` |
+| G4 Names | Top-1 resolution accuracy | At least 90% on 30 queries | `eval/names_test.csv` + script |
+| G5 Engineering | Test coverage of the `core/` and `api/` packages | At least 80% line coverage | `pytest --cov` in CI |
+| G5 Engineering | Demo | Flows A–D work end to end in the browser | 2–3 minute screen recording linked in the README |
+| NFR-1 | Chat and button latency | p90 at or under the NFR-1 targets | `eval/latency.md` |
 
 ---
 
 ## 8. Scope
 
-### MVP (in scope)
-- One brand (Aritzia, including its in-house lines), with a catalog of at least 150 items.
-- The full tagging pipeline plus the validation set.
-- A rule-based compatibility scorer.
-- The conversational loop with lock, reject, swap, nudge, and accept.
-- Named-item resolution.
-- A Streamlit web UI.
-- An evaluation harness for all of the metrics in §7.
+### In scope 
+- A catalog of at least 90 items in SQLite, collected by a polite scraper or a hand-curated CSV.
+- LLM batch tagging, a 30-item gold set, and an accuracy report.
+- CLIP image and text embeddings with brute-force cosine retrieval in NumPy.
+- A rule-based scorer and an enumeration-based generator.
+- A deterministic feedback state machine (lock, unlock, reject, swap, nudge, accept).
+- A fuzzy named-item resolver.
+- A FastAPI backend, a React + TypeScript client, Docker Compose, and GitHub Actions CI.
+- Evaluation scripts for every metric in §7.
 
-### Stretch goals
+### Stretch goals (only after the P0 and P1 items are done)
 | ID | Stretch goal | Why it matters |
 |---|---|---|
-| S-1 | Extend the catalog to a **second brand**. | Tests whether the tagging pipeline generalizes beyond one brand's photography and copywriting style. |
-| S-2 | Train a **learned outfit-compatibility model** (CLIP embeddings + a Polyvore-style dataset) and compare it with the rule-based scorer. | Turns the scorer from hand-tuned heuristics into a learned model, with a direct A/B comparison. |
-| S-3 | **User accounts** so preferences persist across sessions. | Extends the preference signal from a single session to a long-term taste profile. |
-| S-4 | **Photo upload** of an item the user already owns, matched into outfits alongside Aritzia pieces. | Bridges the catalog and the user's real closet. |
+| S-1 | CLIP + LLM tag **merge**, with a review queue for conflicts | Two signals, combined and audited |
+| S-2 | **Learned compatibility model** on frozen CLIP features (Polyvore), compared with the rule scorer | Turns hand-tuned heuristics into a learned model |
+| S-3 | **Multi-rater study** (3 raters, Fleiss' κ) plus a session **ablation** without the preference vector | A stronger claim about quality |
+| S-4 | **Second brand** through the same ingestion interface | Tests whether the pipeline generalizes |
+| S-5 | **Cloud deploy** (e.g. Render, Fly.io, or Azure App Service) from CI | A live demo link |
+| S-6 | **End-to-end browser test** (Playwright) of Flow D | Covers the UI and API contract together |
 
 ---
 
-## 9. Milestones
+## 9. Engineering Practices
 
-| # | Milestone | Deliverable | Exit criteria |
-|---|---|---|---|
-| M1 | **Catalog** | Collection script plus a stored catalog | FR-CAT-1 to FR-CAT-4 met |
-| M2 | **Tagging** | CLIP and LLM tagging pipeline, plus the validation set | Tagging accuracy measured and reported |
-| M3 | **Retrieval & scoring** | Embedding index, per-slot retrieval, and the rule-based scorer | Generates a valid outfit from a structured request |
-| M4 | **Conversational layer** | Request parser, intent parser, and named-item resolver | All four flows in §4 work from the command line |
-| M5 | **UI & feedback loop** | Streamlit app with session state | Demo flows work end to end in the browser |
-| M6 | **Evaluation & write-up** | Metric results, rater study, and demo video | Every metric in §7 reported, whether or not it hits its target |
+| Skill postings ask for | Where it shows up in this project |
+|---|---|
+| Python, object-oriented and typed code | Typed `core/` package, Pydantic models, `mypy` in CI |
+| REST API design | FastAPI, versioned routes, OpenAPI docs, consistent error model |
+| SQL and databases | SQLite through SQLAlchemy: catalog, tags, sessions, and turns tables; idempotent upserts; tagging accuracy queried in SQL |
+| JavaScript / TypeScript, React | Vite + React + TypeScript client with a typed API client |
+| Unit and integration testing | pytest unit tests for the scorer, state machine, and resolver; API tests with `TestClient`; fakes for the LLM and CLIP |
+| CI/CD | GitHub Actions: ruff, mypy, pytest with coverage, and a frontend type check and build on every PR |
+| Docker / containers | A Dockerfile for the API and client, and `docker compose up` for the whole stack |
+| Git and code review | Feature branches, small PRs that reference FR IDs, conventional commits, and a protected `main` |
+| Agile and working in iterations | A GitHub Projects board with an issue for each FR, day-sized milestones, and a short retro in the README |
+| Applied ML / AI | CLIP embeddings, zero-shot tagging, relevance feedback, LLM structured output, and evaluation against a gold set |
+| Communication and documentation | This PRD, the tech spec, a README with architecture and results, and a demo video |
 
 ---
 
-## 10. Risks & Open Questions
+## 10. Milestones (3.5-day plan)
 
-| Risk / question | Impact | Mitigation |
+Each day ends with a merged PR and a green CI run.
+
+| Day | Milestone | Exit criteria |
 |---|---|---|
-| Site structure changes or scraping restrictions block collection. | Without a catalog, nothing else works. | Fall back to a hand-collected seed catalog. Keep the pipeline independent of how data is collected. |
-| CLIP doesn't reliably understand abstract vibes (e.g. "off-duty"). | Low tagging accuracy. | Engineer prompts with several descriptive phrasings per label; use the LLM pass over descriptions as a second signal; measure against the validation set. |
-| A small catalog limits outfit variety. | Repetitive outfits, poor loop convergence. | Set a minimum per slot (FR-CAT-3); allow some slots, like the accessory, to be optional. |
-| Coherence is subjective. | Noisy quality metric. | Use multiple raters with a written rubric; report inter-rater agreement. |
-| LLM latency or cost per turn. | Slow demo, running costs. | Cap calls per turn (NFR-2); use structured output to avoid retries; cache parses of repeated requests. |
-| Product photos are inconsistent (on a model vs. flat lay). | Noisy image embeddings. | Prefer one image type per item where available; note it in the evaluation write-up. |
+| **Day 1** | **Foundation + data** | Repo scaffold, CI green, and the catalog in SQLite (FR-CAT). The gold set is hand-labeled first, then tagging and embedding run. |
+| **Day 2** | **Core engine** | Retrieval, scorer, generator, feedback state machine, and name resolver, all unit-tested. A CLI produces an outfit for Flows A–D. |
+| **Day 3** | **API + client** | LLM parser, FastAPI endpoints with integration tests, React client, and Docker Compose. Flows A–D work in the browser. |
+| **Day 3.5** | **Evaluate + ship** | Evaluation scripts run, results are in the README, the demo is recorded, and `v1.0.0` is tagged. |
 
-**Open questions**
-1. Should the accessory slot be optional by default, or always filled?
-2. How should a request that mixes seasons be handled (e.g. *"summer dress for a fall wedding"*)?
-3. What is the right size for the final catalog: depth in a few categories, or breadth across all of them?
+**Cut line.** If the plan slips by more than half a day, drop the P1 items in this order: FR-TAG-5 (CLIP tagging comparison), FR-FB-6 (more like this), FR-NAME-3 (ambiguity prompt), FR-GEN-6 (rationale). If the React client is not rendering outfits by midday on Day 3, switch to a Streamlit client that calls the same API, so that the API and the tests are still finished.
+
+---
+
+## 11. Risks & Open Questions
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| The site blocks scraping or its structure changes. | Loses the morning of Day 1. | Strict 3-hour timebox, then fall back to a hand-curated CSV. Ingestion depends only on the CSV/JSON schema. |
+| The LLM returns malformed structured output. | A broken turn. | Pydantic validation, one retry, then keyword-rule fallback. Tests cover the fallback path. |
+| The small catalog limits variety. | Repetitive outfits. | At least 10 items per slot, an optional accessory, and a repetition penalty. |
+| PyTorch makes the API image large and slow to build. | Slow CI and Docker builds. | CPU-only torch wheel. CI tests use a fake embedder and never install torch. |
+| Frontend work overruns. | No browser demo. | The cut line in §10: fall back to a Streamlit client on the same API. |
+| Self-rated coherence is subjective. | A weak quality claim. | Commit the rubric, state the limitation, and list the multi-rater study as S-3. |
+
+**Resolved questions (from v1)**
+1. *Is the accessory slot optional?* Yes. It is included only if it raises the score.
+2. *Mixed-season requests ("summer dress for a fall wedding")?* The request's season filters outerwear only. Other slots use the season as a soft score term rather than a hard filter.
+3. *Catalog depth or breadth?* Breadth: at least 10 items per slot beats depth in a few slots.
 
 ---
 
 ## Appendix A: Tag Taxonomy
-
-The taxonomy is a draft and will be refined during M2.
 
 **Season** (multi-label): `spring`, `summer`, `fall`, `winter`
 
@@ -282,14 +301,48 @@ The taxonomy is a draft and will be refined during M2.
 | 4 | Business / dressy | Blazer, tailored pants, heels |
 | 5 | Formal / event | Evening dress, statement heels |
 
+**Color** (multi-label, 1–3 per item; the first tag is the item's main color):
+
+Retailer color names such as "Heather Mocha" or "Dreamy Lilac" are mapped onto this fixed set. The **Neutral** column and the **Hue** column feed the color-harmony score: neutrals pair with every color, and non-neutral colors are compared by hue angle.
+
+| Tag | Neutral? | Hue (°) | Covers (example retailer names) |
+|---|---|---|---|
+| `black` | Yes | n/a | Black, Jet, Onyx |
+| `white` | Yes | n/a | White, Optic White, Bright White |
+| `cream` | Yes | n/a | Cream, Ivory, Off-White, Oat, Bone |
+| `beige` | Yes | n/a | Beige, Sand, Stone, Taupe, Khaki |
+| `camel` | Yes | n/a | Camel, Tan, Cognac, Caramel |
+| `brown` | Yes | n/a | Brown, Chocolate, Mocha, Espresso |
+| `grey` | Yes | n/a | Grey, Heather Grey, Charcoal, Slate |
+| `navy` | Yes | n/a | Navy, Midnight, Dark Navy |
+| `denim` | Yes | n/a | Light / Mid / Dark Wash, Indigo |
+| `olive` | Yes | n/a | Olive, Army, Khaki Green, Moss |
+| `red` | No | 0 | Red, Cherry, Tomato, Scarlet |
+| `burgundy` | No | 345 | Burgundy, Wine, Oxblood, Merlot |
+| `pink` | No | 330 | Pink, Blush, Rose, Fuchsia, Magenta |
+| `orange` | No | 25 | Orange, Rust, Terracotta, Coral |
+| `yellow` | No | 50 | Yellow, Butter, Mustard, Lemon |
+| `green` | No | 130 | Green, Sage, Mint, Emerald, Forest |
+| `teal` | No | 180 | Teal, Turquoise, Aqua |
+| `blue` | No | 215 | Blue, Cobalt, Royal, Sky, Powder Blue |
+| `purple` | No | 275 | Purple, Lilac, Lavender, Plum, Violet |
+| `metallic` | Yes | n/a | Gold, Silver, Bronze, Pewter |
+| `multi` | No | n/a | Prints, florals, stripes, plaids, colour-block |
+
+Notes:
+- `olive`, `denim`, `navy` and the earth tones (`camel`, `brown`, `beige`) count as neutrals, because that's how they are usually styled.
+- `multi` has no single hue. It scores as 0.6 against non-neutral colors, and at most one `multi` item is allowed per outfit.
+- A color name that matches no tag defaults to its closest tag by the LLM's judgment and is logged for review.
+
 ## Appendix B: Glossary
 
 | Term | Definition |
 |---|---|
-| **Slot** | A position in an outfit: top, bottom, dress, outerwear, shoes, or accessory. An outfit has at most one item per slot. |
-| **Vibe** | The mood or aesthetic an item or outfit gives off (e.g. cozy, polished). |
+| **Slot** | A position in an outfit: top, bottom, dress, outerwear, shoes, or accessory. |
 | **Lock** | Pin an item so every later regeneration keeps it. |
 | **Reject** | Exclude an item for the rest of the session. |
-| **Nudge** | A relative adjustment to the target vibe or formality (e.g. "dressier"). |
-| **Preference vector** | A session-level embedding that builds up the user's feedback and steers retrieval. |
+| **Nudge** | A relative change to the target formality or vibe (e.g. "dressier"). |
+| **Preference vector** | A session-level CLIP-space vector that builds up the user's feedback and steers retrieval. |
 | **Brand line** | Aritzia's in-house labels (Babaton, Wilfred, TNA, Sunday Best, etc.). |
+| **Neutral** | A color (e.g. black, cream, camel, navy, denim) that pairs with any other color in the harmony score. |
+| **Gold set** | Items labeled by hand before seeing model output, used to measure tagging accuracy. |

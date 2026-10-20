@@ -2,16 +2,16 @@
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier) until it's something you'd actually wear.
 
-Under the hood: CLIP zero-shot tagging of product images, embedding-based retrieval with FAISS, rule-based outfit compatibility scoring, and an LLM conversation layer that turns free text into structured constraints and feedback.
+Under the hood: LLM-tagged catalog in SQLite, CLIP embeddings for retrieval and relevance feedback, rule-based outfit compatibility scoring, and an LLM parser that turns free text into structured constraints. Served as a FastAPI REST API with a React + TypeScript client, tested with pytest, built in GitHub Actions, and run with Docker Compose.
 
 ## Docs
 
 - [Product Requirements (PRD)](docs/PRD.md): problem, users, requirements, success metrics
-- [Technical Specification](docs/TECH_SPEC.md): architecture, data model, pipelines, evaluation plan
+- [Technical Specification](docs/TECH_SPEC.md): tech stack, architecture, key design decisions
 
 ## Status
 
-Requirements phase. Implementation hasn't started yet.
+Requirements phase (v2, scoped to a 3.5-day build). See the [milestones](docs/PRD.md#10-milestones-35-day-plan).
 
 ---
 
