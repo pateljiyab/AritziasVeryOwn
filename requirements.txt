@@ -1,2 +1,5 @@
 python-dotenv==1.2.4
 channel3-sdk==4.4.1
+pydantic==2.14.1
+SQLAlchemy==2.1.6
+pytest==9.1.1

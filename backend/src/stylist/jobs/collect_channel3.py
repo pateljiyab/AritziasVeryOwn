@@ -1,9 +1,9 @@
 """Collect Aritzia products from the Channel3 API into data/seed_catalog.csv.
 
 Usage (from the repo root, one line each):
-    py api/src/stylist/jobs/collect_channel3.py --inspect      # 1 call: print one product
-    py api/src/stylist/jobs/collect_channel3.py                # collect slots that are still short
-    py api/src/stylist/jobs/collect_channel3.py --remap        # rebuild the CSV from saved data, 0 calls
+    py backend/src/stylist/jobs/collect_channel3.py --inspect      # 1 call: print one product
+    py backend/src/stylist/jobs/collect_channel3.py                # collect slots that are still short
+    py backend/src/stylist/jobs/collect_channel3.py --remap        # rebuild the CSV from saved data, 0 calls
 
 Needs CHANNEL3_API_KEY in .env. Free tier is 1,000 searches/month; a run uses at
 most --max-calls searches (default 60). Raw responses accumulate across runs in
