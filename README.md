@@ -11,7 +11,7 @@ Under the hood: LLM-tagged catalog in SQLite, CLIP embeddings for retrieval and 
 
 ## Setup
 
-Requires Python 3.10+.
+Requires Python 3.11+.
 
 ```bash
 python3 -m venv .venv
