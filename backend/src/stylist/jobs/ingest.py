@@ -1,7 +1,7 @@
 """Load data/seed_catalog.csv into the SQLite catalog (data/catalog.db).
 
 Usage (from the repo root):
-    py api/src/stylist/jobs/ingest.py
+    py backend/src/stylist/jobs/ingest.py
 
 Every row is validated first. Rows that fail are printed with the reason and skipped.
 Re-running is safe: rows are upserted on item_id, and items no longer in the CSV are

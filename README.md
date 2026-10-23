@@ -23,19 +23,19 @@ cp .env.example .env   # then add your CHANNEL3_API_KEY
 Collect the catalog into `data/seed_catalog.csv`:
 
 ```bash
-python api/src/stylist/jobs/collect_channel3.py
+python backend/src/stylist/jobs/collect_channel3.py
 ```
 
 Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
 
 ```bash
-python api/src/stylist/jobs/ingest.py
+python backend/src/stylist/jobs/ingest.py
 ```
 
 Run the tests:
 
 ```bash
-python -m pytest api/tests
+python -m pytest backend/tests
 ```
 
 ## Status

@@ -106,7 +106,7 @@ flowchart LR
 ```text
 AritziasVeryOwn/
 ├── docs/                    # PRD.md, TECH_SPEC.md
-├── api/                     # FastAPI backend (Python)
+├── backend/                 # FastAPI backend (Python)
 │   ├── src/stylist/
 │   │   ├── core/            # outfit engine: scoring, feedback, name matching
 │   │   ├── adapters/        # Claude, CLIP, and database wrappers
