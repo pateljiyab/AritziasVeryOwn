@@ -6,12 +6,15 @@ Usage (from the repo root):
 Every row is validated first. Rows that fail are printed with the reason and skipped.
 Re-running is safe: rows are upserted on item_id, and items no longer in the CSV are
 removed, so the table always mirrors the CSV. Columns added later (tags) are left alone.
+Removal is skipped when most of the CSV failed validation, so a broken file can't
+wipe the catalog.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import sys
 from pathlib import Path
 from typing import Literal
 
@@ -25,6 +28,10 @@ CATALOG_CSV = ROOT / "data" / "seed_catalog.csv"
 DB_URL = f"sqlite:///{ROOT / 'data' / 'catalog.db'}"
 
 SLOTS = ["top", "bottom", "dress", "outerwear", "shoes", "accessory"]
+
+# Only remove items missing from the CSV if at most this share of its rows were skipped.
+# More than that means the file itself is broken, not that the catalog changed.
+MAX_SKIPPED_SHARE_TO_PRUNE = 0.5
 Slot = Literal["top", "bottom", "dress", "outerwear", "shoes", "accessory"]
 
 
@@ -120,16 +127,26 @@ def ingest(csv_path: Path = CATALOG_CSV, db_url: str = DB_URL) -> tuple[int, int
         index_elements=[Item.item_id],
         set_={col: upsert.excluded[col] for col in CatalogRow.model_fields if col != "item_id"},
     )
+    prune = bool(rows) and skipped <= MAX_SKIPPED_SHARE_TO_PRUNE * (len(rows) + skipped)
+    if not prune:
+        print(f"  {skipped} of {len(rows) + skipped} rows skipped: keeping items that are missing "
+              "from the CSV instead of removing them. Fix the CSV and re-run.")
+
     with Session(engine) as session, session.begin():
         if rows:
             session.execute(upsert, rows)
-        session.execute(delete(Item).where(Item.item_id.not_in([r["item_id"] for r in rows])))
+        if prune:
+            session.execute(delete(Item).where(Item.item_id.not_in([r["item_id"] for r in rows])))
         total = session.scalar(select(func.count()).select_from(Item)) or 0
     engine.dispose()
     return total, skipped
 
 
 def main() -> None:
+    # Product names include characters like "‑" (U+2011) that Windows can't print
+    # when output is redirected to a file or a CI log (cp1252).
+    sys.stdout.reconfigure(encoding="utf-8")
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--csv", type=Path, default=CATALOG_CSV)
     parser.add_argument("--db", default=DB_URL, help="SQLAlchemy URL (default: data/catalog.db)")

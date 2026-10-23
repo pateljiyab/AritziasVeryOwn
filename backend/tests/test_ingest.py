@@ -1,6 +1,10 @@
 import csv
+import os
+import subprocess
+import sys
 from pathlib import Path
 
+import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -57,3 +61,37 @@ def test_reingest_updates_changed_rows_and_drops_removed_ones(tmp_path):
     assert total == 2
     assert prices[rows[0]["item_id"]] == 1.50
     assert rows[2]["item_id"] not in prices
+
+
+@pytest.mark.parametrize("invalid_count", [3, 2])  # all rows invalid; most rows invalid
+def test_bad_csv_does_not_wipe_existing_items(tmp_path, invalid_count):
+    """A broken CSV (e.g. a renamed column) must not delete the catalog."""
+    db = f"sqlite:///{tmp_path / 'catalog.db'}"
+    rows = seed_rows()[:3]
+    ingest(write_csv(tmp_path / "good.csv", rows), db)
+
+    for row in rows[:invalid_count]:
+        row["slot"] = "hat"
+    total, skipped = ingest(write_csv(tmp_path / "bad.csv", rows), db)
+
+    assert skipped == invalid_count
+    assert total == 3
+
+
+def test_cli_reports_skipped_rows_when_output_is_not_utf8(tmp_path):
+    """Product names can contain characters like a non-breaking hyphen (U+2011), which
+    Windows' default encoding for redirected output (cp1252) can't print."""
+    good, bad = seed_rows()[:2]
+    bad["slot"] = "hat"
+    bad["name"] = "Hi\u2011rise Pant"
+    csv_path = write_csv(tmp_path / "catalog.csv", [good, bad])
+    script = Path(__file__).resolve().parents[1] / "src" / "stylist" / "jobs" / "ingest.py"
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONIOENCODING", "PYTHONUTF8")}
+
+    result = subprocess.run(
+        [sys.executable, str(script), "--csv", str(csv_path), "--db", f"sqlite:///{tmp_path / 'catalog.db'}"],
+        capture_output=True, env=env,
+    )
+
+    assert result.returncode == 0, result.stderr.decode("utf-8", "replace")
+    assert "Hi\u2011rise Pant" in result.stdout.decode("utf-8")
