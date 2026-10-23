@@ -26,6 +26,18 @@ Collect the catalog into `data/seed_catalog.csv`:
 python api/src/stylist/jobs/collect_channel3.py
 ```
 
+Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
+
+```bash
+python api/src/stylist/jobs/ingest.py
+```
+
+Run the tests:
+
+```bash
+python -m pytest api/tests
+```
+
 ## Status
 
 Requirements phase (v2, scoped to a 3.5-day build). See the [milestones](docs/PRD.md#10-milestones-35-day-plan).
