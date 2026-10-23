@@ -9,6 +9,23 @@ Under the hood: LLM-tagged catalog in SQLite, CLIP embeddings for retrieval and 
 - [Product Requirements (PRD)](docs/PRD.md): problem, users, requirements, success metrics
 - [Technical Specification](docs/TECH_SPEC.md): tech stack, architecture, key design decisions
 
+## Setup
+
+Requires Python 3.10+.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # then add your CHANNEL3_API_KEY
+```
+
+Collect the catalog into `data/seed_catalog.csv`:
+
+```bash
+python api/src/stylist/jobs/collect_channel3.py
+```
+
 ## Status
 
 Requirements phase (v2, scoped to a 3.5-day build). See the [milestones](docs/PRD.md#10-milestones-35-day-plan).
