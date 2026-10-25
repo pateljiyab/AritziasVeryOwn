@@ -283,14 +283,14 @@ Each day ends with a merged PR and a green CI run.
 | Tag | Description |
 |---|---|
 | `cozy` | Soft, warm, relaxed textures: knits, fleece, oversized cuts |
-| `polished` | Tailored, clean lines, office-ready |
+| `polished` | Tailored, clean lines,classic office basics, office-ready |
 | `going-out` | Evening, statement, a little dressy or bold |
-| `cute` | Pretty, flowy, a little lighter and playful |
+| `cute` | Playful and youthful: bright or pastel colours, fun details (bows, puff sleeves, mini lengths). |
 | `off-duty` | Casual, effortless, weekend |
-| `chic` | Classy, boss-material vibes |
+| `chic` | Elevated and fashion-forward: a strong silhouette or luxe fabric meant to look expensive (satin, leather, a sharp cut). |
 | `athleisure` | Sporty, technical, activewear-adjacent |
 | `minimal` | Neutral palette, simple silhouettes, no embellishment |
-| `romantic` | Soft details: florals, ruffles, delicate fabrics |
+| `romantic` | Soft details: florals, ruffles, lace, delicate fabrics |
 | `edgy` | Leather, darker palette, sharper silhouettes |
 
 
