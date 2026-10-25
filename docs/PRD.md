@@ -285,11 +285,14 @@ Each day ends with a merged PR and a green CI run.
 | `cozy` | Soft, warm, relaxed textures: knits, fleece, oversized cuts |
 | `polished` | Tailored, clean lines, office-ready |
 | `going-out` | Evening, statement, a little dressy or bold |
+| `cute` | Pretty, flowy, a little lighter and playful |
 | `off-duty` | Casual, effortless, weekend |
+| `chic` | Classy, boss-material vibes |
 | `athleisure` | Sporty, technical, activewear-adjacent |
 | `minimal` | Neutral palette, simple silhouettes, no embellishment |
 | `romantic` | Soft details: florals, ruffles, delicate fabrics |
 | `edgy` | Leather, darker palette, sharper silhouettes |
+
 
 **Formality** (single integer, 1–5):
 

@@ -16,7 +16,7 @@ Use lowercase tags exactly as written in Appendix A. Separate multiple tags with
 | Column | What to enter | Rules of thumb |
 |---|---|---|
 | `season` | 1–4 of `spring`, `summer`, `fall`, `winter` | Tag every season you'd realistically wear it in, with the best one first. A basic tee might be `summer;spring;fall`. Use all four only for true year-round staples. |
-| `vibe` | 1–3 of `cozy`, `polished`, `going-out`, `off-duty`, `athleisure`, `minimal`, `romantic`, `edgy` | Ask "what would a stylist call this?" Stop at 1–2 tags unless a third is clearly true. Use `minimal` for plain neutral pieces, not as a fallback. |
+| `vibe` | 1–3 of `cozy`, `polished`, `going-out`, `cute`,  `off-duty`, `chic`,`athleisure`, `minimal`, `romantic`, `edgy` | Ask "what would a stylist call this?" Stop at 1–2 tags unless a third is clearly true. Use `minimal` for plain neutral pieces, not as a fallback. |
 | `color` | 1–3 color tags | The main color comes first. Map shades to the closest tag (sage → `green`, oat → `cream`, wash → `denim`). Prints, stripes and plaids are `multi`. Add a second or third color only if it's clearly visible, like contrast trim or soles. |
 | `formality` | One integer, 1–5 | 1 lounge/athletic, 2 casual, 3 smart casual, 4 business/dressy, 5 formal/event. Rate the item itself, not how you'd style it. |
 | `notes` | Optional | Doubts, near-ties ("between 3 and 4"), or a photo that doesn't match the description. |
@@ -26,3 +26,5 @@ If an item has more than one color, label the color shown in the photo, because 
 ## How the 30 items were picked
 
 Within each slot, products with the same name were collapsed to one, then 5 were drawn at random with `random.Random(42)`. One shoe, a second colorway of the CVO Sneaker that was already drawn, was swapped for another random shoe (same seed) so no product appears twice. The gold set follows the catalog's real mix, so it's heavy on knitwear and scarves, as the catalog is.
+
+**Replacements (before any labeling).** A brand check found that Channel3 tags some products from other retailers as Aritzia. The catalog now keeps only aritzia.com listings plus collabs named "x Aritzia". That removed 3 gold items: the Jacquard Sweater Dress (sold by Nordstrom) and two Sperry shoes sold only on sperry.com (CVO Sneaker, Authentic Original 2 Eye Boat Shoe). Each was replaced in its own row by a random draw from the same slot with `random.Random(42)`. Products whose names match an existing gold item, ignoring brand prefixes like "Salomon" or "G.H.BASS x Aritzia", were left out of the draw. The replacements are the Elba Linen Dress, the G.h.bass X Aritzia Loafer, and the Women's G.H.BASS x Aritzia Milton Coin Penny Loafer. Shoes are now loafer-heavy because the catalog's shoes are mostly G.H. Bass loafers.

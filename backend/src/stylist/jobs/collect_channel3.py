@@ -66,6 +66,12 @@ APPAREL_ROOTS = {"Apparel & Accessories", "Luggage & Bags"}
 EXCLUDE_PATTERN = (r"\b(tights|hosiery|pantyhose|socks?|bras?|bralettes?|underwear|panties|"
                    r"garment|storage|cases?|snowboards?|skis?|charms?|pajamas?|sleepwear)\b")
 
+# Channel3's Aritzia brand tag also matches some products sold by other retailers (e.g. a
+# Nordstrom dress), so the seller decides: keep aritzia.com listings, plus collabs named
+# "x Aritzia" that are only listed on the partner's site (sperry.com, ghbass.com).
+ARITZIA_DOMAIN = "aritzia.com"
+COLLAB_PATTERN = r"\bx aritzia\b"
+
 # Preferred product photo for CLIP: flat lay first (no model in the shot), then the main image.
 SHOT_PREFERENCE = ["flat_lay", "product", "on_model"]
 
@@ -143,8 +149,17 @@ def guess_slot(product: dict) -> tuple[str, str] | None:
     return None
 
 
+def best_offer(product: dict) -> dict:
+    """The aritzia.com offer if there is one, so price and link come from Aritzia."""
+    offers = product.get("offers") or [{}]
+    return next((o for o in offers if o.get("domain") == ARITZIA_DOMAIN), offers[0])
+
+
 def skip_reason(product: dict) -> str | None:
     """Why a product doesn't belong in the catalog, or None if it does."""
+    if (best_offer(product).get("domain") != ARITZIA_DOMAIN
+            and not re.search(COLLAB_PATTERN, product.get("title") or "", re.IGNORECASE)):
+        return "not sold by Aritzia"
     category = product.get("category") or {}
     path = category.get("path") or []
     if path and path[0].get("title") not in APPAREL_ROOTS:
@@ -159,7 +174,7 @@ def skip_reason(product: dict) -> str | None:
 
 
 def to_row(product: dict) -> dict | None:
-    offer = (product.get("offers") or [{}])[0]
+    offer = best_offer(product)
     price = offer.get("price") or {}
     name = (product.get("title") or "").strip()
     channel3_id = product.get("id") or ""
