@@ -72,6 +72,11 @@ EXCLUDE_PATTERN = (r"\b(tights|hosiery|pantyhose|socks?|bras?|bralettes?|underwe
 ARITZIA_DOMAIN = "aritzia.com"
 COLLAB_PATTERN = r"\bx aritzia\b"
 
+# Outside brands Aritzia resells on its own site. Collabs ("Sperry x Aritzia") stay.
+# Channel3's other brand tags are Aritzia's own labels or misread fabric/line names
+# ("Wilfried Zaha" for Wilfred, "Manteco" for the wool), so this is a denylist, not an allowlist.
+RESOLD_BRANDS = {"levi's", "citizens of humanity", "salomon"}
+
 # Preferred product photo for CLIP: flat lay first (no model in the shot), then the main image.
 SHOT_PREFERENCE = ["flat_lay", "product", "on_model"]
 
@@ -160,6 +165,8 @@ def skip_reason(product: dict) -> str | None:
     if (best_offer(product).get("domain") != ARITZIA_DOMAIN
             and not re.search(COLLAB_PATTERN, product.get("title") or "", re.IGNORECASE)):
         return "not sold by Aritzia"
+    if any((b.get("name") or "").lower() in RESOLD_BRANDS for b in product.get("brands") or []):
+        return "resold outside brand"
     category = product.get("category") or {}
     path = category.get("path") or []
     if path and path[0].get("title") not in APPAREL_ROOTS:
