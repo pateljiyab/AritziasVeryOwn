@@ -32,6 +32,13 @@ Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
 python backend/src/stylist/jobs/ingest.py
 ```
 
+Tag the catalog with CLIP (needs `pip install -r requirements-ml.txt`; the first run downloads the photos and model weights), then score the tags against the gold set in `eval/tagging_report.md`:
+
+```bash
+python backend/src/stylist/jobs/tag.py
+python backend/src/stylist/jobs/tagging_report.py
+```
+
 Run the tests:
 
 ```bash

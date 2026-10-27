@@ -191,7 +191,7 @@ All targets are sized for a 3.5-day build. Each one will be reported in the READ
 |---|---|---|---|
 | G1 Outfit quality | Share of outfits I rate coherent against a written rubric | At least 70% of 20 outfits | `eval/coherence.csv` (self-rated, rubric committed). A multi-rater study is stretch goal S-3. |
 | G2 Loop works | Constraint violations (lock, reject, slot rules) | 0 | Tests plus a scan of the session table |
-| G3 Tagging | Agreement with the gold set | Season and vibe top-1 at least 75%; formality within ±1 for at least 85% of items | `eval/tagging_report.md` |
+| G3 Tagging | Agreement with the gold set | Season and vibe top-1 at least 75%; formality within ±1 for at least 85% of items. Top-1 means the model's first tag is one of the item's gold tags. | `eval/tagging_report.md` |
 | G4 Names | Top-1 resolution accuracy | At least 90% on 30 queries | `eval/names_test.csv` + script |
 | G5 Engineering | Test coverage of the `core/` and `api/` packages | At least 80% line coverage | `pytest --cov` in CI |
 | G5 Engineering | Demo | Flows A–D work end to end in the browser | 2–3 minute screen recording linked in the README |
