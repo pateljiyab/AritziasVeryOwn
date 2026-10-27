@@ -3,3 +3,6 @@ channel3-sdk==4.4.1
 pydantic==2.14.1
 SQLAlchemy==2.1.6
 pytest==9.1.1
+# NumPy 2.5 needs Python 3.12+; CI also tests 3.11.
+numpy==2.5.4; python_version >= "3.12"
+numpy==2.3.5; python_version < "3.12"

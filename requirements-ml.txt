@@ -1,0 +1,11 @@
+# Extra packages for the CLIP tagging job (backend/src/stylist/jobs/tag.py).
+# Kept separate so CI and the app don't need PyTorch. Install with:
+#   pip install -r requirements-ml.txt
+# The PyTorch index serves CPU-only wheels, which are much smaller than the default
+# CUDA builds on Linux.
+-r requirements.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+torchvision==0.29.1
+open_clip_torch==3.3.0
+Pillow==13.0.0

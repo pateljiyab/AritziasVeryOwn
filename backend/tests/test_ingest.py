@@ -95,3 +95,25 @@ def test_cli_reports_skipped_rows_when_output_is_not_utf8(tmp_path):
 
     assert result.returncode == 0, result.stderr.decode("utf-8", "replace")
     assert "Hi\u2011rise Pant" in result.stdout.decode("utf-8")
+
+
+def test_pruned_items_take_their_tags_with_them(tmp_path):
+    """Review #6: removing an item from the CSV must not leave orphan rows in item_tags."""
+    from datetime import UTC, datetime
+
+    from stylist.jobs.ingest import ItemTag
+
+    db = f"sqlite:///{tmp_path / 'catalog.db'}"
+    rows = seed_rows()[:3]
+    ingest(write_csv(tmp_path / "v1.csv", rows), db)
+    with Session(create_engine(db)) as session, session.begin():
+        for row in rows:
+            session.add(ItemTag(item_id=row["item_id"], source="auto", seasons=["fall"], vibes=["cozy"],
+                                colors=["black"], formality=2, color_source="hex", probabilities={},
+                                model_version="test", tagged_at=datetime.now(UTC)))
+
+    ingest(write_csv(tmp_path / "v2.csv", rows[:2]), db)
+
+    with Session(create_engine(db)) as session:
+        tagged = set(session.scalars(select(ItemTag.item_id)))
+    assert tagged == {rows[0]["item_id"], rows[1]["item_id"]}
