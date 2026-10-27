@@ -64,12 +64,21 @@ def color_harmony(items: list[Item]) -> float:
 
 # ------------------------------------------------------------- item terms
 
+# Requested vibes count less the further down the list they are, so a nudge ("make it edgier"),
+# which moves a vibe to the front, actually changes the outfit.
+REQUESTED_VIBE_WEIGHTS = [1.0, 0.7, 0.5]
+
+
 def vibe_match(item: Item, wanted: list[str]) -> float:
+    """1.0 when the item's first vibe is the first one asked for. An item's later vibes count
+    0.6, and later requested vibes count less (REQUESTED_VIBE_WEIGHTS)."""
     if not item.vibes:
         return UNKNOWN
-    if item.vibes[0] in wanted:
-        return 1.0
-    return 0.6 if set(item.vibes) & set(wanted) else 0.0
+    best = 0.0
+    for rank, vibe in enumerate(wanted[:len(REQUESTED_VIBE_WEIGHTS)]):
+        if vibe in item.vibes:
+            best = max(best, REQUESTED_VIBE_WEIGHTS[rank] * (1.0 if item.vibes[0] == vibe else 0.6))
+    return best
 
 
 def formality_match(item: Item, target: int) -> float:
@@ -104,7 +113,9 @@ def item_terms(item: Item, request: ParsedRequest, relevance: float | None, form
 def relevance_scores(items: list[Item], query: np.ndarray | None) -> dict[str, float]:
     """CLIP cosine similarity to the query, min-max scaled within these items to [0, 1].
     Raw text-to-image similarities sit in a narrow band (about 0.15-0.35), so unscaled they'd
-    barely move the total. Items without an embedding get UNKNOWN. Empty if there's no query."""
+    barely move the total. Pass a whole slot, not a filtered shortlist, so a score doesn't
+    change when other items are rejected. Items without an embedding get UNKNOWN. Empty if
+    there's no query."""
     if query is None:
         return {}
     with_vec = [item for item in items if item.embedding is not None]

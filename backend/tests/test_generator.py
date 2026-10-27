@@ -94,6 +94,18 @@ def test_rejected_product_never_appears_in_any_colorway():  # FR-FB-2 relies on 
     assert outfit.pieces.get("bottom") not in (black, grey)
 
 
+def test_rejecting_the_best_piece_never_raises_the_score():
+    """Relevance is scaled over the whole slot, so dropping the top item doesn't promote the
+    runner-up to a perfect 1.0 and make the swapped outfit look better than the original."""
+    catalog = basic_catalog([make_item(f"shoes-{n}", "shoes") for n in range(3, 8)])
+    request, query = ParsedRequest(text="x"), vector("query")
+    first = generate(catalog, request, query)
+
+    second = generate(catalog, request, query, Constraints(rejected={first.pieces["shoes"].product_key}))
+
+    assert second.score <= first.score
+
+
 def test_cold_or_rainy_weather_requires_outerwear():  # FR-REQ-4
     catalog = basic_catalog()
     for weather in (["cold"], ["rainy"], ["cool"]):

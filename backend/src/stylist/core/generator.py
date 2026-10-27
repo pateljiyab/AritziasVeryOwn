@@ -54,7 +54,7 @@ def shortlist(catalog: Catalog, slot: str, request: ParsedRequest, query: np.nda
             in_season = [i for i in items if not i.seasons or request.season in i.seasons]
             items = in_season or items
 
-    relevance = scoring.relevance_scores(items, query)
+    relevance = scoring.relevance_scores(catalog.in_slot(slot), query)  # whole slot: stable across turns
     scored = [(item, scoring.item_terms(item, request, relevance.get(item.item_id), formality)) for item in items]
     scored.sort(key=lambda pair: (-scoring.weighted(pair[1]), pair[0].item_id))
 

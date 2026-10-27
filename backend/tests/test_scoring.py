@@ -33,6 +33,15 @@ def test_vibe_match_prefers_the_first_tag():
     assert scoring.vibe_match(item, ["edgy"]) == 0.0
 
 
+def test_earlier_requested_vibes_count_more():
+    edgy = make_item("a", "top", vibes=("edgy",))
+    casual = make_item("b", "top", vibes=("off-duty",))
+    wanted = ["edgy", "off-duty"]  # after a "make it edgier" nudge
+
+    assert scoring.vibe_match(edgy, wanted) == 1.0
+    assert scoring.vibe_match(casual, wanted) == 0.7
+
+
 def test_formality_match_falls_off_with_distance():
     assert [scoring.formality_match(make_item("a", "top", formality=f), 3) for f in (3, 4, 1)] == [1.0, 0.5, 0.0]
 
