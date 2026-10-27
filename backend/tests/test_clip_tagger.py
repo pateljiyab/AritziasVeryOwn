@@ -64,7 +64,9 @@ def test_pick_labels_keeps_close_runners_up_and_caps_the_count():
 
 def test_expected_level_is_the_rounded_weighted_average():
     assert expected_level(np.array([0, 0, 1.0, 0, 0]), [1, 2, 3, 4, 5]) == 3
-    assert expected_level(np.array([0, 0, 0.5, 0.5, 0]), [1, 2, 3, 4, 5]) in (3, 4)
+    # Halves round up consistently (Python's round() gives 2.5 -> 2 but 3.5 -> 4).
+    assert expected_level(np.array([0, 0.5, 0.5, 0, 0]), [1, 2, 3, 4, 5]) == 3
+    assert expected_level(np.array([0, 0, 0.5, 0.5, 0]), [1, 2, 3, 4, 5]) == 4
     assert expected_level(np.array([0.1, 0.1, 0.1, 0.6, 0.1]), [1, 2, 3, 4, 5]) == 4
 
 

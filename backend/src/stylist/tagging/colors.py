@@ -109,7 +109,7 @@ SLOT_NOUNS: dict[str, str] = {
     "bottom": r"pants?|trousers|jeans?|skirts?|shorts|leggings?|sweatpants?|joggers?|chinos?",
     "dress": r"dress(?:es)?|jumpsuits?|rompers?",
     "outerwear": r"coats?|jackets?|blazers?|parkas?|puffers?|trench|vests?|shackets?",
-    "shoes": r"shoes?|boots?|sneakers?|loafers?|heels?|sandals?|flats?|mules?|joggers?",
+    "shoes": r"shoes?|boots?|sneakers?|loafers?|heels?|sandals?|flats?(?!\s+lay)|mules?|joggers?",  # not "Flat lay"
     "accessory": r"bags?|totes?|belts?|scarf|scarves|hats?|beanies?|caps?|fedoras?|earrings?|necklaces?|gloves",
 }
 _PHRASE_BREAK = re.compile(r",|\band\b|\bwith\b|\bwearing\b|\bof\b", re.IGNORECASE)
@@ -123,6 +123,27 @@ def _tag_in(phrase: str) -> str | None:
     return tags[0] if tags else None
 
 
+_ENDS_WITH_COLOR = re.compile(_COLOR_WORD_RE.pattern + r"\s*$", re.IGNORECASE)
+_STARTS_WITH_COLOR = re.compile(r"^\s*" + _COLOR_WORD_RE.pattern, re.IGNORECASE)
+# "Pant™ in beige twill", "Scarf in a muted brown print", "Scarf featuring an intricate beige..."
+_IN_COLOR_AFTER_NOUN = re.compile(r"[^\w\s]*\s+(?:in|featuring)\s+(?:[\w-]+\s+){0,3}?" + _COLOR_WORD_RE.pattern,
+                                  re.IGNORECASE)
+_MATCHING = re.compile(r"\bmatching\b|\bset\b", re.IGNORECASE)
+
+
+def _color_before_noun(before: str) -> str | None:
+    """Color of the phrase that ends at the item's noun, back to the nearest "and"/"with"/comma.
+    "black and white pants" is one two-color item, so it's `multi`, not `white`."""
+    breaks = list(_PHRASE_BREAK.finditer(before))
+    phrase = before[breaks[-1].end():] if breaks else before
+    tag = _tag_in(phrase)
+    if tag and breaks and breaks[-1].group().lower() == "and":
+        joined_by_and = before[:breaks[-1].start()]
+        if _ENDS_WITH_COLOR.search(joined_by_and) and _STARTS_WITH_COLOR.search(phrase):
+            return "multi"
+    return tag
+
+
 def color_from_text(text: str | None, slot: str | None = None) -> str | None:
     """The product's color tag from alt text, or None if no color word applies."""
     if not text:
@@ -131,9 +152,21 @@ def color_from_text(text: str | None, slot: str | None = None) -> str | None:
         noun = re.search(rf"\b({SLOT_NOUNS[slot]})\b", text, re.IGNORECASE)
         if noun:
             before = text[:noun.start()]
-            phrase = _PHRASE_BREAK.split(before)[-1]  # back to the nearest "and"/"with"/comma
-            if tag := _tag_in(phrase):
+            if tag := _color_before_noun(before):
                 return tag
+            after = text[noun.end():]
+            if in_color := _IN_COLOR_AFTER_NOUN.match(after):  # "pants in navy"
+                return _tag_in(_PHRASE_BREAK.split(after[in_color.start():])[0])
+            # "...sweatshirt and matching sweatpants", "...top and pants set": the pieces match,
+            # so the item has the color of the garment named first.
+            if _MATCHING.search(_PHRASE_BREAK.split(before)[-1]) or _MATCHING.match(after.strip()):
+                return _first_color_before_with(text)
+            # Otherwise the item's color isn't named; other garments' colors don't count.
+            return None
+    return _first_color_before_with(text)
+
+
+def _first_color_before_with(text: str) -> str | None:
     return _tag_in(re.split(r"\bwith\b", text, maxsplit=1, flags=re.IGNORECASE)[0])
 
 

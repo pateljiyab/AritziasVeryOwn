@@ -14,6 +14,7 @@ Everything except `ClipModel` is plain NumPy, so it is unit-tested without PyTor
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -123,8 +124,9 @@ def pick_labels(names: list[str], probs: np.ndarray, max_labels: int) -> list[st
 
 
 def expected_level(probs: np.ndarray, levels: list[int]) -> int:
-    """Probability-weighted average level, rounded: steadier than the single top level."""
-    return int(round(float(np.dot(probs, levels))))
+    """Probability-weighted average level, rounded half up: steadier than the single top level.
+    (Python's round() rounds halves to even, so 2.5 -> 2 but 3.5 -> 4.)"""
+    return math.floor(float(np.dot(probs, levels)) + 0.5)
 
 
 def tags_from_probabilities(season: np.ndarray, vibe: np.ndarray, formality: np.ndarray) -> ClipTags:

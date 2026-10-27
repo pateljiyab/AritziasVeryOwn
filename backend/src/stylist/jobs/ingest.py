@@ -15,11 +15,12 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveFloat, ValidationError, field_validator
-from sqlalchemy import CheckConstraint, String, create_engine, delete, func, select
+from sqlalchemy import JSON, CheckConstraint, DateTime, ForeignKey, String, create_engine, delete, func, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
@@ -50,7 +51,7 @@ class Item(Base):
     brand_line: Mapped[str]
     slot: Mapped[str] = mapped_column(index=True)
     color_hex: Mapped[str | None]
-    color_name: Mapped[str | None]  # empty in the CSV; filled in by the tagger
+    color_name: Mapped[str | None]  # empty: Channel3 has no color names; color tags live in item_tags
     price: Mapped[float]
     currency: Mapped[str]
     fabric: Mapped[str | None]
@@ -62,6 +63,24 @@ class Item(Base):
     gender: Mapped[str | None]
     slot_source: Mapped[str | None]
     channel3_id: Mapped[str | None]
+
+
+class ItemTag(Base):
+    """Tags for one item from one source, written by jobs/tag.py. Defined here, next to Item,
+    so the ingest prune can remove an item's tags together with the item."""
+
+    __tablename__ = "item_tags"
+
+    item_id: Mapped[str] = mapped_column(ForeignKey("items.item_id"), primary_key=True)
+    source: Mapped[str] = mapped_column(String(20), primary_key=True)
+    seasons: Mapped[list[str]] = mapped_column(JSON)
+    vibes: Mapped[list[str]] = mapped_column(JSON)
+    colors: Mapped[list[str]] = mapped_column(JSON)
+    formality: Mapped[int | None]
+    color_source: Mapped[str]  # "alt_text", "hex", or "none"
+    probabilities: Mapped[dict] = mapped_column(JSON)  # CLIP scores, for debugging and the report
+    model_version: Mapped[str]
+    tagged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class CatalogRow(BaseModel):
@@ -136,7 +155,9 @@ def ingest(csv_path: Path = CATALOG_CSV, db_url: str = DB_URL) -> tuple[int, int
         if rows:
             session.execute(upsert, rows)
         if prune:
-            session.execute(delete(Item).where(Item.item_id.not_in([r["item_id"] for r in rows])))
+            kept = [r["item_id"] for r in rows]
+            session.execute(delete(ItemTag).where(ItemTag.item_id.not_in(kept)))  # before the items they point to
+            session.execute(delete(Item).where(Item.item_id.not_in(kept)))
         total = session.scalar(select(func.count()).select_from(Item)) or 0
     engine.dispose()
     return total, skipped

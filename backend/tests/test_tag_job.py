@@ -3,6 +3,7 @@
 import json
 
 import numpy as np
+import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -63,3 +64,74 @@ def test_trial_run_does_not_touch_other_items_or_the_embedding_file(tmp_path, mo
 
     assert len(after_trial) == len(full)
     assert not (tmp_path / "embeddings.npy").exists()
+
+
+def test_unreadable_photo_is_skipped_and_dropped_from_the_cache(tmp_path, monkeypatch):
+    """Review #1: one corrupt image must not crash the run, and must be re-downloaded next time."""
+    bad_id = run_job(tmp_path, monkeypatch, limit=5)[0].item_id
+    photo_dir = tmp_path / "photos"
+    photo_dir.mkdir()
+
+    def fake_download(item):
+        path = photo_dir / f"{item.item_id}.img"
+        path.write_bytes(b"not an image")
+        return path
+
+    def fake_load(path):
+        if path.stem == bad_id:
+            raise OSError("cannot identify image file")
+        return object()
+
+    monkeypatch.setattr(tag, "download_image", fake_download)
+    monkeypatch.setattr(tag, "load_image", fake_load)
+    tag.tag_catalog(f"sqlite:///{tmp_path / 'catalog.db'}", limit=5)
+
+    with Session(create_engine(f"sqlite:///{tmp_path / 'catalog.db'}")) as session:
+        row = session.get(tag.ItemTag, (bad_id, tag.SOURCE))
+    assert row.vibes == [] and row.colors  # color only
+    assert not (photo_dir / f"{bad_id}.img").exists()
+
+
+def test_incomplete_download_counts_as_a_failed_download(monkeypatch, tmp_path):
+    """Review #1: http.client.IncompleteRead is not an OSError."""
+    import http.client
+
+    def broken_urlopen(*args, **kwargs):
+        raise http.client.IncompleteRead(b"partial")
+
+    monkeypatch.setattr(tag.urllib.request, "urlopen", broken_urlopen)
+    monkeypatch.setattr(tag, "IMAGE_DIR", tmp_path)
+    item = type("FakeItem", (), {"item_id": "abc", "name": "Test", "image_url": "https://example.com/a.jpg"})()
+
+    assert tag.download_image(item) is None
+
+
+def test_no_loadable_photos_changes_nothing(tmp_path, monkeypatch):
+    """Review #4: abort before writing tags, and leave the old embedding file alone."""
+    before = run_job(tmp_path, monkeypatch, limit=None)
+    saved = (tmp_path / "embeddings.npy").read_bytes()
+    monkeypatch.setattr(tag, "download_image", lambda item: None)
+
+    with pytest.raises(SystemExit):
+        tag.tag_catalog(f"sqlite:///{tmp_path / 'catalog.db'}")
+
+    with Session(create_engine(f"sqlite:///{tmp_path / 'catalog.db'}")) as session:
+        after = list(session.scalars(select(tag.ItemTag)))
+    assert [r.vibes for r in after] == [r.vibes for r in before]
+    assert (tmp_path / "embeddings.npy").read_bytes() == saved
+
+
+@pytest.mark.parametrize("limit", [0, -3])
+def test_limit_below_one_is_rejected(tmp_path, monkeypatch, limit):
+    """Review #5: --limit 0 used to mean a full run that overwrote the embeddings."""
+    with pytest.raises(ValueError):
+        run_job(tmp_path, monkeypatch, limit=limit)
+
+
+def test_cached_photo_is_refetched_when_the_image_url_changes(tmp_path, monkeypatch):
+    """Review #7: the cache key includes the URL."""
+    monkeypatch.setattr(tag, "IMAGE_DIR", tmp_path)
+    old = type("FakeItem", (), {"item_id": "abc", "name": "Test", "image_url": "https://example.com/old.jpg"})()
+    new = type("FakeItem", (), {"item_id": "abc", "name": "Test", "image_url": "https://example.com/new.jpg"})()
+
+    assert tag.image_path(old) != tag.image_path(new)

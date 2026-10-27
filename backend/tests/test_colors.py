@@ -64,3 +64,31 @@ def test_main_color_prefers_alt_text_then_hex():
     assert main_color("Flat lay of red sweater.", "#000000", "top") == ("red", "alt_text")
     assert main_color("Sweater laid flat.", "#000000", "top") == ("black", "hex")
     assert main_color("Sweater laid flat.", None, "top") == (None, "none")
+
+
+@pytest.mark.parametrize(
+    ("alt_text", "slot", "expected"),
+    [
+        # Review #2: the item's own phrase has no color, so another garment's color must not be used.
+        ("Woman wearing a camouflage print top and linen balloon pants.", "bottom", None),
+        # ...but a color right after the noun still counts.
+        ("Wide-leg pants in navy.", "bottom", "navy"),
+        # ...and "matching" takes the color of the garment it matches.
+        ("Woman wearing a light grey cropped sweatshirt and matching baggy sweatpants.", "bottom", "grey"),
+        ("Woman wearing a grey long-sleeve jumpsuit with a matching cardigan.", "top", "grey"),
+        ("White striped cropped top and wide-leg pants set worn by a model.", "bottom", "multi"),
+        # "in <color>" / "featuring <color>" after the noun, even with words or a ™ in between.
+        ("Model wearing The Effortless Pant™ in beige twill and a black top.", "bottom", "beige"),
+        ("Zenith Silk Ribbon Scarf in a muted brown abstract print worn around the neck.", "accessory", "multi"),
+        # A color after the noun that isn't "in <color>" describes something else.
+        ("Model wearing pink tank top and leggings on a white background.", "bottom", None),
+        # Review #3: "Flat lay" is not the shoe noun "flats".
+        ("Flat lay of black pants and tan loafers.", "shoes", "camel"),
+        ("Woman wearing black ballet flats.", "shoes", "black"),
+        # Review #8: two colors joined by "and" describe one item.
+        ("Woman wearing black and white pants.", "bottom", "multi"),
+        ("Woman wearing black top and white pants.", "bottom", "white"),
+    ],
+)
+def test_color_from_text_review_cases(alt_text, slot, expected):
+    assert color_from_text(alt_text, slot) == expected
