@@ -69,3 +69,32 @@ def test_slot_limits_the_search(catalog):
 
 def test_blank_query_matches_nothing(catalog):
     assert resolve(catalog, "   ").item is None
+
+
+@pytest.fixture(scope="module")
+def tricky():
+    return Catalog([make_item(item_id, slot, name=name) for item_id, slot, name in [
+        ("jean", "bottom", "Harbor Slim Lo-Rise Straight Jean"),
+        ("legging", "bottom", "Cloudweave Hi-rise Legging"),
+        ("fleece", "top", "Cozy Pinefleece Crew"),
+        ("boat", "top", "Merino Relaxed Boatneck Sweater"),
+        ("mock", "top", "Merino Mockneck Sweater"),
+        ("vneck", "top", "Ribbed V-neck Cardigan"),
+        ("short-scarf", "accessory", "Wool Scarf"),
+        ("long-scarf", "accessory", "Highland Wool Large Fringe Scarf"),
+        ("jogger", "shoes", "Sperry X Aritzia Trail Jogger"),
+    ]])
+
+
+@pytest.mark.parametrize("query,expected", [
+    ("straight jeans", "jean"),                    # plural vs. singular
+    ("low rise straight jean", "jean"),            # "low" is spelled "Lo" in the catalog
+    ("high rise leggings", "legging"),
+    ("pine fleece crew", "fleece"),                # two typed words for one name word
+    ("boat neck sweater", "boat"),                 # ...and not the Mockneck
+    ("vneck cardigan", "vneck"),                   # one typed word for two name words
+    ("wool large fringe scarf", "long-scarf"),     # a short name inside the query doesn't win
+    ("artizia trail joggers", "jogger"),           # misspelled brand is ignored
+])
+def test_word_level_matching(tricky, query, expected):
+    assert resolve(tricky, query).item.item_id == expected

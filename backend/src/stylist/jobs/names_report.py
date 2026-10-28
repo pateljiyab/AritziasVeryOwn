@@ -6,6 +6,10 @@ Usage (from the repo root, after ingest.py has run):
 
 Each row names a catalog product and a query a person typed for it. A query is a hit when the
 resolver's best match is that product (any colorway). Target: at least 90% top-1.
+
+These queries are not a clean held-out test: the resolver was revised after seeing which of
+them failed (plurals, split/joined words, query-weighted scoring). The score before that
+revision is kept in BASELINE and printed with every result.
 """
 
 from __future__ import annotations
@@ -28,6 +32,7 @@ NAMES_CSV = ROOT / "eval" / "names_test.csv"
 TARGET = 0.9
 SAMPLE_SIZE = 30
 SEED = 42
+BASELINE = "17/30 (57%) with the first resolver, before it was revised using these queries"
 
 
 def make_template(catalog: Catalog, path: Path = NAMES_CSV) -> None:
@@ -52,7 +57,10 @@ def score(catalog: Catalog, rows: list[dict]) -> tuple[int, int, list[str]]:
         if found.item is not None and found.item.product_key == expected.product_key:
             hits += 1
         else:
-            misses.append(f"  {query!r}: wanted {expected.name}, got {found.item.name if found.item else 'no match'}")
+            offered = found.ambiguous and expected.product_key in {c.product_key for c in found.choices}
+            got = found.item.name if found.item else "no match"
+            misses.append(f"  {query!r}: wanted {expected.name}, got {got}"
+                          + ("  (offered as one of the choices)" if offered else ""))
     return hits, total, misses
 
 
@@ -77,6 +85,7 @@ def main() -> None:
         raise SystemExit(f"No queries yet: fill in the query column of {NAMES_CSV}.")
     print(f"Top-1: {hits}/{total} ({hits / total:.0%}), target {TARGET:.0%}"
           f"{'' if total == len(rows) else f'  ({len(rows) - total} rows still blank)'}")
+    print(f"Not a held-out score: the resolver was revised using these queries. Baseline: {BASELINE}.")
     for line in misses:
         print(line)
 
