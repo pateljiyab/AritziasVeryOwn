@@ -2,7 +2,7 @@
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier) until it's something you'd actually wear.
 
-Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints (keyword rules now, an LLM next). Tested with pytest in GitHub Actions. A FastAPI REST API, a React + TypeScript client, and Docker Compose are next (Day 3).
+Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints (keyword rules now, an LLM next). Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client; Docker Compose is next (Day 3).
 
 ## Docs
 
@@ -53,6 +53,14 @@ Run the REST API, then open http://127.0.0.1:8000/docs for the interactive OpenA
 uvicorn --factory --app-dir backend/src stylist.api.app:create_app --reload
 ```
 
+With the API running, start the web client (needs Node 20.19+) and open http://localhost:5173. It calls the API at `http://localhost:8000`; set `VITE_API_BASE` in `web/.env` to change that:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
 Score the name resolver on the hand-written queries in `eval/names_test.csv`:
 
 ```bash
@@ -67,7 +75,7 @@ python -m pytest backend/tests
 
 ## Status
 
-Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 (API, LLM parser, web client, Docker) is next.
+Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 is in progress: the REST API and the web client are done; the LLM parser and Docker are next.
 
 Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 

@@ -39,3 +39,23 @@ jobs:
           python backend/src/stylist/jobs/ingest.py
           python backend/src/stylist/cli.py --demo --no-clip
           python backend/src/stylist/jobs/names_report.py
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      # tsc type-checks the client against the API types, then Vite builds it.
+      - name: Type-check and build
+        run: npm run build
