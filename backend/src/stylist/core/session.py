@@ -29,6 +29,8 @@ class Reply:
     notes: list[str] = field(default_factory=list)  # things to tell the user (no match, errors, ...)
     choices: dict[str, list[Item]] = field(default_factory=dict)  # typed name -> close matches (FR-NAME-3)
     summary: dict | None = None  # set when the user accepts (FR-FB-5)
+    parsed: ParsedRequest | FeedbackIntent | None = None  # what the message was understood as, for logs
+    error: str | None = None  # set when an action couldn't be applied; the state is unchanged
 
 
 def lock_named_items(catalog: Catalog, names: list[str]) -> tuple[dict[str, str], list[str], dict[str, list[Item]]]:
@@ -71,17 +73,19 @@ def handle_message(catalog: Catalog, state: SessionState | None, text: str, embe
     try:
         new_state, outfit = feedback.start(catalog, parsed, embed(parsed.text), locked)
     except NoOutfitError as exc:
-        return Reply(state, None, [*notes, f"I couldn't build an outfit: {exc}."], choices)
-    return Reply(new_state, outfit, notes, choices)
+        return Reply(state, None, [*notes, f"I couldn't build an outfit: {exc}."], choices, parsed=parsed)
+    return Reply(new_state, outfit, notes, choices, parsed=parsed)
 
 
 def handle_action(catalog: Catalog, state: SessionState | None, intent: FeedbackIntent, embed: Embed) -> Reply:
     """Apply a button click or a parsed feedback message (FR-FB-7: both come through here)."""
     if state is None or not state.current:
-        return Reply(state, None, ["There's no outfit yet. Tell me what you're dressing for first."])
+        message = "There's no outfit yet. Tell me what you're dressing for first."
+        return Reply(state, None, [message], parsed=intent, error=message)
     try:
         new_state, outfit = feedback.apply_feedback(catalog, state, intent, embed(state.request.text))
     except (FeedbackError, NoOutfitError) as exc:
-        return Reply(state, feedback.outfit_of(catalog, state) if state.current else None, [f"{exc}."])
+        message = f"{str(exc)[:1].upper()}{str(exc)[1:]}."
+        return Reply(state, feedback.outfit_of(catalog, state), [message], parsed=intent, error=message)
     summary = feedback.summary(outfit) if new_state.accepted else None
-    return Reply(new_state, outfit, [], summary=summary)
+    return Reply(new_state, outfit, [], summary=summary, parsed=intent)

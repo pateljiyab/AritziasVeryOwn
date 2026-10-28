@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stylist.adapters.catalog_store import load_catalog  # noqa: E402
+from stylist.adapters.clip_text import TextEmbedder  # noqa: E402
 from stylist.core.catalog import Catalog  # noqa: E402
 from stylist.core.session import Reply, handle_message  # noqa: E402
 
@@ -29,27 +30,6 @@ DEMO = {
     "Flow D: refinement loop": ["weekend brunch with friends", "different shoes", "not those shoes",
                                 "keep the shoes", "dressier", "make it edgier", "looks good"],
 }
-
-
-class TextEmbedder:
-    """CLIP text embeddings, loaded on first use and cached per text. Off with --no-clip."""
-
-    def __init__(self, enabled: bool) -> None:
-        self.enabled = enabled
-        self._model = None
-        self._cache: dict[str, object] = {}
-
-    def __call__(self, text: str):
-        if not self.enabled or not text:
-            return None
-        if self._model is None:
-            from stylist.tagging.clip_tagger import ClipModel  # needs requirements-ml.txt
-
-            print("(loading CLIP...)")
-            self._model = ClipModel()
-        if text not in self._cache:
-            self._cache[text] = self._model.encode_texts([text])[0]
-        return self._cache[text]
 
 
 def show(reply: Reply) -> None:
