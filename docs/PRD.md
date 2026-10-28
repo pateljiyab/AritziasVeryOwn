@@ -3,10 +3,11 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Status** | Draft v2 |
+| **Last updated** | October 27, 2026 (v3: matches what Days 1–2 built) |
+| **Status** | v3 |
 | **Companion doc** | [Technical Specification](TECH_SPEC.md) |
 
-> **Disclaimer.** This is an independent educational project. It is not affiliated with, endorsed by, or sponsored by Aritzia. Product data is collected within the site's terms of use, and product images are not redistributed.
+> **Disclaimer.** This is an independent educational project. It is not affiliated with, endorsed by, or sponsored by Aritzia. Product data comes from the Channel3 product API, and product images are not redistributed.
 
 ---
 
@@ -103,18 +104,19 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-CAT-1 | Store a product catalog in SQL with: name, brand line, slot, color name, price, description, image URL, and product URL. | P0 | Every row passes schema validation on load. Rows that fail are logged and skipped, not silently dropped. |
 | FR-CAT-2 | Assign every item to exactly one slot: `top`, `bottom`, `dress`, `outerwear`, `shoes`, or `accessory`. | P0 | 100% of items have a valid slot. |
 | FR-CAT-3 | Cover enough items to make generation meaningful. | P0 | At least 90 items in total and at least 10 per slot. |
-| FR-CAT-4 | Collect data within the site's terms: respect robots.txt, rate-limit requests, and send a descriptive User-Agent. Otherwise, fall back to a hand-curated CSV. | P0 | The collector documents its rate limit. Scraper work is timeboxed to 3 hours, after which the CSV fallback is used. |
+| FR-CAT-4 | Collect data through the Channel3 product API instead of scraping the site. Keep only listings sold on aritzia.com or named "x Aritzia" (collabs), and drop outside brands that Aritzia resells. | P0 | The collector documents its call budget and filters. Raw responses are saved, so the CSV can be rebuilt without new calls. |
 | FR-CAT-5 | Re-running ingestion updates existing records without creating duplicates. | P0 | Ingesting twice produces the same row count, which a test checks. |
+| FR-CAT-6 | Treat listings of the same product (colorways, renamed copies such as "™" or "\| Aritzia US") as one product. | P0 | An outfit never shows two listings of one product, and rejecting a product rejects all of its listings. Tests cover both. |
 
 ### 5.2 Tagging (`FR-TAG`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
 | FR-TAG-1 | Tag each item with 1 or more **season** tags, 1 to 3 **vibe** tags, 1 to 3 **color** tags, and a **formality** score from 1 to 5 (see [Appendix A](#appendix-a-tag-taxonomy)). | P0 | 100% of items are tagged, and the tags validate against the schema. |
-| FR-TAG-2 | Produce the tags with a single batch LLM pass over each item's name, brand line, color, and description. Use structured output. | P0 | The tagging job is idempotent and cached, so re-running it costs nothing. |
+| FR-TAG-2 | Produce season, vibe, and formality tags with CLIP zero-shot classification of each product photo, and color tags with rules over the image alt text and hex color. No API key or paid service is needed. | P0 | The tagging job is idempotent and caches photos, so re-running it makes no new downloads. |
 | FR-TAG-3 | Maintain a hand-labeled gold set, labeled **before** looking at model output. | P0 | 30 items, stratified across slots (5 per slot). |
 | FR-TAG-4 | Report tagging accuracy against the gold set. | P0 | `eval/tagging_report.md` reports accuracy for each axis. |
-| FR-TAG-5 | Use CLIP zero-shot image tagging as a second signal, and compare it with the LLM on the gold set. | P1 | The report includes a CLIP-vs-LLM accuracy table. |
+| FR-TAG-5 | Add an LLM tagger as a second signal (vibe first, since CLIP misses the vibe target), and compare it with CLIP on the gold set. | P1 | The report includes a CLIP-vs-LLM accuracy table. |
 
 ### 5.3 Request Parsing (`FR-REQ`)
 
@@ -123,7 +125,7 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-REQ-1 | Accept free-text requests that mix mood, occasion, weather, and named items. | P0 | All four flows in §4 parse without error. |
 | FR-REQ-2 | Convert each message into either a `ParsedRequest` or a `FeedbackIntent`, validated by schema. | P0 | Invalid LLM output is retried once and then falls back to keyword rules. It never crashes the API. |
 | FR-REQ-3 | When a request is too vague (e.g. *"something nice"*), fall back to sensible defaults. | P0 | Vague requests still produce an outfit. |
-| FR-REQ-4 | Cold or rainy weather requires outerwear. | P0 | A unit test covers this. |
+| FR-REQ-4 | Cold, cool, or rainy weather requires outerwear. (Cool is included because Flow B's "might get chilly" expects a layer.) | P0 | A unit test covers this. |
 
 ### 5.4 Outfit Generation (`FR-GEN`)
 
@@ -149,7 +151,7 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
 | FR-FB-1 | **Lock / unlock**: a locked item stays in its slot through every regeneration. | P0 | Unit test. |
-| FR-FB-2 | **Reject**: a rejected item never reappears in the session. | P0 | Unit test. |
+| FR-FB-2 | **Reject**: a rejected product never reappears in the session, in any colorway. Only that piece is replaced; the rest of the outfit stays. | P0 | Unit test. |
 | FR-FB-3 | **Swap**: replace one slot and keep the others unchanged. | P0 | Unit test. |
 | FR-FB-4 | **Nudge**: relative formality or vibe changes move the outfit in the requested direction. | P0 | A test checks that the mean formality moves in the requested direction after "dressier." |
 | FR-FB-5 | **Accept**: end the session and show a summary with links and the total price. | P0 | API and UI. |
@@ -175,9 +177,9 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 |---|---|---|
 | NFR-1 | **Latency** | A button action returns in 500 ms or less (p90), since it makes no LLM call. A chat turn returns in 4 s or less (p90), with one LLM call. |
 | NFR-2 | **Cost** | At most one LLM call per chat turn and none per button action. Tagging is a one-time cached batch job. |
-| NFR-3 | **Quality gates** | CI runs lint, type checks, and tests on every PR. `main` is always green. |
+| NFR-3 | **Quality gates** | CI runs the tests and a script smoke test (ingest, the Flows A–D demo, the names report) on every PR, on Python 3.11 and 3.13, plus the frontend build once the client exists. `main` is always green. Tooling is kept minimal: no linter or type checker in CI. |
 | NFR-4 | **Testability** | The LLM and the embedding model sit behind interfaces, so tests run offline with fakes, with no API key and no model download. |
-| NFR-5 | **Reproducibility** | Pinned dependencies and a lockfile, `docker compose up` runs the whole app, and a single command reproduces the evaluation numbers. |
+| NFR-5 | **Reproducibility** | Exact version pins in `requirements.txt` (and `requirements-ml.txt` for PyTorch), `docker compose up` runs the whole app, and a single command reproduces each evaluation number. |
 | NFR-6 | **Observability** | Structured logs for each turn (parsed intent, scores, chosen outfit, latency). Every session and turn is persisted to SQL. |
 | NFR-7 | **Security & ethics** | API keys come from environment variables and are never committed. Collection is rate-limited. Images are referenced or cached locally and never re-hosted. No personal data is stored. |
 
@@ -192,7 +194,7 @@ All targets are sized for a 3.5-day build. Each one will be reported in the READ
 | G1 Outfit quality | Share of outfits I rate coherent against a written rubric | At least 70% of 20 outfits | `eval/coherence.csv` (self-rated, rubric committed). A multi-rater study is stretch goal S-3. |
 | G2 Loop works | Constraint violations (lock, reject, slot rules) | 0 | Tests plus a scan of the session table |
 | G3 Tagging | Agreement with the gold set | Season and vibe top-1 at least 75%; formality within ±1 for at least 85% of items. Top-1 means the model's first tag is one of the item's gold tags. | `eval/tagging_report.md` |
-| G4 Names | Top-1 resolution accuracy | At least 90% on 30 queries | `eval/names_test.csv` + script |
+| G4 Names | Top-1 resolution accuracy | At least 90% on 30 queries | `eval/names_test.csv` + `jobs/names_report.py` |
 | G5 Engineering | Test coverage of the `core/` and `api/` packages | At least 80% line coverage | `pytest --cov` in CI |
 | G5 Engineering | Demo | Flows A–D work end to end in the browser | 2–3 minute screen recording linked in the README |
 | NFR-1 | Chat and button latency | p90 at or under the NFR-1 targets | `eval/latency.md` |
@@ -202,8 +204,8 @@ All targets are sized for a 3.5-day build. Each one will be reported in the READ
 ## 8. Scope
 
 ### In scope 
-- A catalog of at least 90 items in SQLite, collected by a polite scraper or a hand-curated CSV.
-- LLM batch tagging, a 30-item gold set, and an accuracy report.
+- A catalog of at least 90 items in SQLite, collected through the Channel3 product API.
+- CLIP zero-shot tagging with rule-based colors, a 30-item gold set, and an accuracy report.
 - CLIP image and text embeddings with brute-force cosine retrieval in NumPy.
 - A rule-based scorer and an enumeration-based generator.
 - A deterministic feedback state machine (lock, unlock, reject, swap, nudge, accept).
@@ -227,12 +229,12 @@ All targets are sized for a 3.5-day build. Each one will be reported in the READ
 
 | Skill postings ask for | Where it shows up in this project |
 |---|---|
-| Python, object-oriented and typed code | Typed `core/` package, Pydantic models, `mypy` in CI |
+| Python, object-oriented and typed code | Typed `core/` package and Pydantic models |
 | REST API design | FastAPI, versioned routes, OpenAPI docs, consistent error model |
 | SQL and databases | SQLite through SQLAlchemy: catalog, tags, sessions, and turns tables; idempotent upserts; tagging accuracy queried in SQL |
 | JavaScript / TypeScript, React | Vite + React + TypeScript client with a typed API client |
 | Unit and integration testing | pytest unit tests for the scorer, state machine, and resolver; API tests with `TestClient`; fakes for the LLM and CLIP |
-| CI/CD | GitHub Actions: ruff, mypy, pytest with coverage, and a frontend type check and build on every PR |
+| CI/CD | GitHub Actions: pytest on Python 3.11 and 3.13 on every PR, plus a frontend type check and build once the client exists |
 | Docker / containers | A Dockerfile for the API and client, and `docker compose up` for the whole stack |
 | Git and code review | Feature branches, small PRs that reference FR IDs, conventional commits, and a protected `main` |
 | Agile and working in iterations | A GitHub Projects board with an issue for each FR, day-sized milestones, and a short retro in the README |
@@ -245,14 +247,16 @@ All targets are sized for a 3.5-day build. Each one will be reported in the READ
 
 Each day ends with a merged PR and a green CI run.
 
-| Day | Milestone | Exit criteria |
-|---|---|---|
-| **Day 1** | **Foundation + data** | Repo scaffold, CI green, and the catalog in SQLite (FR-CAT). The gold set is hand-labeled first, then tagging and embedding run. |
-| **Day 2** | **Core engine** | Retrieval, scorer, generator, feedback state machine, and name resolver, all unit-tested. A CLI produces an outfit for Flows A–D. |
-| **Day 3** | **API + client** | LLM parser, FastAPI endpoints with integration tests, React client, and Docker Compose. Flows A–D work in the browser. |
-| **Day 3.5** | **Evaluate + ship** | Evaluation scripts run, results are in the README, the demo is recorded, and `v1.0.0` is tagged. |
+| Day | Milestone | Exit criteria | Status |
+|---|---|---|---|
+| **Day 1** | **Foundation + data** | Repo scaffold, CI green, and the catalog in SQLite (FR-CAT). The gold set is hand-labeled first, then tagging and embedding run. | Done (#1–#8) |
+| **Day 2** | **Core engine** | Retrieval, scorer, generator, feedback state machine, and name resolver, all unit-tested. A CLI produces an outfit for Flows A–D. | Done (#9) |
+| **Day 3** | **API + client** | LLM parser, FastAPI endpoints with integration tests, React client, and Docker Compose. Flows A–D work in the browser. | Next |
+| **Day 3.5** | **Evaluate + ship** | Evaluation scripts run, results are in the README, the demo is recorded, and `v1.0.0` is tagged. | |
 
-**Cut line.** If the plan slips by more than half a day, drop the P1 items in this order: FR-TAG-5 (CLIP tagging comparison), FR-FB-6 (more like this), FR-NAME-3 (ambiguity prompt), FR-GEN-6 (rationale). If the React client is not rendering outfits by midday on Day 3, switch to a Streamlit client that calls the same API, so that the API and the tests are still finished.
+Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, outside brands, and duplicate listings.
+
+**Cut line.** If the plan slips by more than half a day, drop the P1 items in this order: FR-TAG-5 (LLM tagging comparison), FR-FB-6 (more like this), FR-NAME-3 (ambiguity prompt), FR-GEN-6 (rationale). If the React client is not rendering outfits by midday on Day 3, switch to a Streamlit client that calls the same API, so that the API and the tests are still finished.
 
 ---
 
@@ -260,9 +264,10 @@ Each day ends with a merged PR and a green CI run.
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| The site blocks scraping or its structure changes. | Loses the morning of Day 1. | Strict 3-hour timebox, then fall back to a hand-curated CSV. Ingestion depends only on the CSV/JSON schema. |
+| Channel3 tags other retailers' and brands' products as Aritzia, and lists one product several times. | Wrong products in outfits; repeated colorways. | Seller and brand filters in the collector (FR-CAT-4) and product grouping (FR-CAT-6). |
+| CLIP vibe tags miss the target (vibe top-1 is 43% vs. 75%; `polished` and `going-out` are rarely predicted). | Weak vibe matching, especially for going-out requests. | FR-TAG-5: an LLM vibe tagger compared on the gold set. Any prompt tuning is tested on items outside the gold set. |
 | The LLM returns malformed structured output. | A broken turn. | Pydantic validation, one retry, then keyword-rule fallback. Tests cover the fallback path. |
-| The small catalog limits variety. | Repetitive outfits. | At least 10 items per slot, an optional accessory, and a repetition penalty. |
+| The small catalog limits variety. Shoes are the thinnest slot: 13 listings but only 5 distinct products. | Repetitive outfits. | An optional accessory, no repeat of the last outfit, and pulling more shoes if time allows. |
 | PyTorch makes the API image large and slow to build. | Slow CI and Docker builds. | CPU-only torch wheel. CI tests use a fake embedder and never install torch. |
 | Frontend work overruns. | No browser demo. | The cut line in §10: fall back to a Streamlit client on the same API. |
 | Self-rated coherence is subjective. | A weak quality claim. | Commit the rubric, state the limitation, and list the multi-rater study as S-3. |
@@ -271,6 +276,13 @@ Each day ends with a merged PR and a green CI run.
 1. *Is the accessory slot optional?* Yes. It is included only if it raises the score.
 2. *Mixed-season requests ("summer dress for a fall wedding")?* The request's season filters outerwear only. Other slots use the season as a soft score term rather than a hard filter.
 3. *Catalog depth or breadth?* Breadth: at least 10 items per slot beats depth in a few slots.
+
+**Resolved during the build (v3)**
+
+4. *Tag with an LLM or with CLIP?* CLIP zero-shot on the photos, with rules for color: it needs no API key or paid calls. CLIP meets the season and formality targets but not vibe, so an LLM vibe tagger is FR-TAG-5.
+5. *What does "top-1" mean when an item has several gold tags?* The model's first tag is one of the gold tags (G3). The report also shows the stricter "first tag matches the gold first tag".
+6. *Does reject rebuild the whole outfit?* No. Only the rejected piece is replaced, like a swap, so one disliked top doesn't throw away the rest.
+7. *Should the G4 test queries be used while improving the resolver?* They were, once. The report prints the pre-tuning baseline (17/30) next to every result, so the score isn't presented as held out.
 
 ---
 
@@ -283,7 +295,7 @@ Each day ends with a merged PR and a green CI run.
 | Tag | Description |
 |---|---|
 | `cozy` | Soft, warm, relaxed textures: knits, fleece, oversized cuts |
-| `polished` | Tailored, clean lines,classic office basics, office-ready |
+| `polished` | Tailored, clean lines, classic office basics, office-ready |
 | `going-out` | Evening, statement, a little dressy or bold |
 | `cute` | Playful and youthful: bright or pastel colours, fun details (bows, puff sleeves, mini lengths). |
 | `off-duty` | Casual, effortless, weekend |
@@ -292,7 +304,6 @@ Each day ends with a merged PR and a green CI run.
 | `minimal` | Neutral palette, simple silhouettes, no embellishment |
 | `romantic` | Soft details: florals, ruffles, lace, delicate fabrics |
 | `edgy` | Leather, darker palette, sharper silhouettes |
-
 
 **Formality** (single integer, 1–5):
 
@@ -306,7 +317,7 @@ Each day ends with a merged PR and a green CI run.
 
 **Color** (multi-label, 1–3 per item; the first tag is the item's main color):
 
-Retailer color names such as "Heather Mocha" or "Dreamy Lilac" are mapped onto this fixed set. The **Neutral** column and the **Hue** column feed the color-harmony score: neutrals pair with every color, and non-neutral colors are compared by hue angle.
+Color words such as "Heather Mocha" or "Dreamy Lilac" are mapped onto this fixed set. The **Neutral** column and the **Hue** column feed the color-harmony score: neutrals pair with every color, and non-neutral colors are compared by hue angle.
 
 | Tag | Neutral? | Hue (°) | Covers (example retailer names) |
 |---|---|---|---|
@@ -335,15 +346,16 @@ Retailer color names such as "Heather Mocha" or "Dreamy Lilac" are mapped onto t
 Notes:
 - `olive`, `denim`, `navy` and the earth tones (`camel`, `brown`, `beige`) count as neutrals, because that's how they are usually styled.
 - `multi` has no single hue. It scores as 0.6 against non-neutral colors, and at most one `multi` item is allowed per outfit.
-- A color name that matches no tag defaults to its closest tag by the LLM's judgment and is logged for review.
+- Channel3 has no retailer color names, so the tagger reads the color from the image alt text ("a black wool coat"), and otherwise picks the tag closest to the item's hex color.
 
 ## Appendix B: Glossary
 
 | Term | Definition |
 |---|---|
 | **Slot** | A position in an outfit: top, bottom, dress, outerwear, shoes, or accessory. |
+| **Listing / product** | A listing is one catalog row. A product is every listing of the same item (its colorways and renamed copies). |
 | **Lock** | Pin an item so every later regeneration keeps it. |
-| **Reject** | Exclude an item for the rest of the session. |
+| **Reject** | Exclude a product, in every colorway, for the rest of the session. |
 | **Nudge** | A relative change to the target formality or vibe (e.g. "dressier"). |
 | **Preference vector** | A session-level CLIP-space vector that builds up the user's feedback and steers retrieval. |
 | **Brand line** | Aritzia's in-house labels (Babaton, Wilfred, TNA, Sunday Best, etc.). |
