@@ -3,10 +3,11 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Status** | Draft v3 |
+| **Last updated** | October 27, 2026 (v4: matches what Days 1–2 built) |
+| **Status** | v4 |
 | **Companion doc** | [Product Requirements](PRD.md) |
 
-This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code.
+This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code. Items marked *(Day 3)* are planned but not built yet.
 
 ---
 
@@ -15,25 +16,27 @@ This document defines the tech stack and how the pieces fit together. The *what*
 ```mermaid
 flowchart LR
     subgraph Offline["Offline jobs (run once)"]
-        A[Catalog CSV / collector] --> B[(SQLite)]
-        B --> C[LLM tagger]
-        C --> B
-        B --> D[CLIP embedder]
-        D --> E[(Embeddings)]
+        C3[Channel3 API] --> COL[collect_channel3.py] --> CSV[seed_catalog.csv]
+        CSV --> ING[ingest.py] --> B[(SQLite<br/>items, item_tags)]
+        B --> T[tag.py<br/>CLIP zero-shot + color rules]
+        T --> B
+        T --> E[(embeddings.npy)]
     end
 
-    subgraph Online["Online app (Docker Compose)"]
-        W[React + TypeScript client] -->|REST / JSON| API[FastAPI service]
-        API --> L[LLM message parser]
-        API --> G[Outfit engine<br/>retrieve + score]
+    subgraph Online["Online app"]
+        CLI[cli.py] --> TURN
+        W["React + TypeScript client (Day 3)"] -->|REST / JSON| API["FastAPI service (Day 3)"]
+        API --> TURN[core/session.py<br/>one chat turn]
+        TURN --> P[Parser:<br/>keyword rules now,<br/>LLM on Day 3]
+        TURN --> G[Outfit engine<br/>score + generate + feedback]
         E --> G
         B --> G
-        API --> S[(SQLite<br/>sessions)]
+        API --> S[("SQLite sessions (Day 3)")]
     end
 ```
 
-- **Offline:** load the catalog, tag each item with an LLM, and compute CLIP embeddings. These steps are slow but only run once.
-- **Online:** the client sends chat messages and button clicks to the API. The API parses the message, updates the session, builds the best-scoring outfit, and returns it.
+- **Offline:** collect the catalog from Channel3, load it into SQLite, then tag every item with CLIP and save its photo embedding. These steps are slow but only run once.
+- **Online:** a message goes to `core/session.py`. It parses the message into a request or a feedback action, updates the session, builds the best-scoring outfit, and returns it with a score breakdown. The CLI calls it directly; the Day 3 API will call the same functions.
 
 ---
 
@@ -43,22 +46,24 @@ flowchart LR
 
 | Layer | Choice | Why |
 |---|---|---|
-| Language | **Python 3.11** | The ML libraries are Python-first. |
-| Web framework | **FastAPI** + Uvicorn | Typed REST endpoints, automatic OpenAPI docs at `/docs`, and a built-in test client. |
-| Data validation | **Pydantic v2** | One set of models for API payloads, LLM outputs, and internal types. |
-| Database | **SQLite** via **SQLAlchemy 2.0** | Real SQL with no server to run. Moving to Postgres only means changing the connection URL. |
-| Config | **pydantic-settings** + `.env` | API keys and settings come from environment variables and are never committed. |
+| Language | **Python 3.11+** (CI runs 3.11 and 3.13) | The ML libraries are Python-first. |
+| Web framework | **FastAPI** + Uvicorn *(Day 3)* | Typed REST endpoints, automatic OpenAPI docs at `/docs`, and a built-in test client. |
+| Data validation | **Pydantic v2** | One set of models for API payloads, LLM outputs, and internal types (`ParsedRequest`, `FeedbackIntent`, `SessionState`). |
+| Database | **SQLite** via **SQLAlchemy 2.1** | Real SQL with no server to run. Moving to Postgres only means changing the connection URL. |
+| Config | **python-dotenv** + `.env` | API keys come from environment variables and are never committed. |
+| Catalog source | **Channel3** product API (`channel3-sdk`) | Structured product data with photos, without scraping the site. |
 
 ### ML / AI
 
 | Layer | Choice | Why |
 |---|---|---|
-| Image + text embeddings | **open_clip** (ViT-B/32, CPU) | One model embeds both images and text in a shared space, which powers search and "more like this." |
-| Vector search | **NumPy** | With about 100 items, plain cosine similarity is instant, so a vector database isn't needed. |
-| LLM | **Claude** via the Anthropic Python SDK (Haiku for chat parsing, Sonnet for batch tagging) | Reliable structured output through tool use. The models are configurable. |
-| Fuzzy name matching | **rapidfuzz** | Matches typed product names despite typos and missing words. |
+| Tagging | **open_clip** ViT-B/32 zero-shot (season, vibe, formality) + rules over alt text and hex (color) | No API key or per-item cost. Each label is scored against several prompt phrasings. |
+| Image + text embeddings | **open_clip** (ViT-B/32, CPU) | One model embeds photos and request text in a shared space, which powers query relevance (and "more like this," P1). |
+| Vector search | **NumPy** | With about 400 items, plain cosine similarity is instant, so a vector database isn't needed. |
+| LLM | **Claude** via the Anthropic Python SDK, for chat parsing *(Day 3)* | Reliable structured output through tool use. The model is configurable. |
+| Fuzzy name matching | **rapidfuzz** | Word-by-word matching tolerates typos, plurals, and missing words. |
 
-### Frontend
+### Frontend *(Day 3)*
 
 | Layer | Choice | Why |
 |---|---|---|
@@ -70,19 +75,18 @@ flowchart LR
 
 | Layer | Choice | Why |
 |---|---|---|
-| Tests | **pytest** + pytest-cov | Unit tests for the outfit engine, and API integration tests through FastAPI's test client. |
-| Lint / format | **ruff** | One fast tool for both linting and formatting. |
-| Type checking | **mypy** (Python), **tsc** (TypeScript) | Catch type errors in CI, before they reach runtime. |
-| Test doubles | Fake LLM and fake embedder | Tests run offline, with no API key and no model download. |
+| Tests | **pytest** | Unit tests for the engine and jobs; API integration tests through FastAPI's test client on Day 3. |
+| Test doubles | Fake CLIP model, fake embedder, small hand-built catalogs (`tests/factories.py`) | Tests run offline, with no API key, no PyTorch, and no model download. |
+| Lint / types | None in CI, by choice | Tooling is kept minimal; `tsc` will type-check the client. |
 
 ### DevOps & Workflow
 
 | Layer | Choice | Why |
 |---|---|---|
-| Python packaging | **uv** + `pyproject.toml` | Fast installs from a lockfile. |
-| JS packaging | **npm** | Standard. |
-| Containers | **Docker** + **Docker Compose** | `docker compose up` runs the whole app. |
-| CI | **GitHub Actions** | Lint, type checks, tests, and the frontend build run on every pull request. |
+| Python packaging | `requirements.txt` (exact pins) + `requirements-ml.txt` (PyTorch, CPU wheels) | Plain pip. PyTorch stays out of CI and the core install. |
+| JS packaging | **npm** *(Day 3)* | Standard. |
+| Containers | **Docker** + **Docker Compose** *(Day 3)* | `docker compose up` runs the whole app. |
+| CI | **GitHub Actions** | On every PR and push to `main`, on Python 3.11 and 3.13: pytest, then a smoke test that runs `ingest.py`, `cli.py --demo --no-clip`, and `names_report.py` as scripts. |
 | Version control | **Git + GitHub** | Feature branches, small PRs, a protected `main`, and Conventional Commits. |
 | Project tracking | **GitHub Projects** | One issue per requirement, organized into day-sized milestones. |
 
@@ -92,12 +96,18 @@ flowchart LR
 
 | Decision | Reason |
 |---|---|
-| Expensive work (tagging, image embeddings) runs offline. | Keeps each chat turn fast on a laptop CPU. |
-| Outfit logic is pure Python with no I/O. | It is easy to unit-test and doesn't depend on the LLM. |
-| Buttons skip the LLM, while chat goes through it. Both end in the same feedback function. | Button clicks are instant, and chat and buttons always behave the same way. |
-| The LLM and CLIP sit behind interfaces with fake versions. | CI is fast and offline, and either model can be swapped out. |
-| If the LLM fails or there is no API key, the app falls back to keyword rules. | The demo never crashes. |
-| NumPy instead of FAISS, and SQLite instead of Postgres. | They are the right size for about 100 items, with an easy upgrade path. |
+| Expensive work (tagging, image embeddings) runs offline. | Keeps each chat turn fast on a laptop CPU (about 80 ms to generate an outfit). |
+| Tags come from CLIP and rules, not an LLM. | No API key or per-item cost. CLIP meets the season and formality targets but not vibe, so an LLM vibe tagger is the planned second signal (FR-TAG-5). |
+| Outfit logic in `core/` is pure Python with no I/O. | It is easy to unit-test and doesn't depend on the LLM, CLIP, or the database. `adapters/` does the loading. |
+| Listings are grouped into products by a cleaned-up name (`core.catalog.product_key`). | Channel3 lists colorways and renamed copies separately (403 listings, 344 products). Grouping stops an outfit showing one product twice, and makes reject cover every colorway. |
+| The generator shortlists the top 6 products per slot, then scores every valid combination. | About 12,000 combinations is small enough to search exhaustively, so there's no beam search to tune. |
+| Score terms the request doesn't mention are left out, and the weights rebalance. | A vague request ("something nice") is scored on what it does say, not penalized for what it doesn't. |
+| CLIP relevance is rescaled over the whole slot, not the shortlist. | Rejecting or swapping a piece can't inflate the next outfit's score. |
+| Buttons and chat both become a `FeedbackIntent` and go through `apply_feedback`. | Chat and buttons always behave the same way (FR-FB-7). Buttons skip the parser. |
+| `core/session.py` takes the parser and the text embedder as arguments. | The same turn logic runs with keyword rules or the LLM, and with real CLIP or a test fake. |
+| If the LLM fails or there is no API key, the app falls back to keyword rules (`core/keyword_parser.py`). | The demo never crashes. The keyword parser is also the CLI's parser until Day 3. |
+| Evaluation sets are labeled before results are seen, and any reuse is disclosed. | The gold set was labeled before tagging ran. The G4 queries were used once while improving the resolver, so the report prints the pre-tuning baseline next to every result. |
+| NumPy instead of FAISS, and SQLite instead of Postgres. | They are the right size for about 400 items, with an easy upgrade path. |
 
 ---
 
@@ -105,17 +115,22 @@ flowchart LR
 
 ```text
 AritziasVeryOwn/
-├── docs/                    # PRD.md, TECH_SPEC.md
-├── backend/                 # FastAPI backend (Python)
+├── docs/                      # PRD.md, TECH_SPEC.md
+├── backend/
 │   ├── src/stylist/
-│   │   ├── core/            # outfit engine: scoring, feedback, name matching
-│   │   ├── adapters/        # Claude, CLIP, and database wrappers
-│   │   ├── api/             # REST routes
-│   │   └── jobs/            # offline jobs: ingest, tag, embed
+│   │   ├── core/              # outfit engine, pure Python: models, catalog (product grouping),
+│   │   │                      #   scoring, generator, feedback, names, keyword_parser, session
+│   │   ├── adapters/          # catalog_store.py: SQLite + embeddings -> Catalog (Claude wrapper on Day 3)
+│   │   ├── tagging/           # clip_tagger.py (zero-shot), colors.py (alt-text and hex rules)
+│   │   ├── jobs/              # offline jobs: collect_channel3, ingest, tag, tagging_report, names_report
+│   │   ├── api/               # REST routes (Day 3)
+│   │   └── cli.py             # terminal chat; --demo plays Flows A–D
 │   └── tests/
-├── web/                     # React + TypeScript client
-├── data/                    # catalog CSV (committed); database and embeddings (gitignored)
-├── eval/                    # gold labels, test sets, evaluation reports
-├── docker-compose.yml
+├── web/                       # React + TypeScript client (Day 3)
+├── data/                      # seed_catalog.csv (committed); catalog.db, images/, embeddings (gitignored)
+├── eval/                      # gold_set.csv + gold_labeling.md, tagging_report.md, names_test.csv
+├── requirements.txt           # core + tests (what CI installs)
+├── requirements-ml.txt        # adds PyTorch + open_clip for tagging and the CLI's query embeddings
+├── docker-compose.yml         # (Day 3)
 └── .github/workflows/ci.yml
 ```
