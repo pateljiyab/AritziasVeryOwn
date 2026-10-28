@@ -6,3 +6,5 @@ pytest==9.1.1
 # NumPy 2.5 needs Python 3.12+; CI also tests 3.11.
 numpy==2.5.4; python_version >= "3.12"
 numpy==2.3.5; python_version < "3.12"
+# 3.14 needs Python 3.12+; 3.13.0 is the newest that also installs on 3.11 (CI).
+rapidfuzz==3.13.0

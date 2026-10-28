@@ -39,6 +39,20 @@ python backend/src/stylist/jobs/tag.py
 python backend/src/stylist/jobs/tagging_report.py
 ```
 
+Chat with the stylist in the terminal. `--demo` plays Flows A–D from the PRD, and `--no-clip` runs without PyTorch (outfits are then scored without query relevance):
+
+```bash
+python backend/src/stylist/cli.py
+python backend/src/stylist/cli.py --demo
+python backend/src/stylist/cli.py "rooftop birthday dinner, it might get chilly" "different shoes" "perfect"
+```
+
+Score the name resolver on the hand-written queries in `eval/names_test.csv`:
+
+```bash
+python backend/src/stylist/jobs/names_report.py
+```
+
 Run the tests:
 
 ```bash
