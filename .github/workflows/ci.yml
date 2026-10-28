@@ -31,3 +31,11 @@ jobs:
 
       - name: Run tests
         run: python -m pytest backend/tests
+
+      # The tests import these modules; this runs the scripts the way the README does, so a
+      # broken entry point fails CI. No tags, embeddings, or torch: --no-clip skips CLIP.
+      - name: Smoke-test the scripts
+        run: |
+          python backend/src/stylist/jobs/ingest.py
+          python backend/src/stylist/cli.py --demo --no-clip
+          python backend/src/stylist/jobs/names_report.py
