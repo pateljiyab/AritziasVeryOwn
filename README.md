@@ -47,6 +47,12 @@ python backend/src/stylist/cli.py --demo
 python backend/src/stylist/cli.py "rooftop birthday dinner, it might get chilly" "different shoes" "perfect"
 ```
 
+Run the REST API, then open http://127.0.0.1:8000/docs for the interactive OpenAPI docs. Sessions and every turn are saved to `data/sessions.db`. Set `STYLIST_NO_CLIP=1` to run without PyTorch:
+
+```bash
+uvicorn --factory --app-dir backend/src stylist.api.app:create_app --reload
+```
+
 Score the name resolver on the hand-written queries in `eval/names_test.csv`:
 
 ```bash
