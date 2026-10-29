@@ -34,10 +34,11 @@ Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
 python backend/src/stylist/jobs/ingest.py
 ```
 
-Tag the catalog with CLIP (needs `pip install -r requirements-ml.txt`; the first run downloads the photos and model weights), then score the tags against the gold set in `eval/tagging_report.md`:
+Tag the catalog with CLIP (needs `pip install -r requirements-ml.txt`; the first run downloads the photos and model weights), add the LLM vibe tags, then score the tags against the gold set in `eval/tagging_report.md`. The LLM vibes are cached in the committed `data/llm_vibes.json`, so `llm_tag.py` needs an `ANTHROPIC_API_KEY` only for new or changed items (about $0.05 for the whole catalog):
 
 ```bash
 python backend/src/stylist/jobs/tag.py
+python backend/src/stylist/jobs/llm_tag.py
 python backend/src/stylist/jobs/tagging_report.py
 ```
 
@@ -90,12 +91,12 @@ Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 | Goal | Result | Target | Met |
 |---|---|---|---|
 | G3 Tagging: season top-1 | 26/30 (87%) | ≥ 75% | Yes |
-| G3 Tagging: vibe top-1 | 13/30 (43%) | ≥ 75% | No |
+| G3 Tagging: vibe top-1 | 19/30 (63%) with the Haiku vibe tagger; CLIP alone 13/30 (43%) | ≥ 75% | No |
 | G3 Tagging: formality within ±1 | 26/30 (87%) | ≥ 85% | Yes |
 | G4 Names: top-1 | 24/30 (80%) | ≥ 90% | No |
 | Chat parser: exact (every field right) | 24/37 (65%) with Claude Haiku 5.5; keyword rules 11/37 (30%) | none set | |
 
-- Tagging details are in [`eval/tagging_report.md`](eval/tagging_report.md). CLIP rarely predicts `polished` or `going-out`, and an LLM vibe tagger is the planned fix (FR-TAG-5).
+- Tagging details are in [`eval/tagging_report.md`](eval/tagging_report.md). CLIP rarely predicts `polished` or `going-out`, so vibe now comes from Claude Haiku 5.5 reading each item's photo and details (FR-TAG-5). That raised vibe top-1 from 43% to 63%, still short of the target. Most remaining misses are judgment calls (the gold set's first vibe is `polished` for 15 of 30 items), and the prompt is not tuned on the gold set.
 - Parser details are in [`eval/parser_report.md`](eval/parser_report.md): 40 hand-written messages, scored for keyword rules, Claude Haiku 5.5, gpt-oss-120b on Groq's free tier, and Llama 3.1 8B on Ollama. Haiku and gpt-oss-120b tie within noise (65% vs 68% exact), but Groq's free tier allows only about 4 messages a minute with this prompt, so the live app uses Haiku (about $0.0004 a message).
 - G4 is not a held-out score: the resolver was revised once using these queries (17/30 before). All 6 misses are queries that fit several products ("sweater", "chinos"), and 3 of them have the right product among the choices offered.
 

@@ -67,3 +67,22 @@ def test_load_catalog_without_the_tag_job_still_works(tmp_path):
 
     assert len(catalog) > 100
     assert all(item.embedding is None for item in catalog.items.values())
+
+
+def test_load_catalog_prefers_llm_vibes_and_keeps_clip_for_the_rest(tmp_path):  # FR-TAG-5
+    db = f"sqlite:///{tmp_path / 'catalog.db'}"
+    ingest(CATALOG_CSV, db)
+    with Session(create_engine(db)) as session, session.begin():
+        a, b = list(session.scalars(select(ItemRow.item_id).order_by(ItemRow.item_id)))[:2]
+        for item_id in (a, b):
+            session.add(ItemTag(item_id=item_id, source="auto", seasons=["fall"], vibes=["off-duty"], colors=["grey"],
+                                formality=2, color_source="hex", probabilities={}, model_version="clip",
+                                tagged_at=datetime.now(UTC)))
+        session.add(ItemTag(item_id=a, source="llm", seasons=[], vibes=["polished", "minimal"], colors=[],
+                            formality=None, color_source="none", probabilities={}, model_version="llm",
+                            tagged_at=datetime.now(UTC)))
+
+    catalog = load_catalog(db, tmp_path / "missing.npy", tmp_path / "missing.json")
+
+    assert catalog.get(a).vibes == ("polished", "minimal") and catalog.get(a).formality == 2  # vibe from the LLM
+    assert catalog.get(b).vibes == ("off-duty",)  # no LLM row: CLIP's vibe

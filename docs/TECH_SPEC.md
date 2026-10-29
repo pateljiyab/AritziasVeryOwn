@@ -19,6 +19,8 @@ flowchart LR
         C3[Channel3 API] --> COL[collect_channel3.py] --> CSV[seed_catalog.csv]
         CSV --> ING[ingest.py] --> B[(SQLite<br/>items, item_tags)]
         B --> T[tag.py<br/>CLIP zero-shot + color rules]
+        B --> LT[llm_tag.py<br/>Claude vibe tags]
+        LT --> B
         T --> B
         T --> E[(embeddings.npy)]
     end
@@ -57,7 +59,8 @@ flowchart LR
 
 | Layer | Choice | Why |
 |---|---|---|
-| Tagging | **open_clip** ViT-B/32 zero-shot (season, vibe, formality) + rules over alt text and hex (color) | No API key or per-item cost. Each label is scored against several prompt phrasings. |
+| Tagging | **open_clip** ViT-B/32 zero-shot (season, formality, and a fallback vibe) + rules over alt text and hex (color) | No API key or per-item cost. Each label is scored against several prompt phrasings. |
+| Vibe tagging | **Claude Haiku 5.5** with each item's photo (512 px) and details, through structured outputs | CLIP misses the vibe target; the LLM scores 63% vs. CLIP's 43% on the gold set, for about $0.05 per catalog run. Answers are cached in the committed `data/llm_vibes.json`. |
 | Image + text embeddings | **open_clip** (ViT-B/32, CPU) | One model embeds photos and request text in a shared space, which powers query relevance (and "more like this," P1). |
 | Vector search | **NumPy** | With about 400 items, plain cosine similarity is instant, so a vector database isn't needed. |
 | LLM | **Claude Haiku 5.5** via the Anthropic Python SDK, for chat parsing | Structured outputs constrain the reply to the parser's schema, and a turn costs about $0.0003. The model is configurable (`CLAUDE_MODEL`). |
@@ -98,7 +101,7 @@ flowchart LR
 | Decision | Reason |
 |---|---|
 | Expensive work (tagging, image embeddings) runs offline. | Keeps each chat turn fast on a laptop CPU (about 80 ms to generate an outfit). |
-| Tags come from CLIP and rules, not an LLM. | No API key or per-item cost. CLIP meets the season and formality targets but not vibe, so an LLM vibe tagger is the planned second signal (FR-TAG-5). |
+| Season, formality, and color come from CLIP and rules; vibe comes from an LLM, falling back to CLIP for any item it hasn't tagged. | CLIP meets the season and formality targets for free but misses vibe (43%); Haiku reaches 63% (FR-TAG-5). The LLM's answers are committed, so rebuilding the database needs no API key. |
 | Outfit logic in `core/` is pure Python with no I/O. | It is easy to unit-test and doesn't depend on the LLM, CLIP, or the database. `adapters/` does the loading. |
 | Listings are grouped into products by a cleaned-up name (`core.catalog.product_key`). | Channel3 lists colorways and renamed copies separately (403 listings, 344 products). Grouping stops an outfit showing one product twice, and makes reject cover every colorway. |
 | The generator shortlists the top 6 products per slot, then scores every valid combination. | About 12,000 combinations is small enough to search exhaustively, so there's no beam search to tune. |
@@ -129,7 +132,8 @@ AritziasVeryOwn/
 │   │   ├── adapters/          # catalog_store (SQLite + embeddings -> Catalog), clip_text (query
 │   │   │                      #   embeddings), session_store (sessions.db), llm_parser (Claude, OpenAI-compatible)
 │   │   ├── tagging/           # clip_tagger.py (zero-shot), colors.py (alt-text and hex rules)
-│   │   ├── jobs/              # offline jobs: collect_channel3, ingest, tag, tagging_report, names_report
+│   │   ├── jobs/              # offline jobs: collect_channel3, ingest, tag, llm_tag, tagging_report,
+│   │   │                      #   names_report, parser_report
 │   │   ├── api/               # app.py (FastAPI routes, error handlers), schemas.py (request/response bodies)
 │   │   └── cli.py             # terminal chat; --demo plays Flows A–D
 │   └── tests/

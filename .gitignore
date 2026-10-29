@@ -19,9 +19,10 @@ htmlcov/
 node_modules/
 dist/
 
-# Data (only the seed catalog is committed)
+# Data (only the seed catalog and the cached LLM vibe tags are committed)
 data/*
 !data/seed_catalog.csv
+!data/llm_vibes.json
 
 # Editor / OS
 .vscode/
