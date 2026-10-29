@@ -2,7 +2,7 @@
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier) until it's something you'd actually wear.
 
-Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints (keyword rules now, an LLM next). Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client; Docker Compose is next (Day 3).
+Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client; Docker Compose is next (Day 3).
 
 ## Docs
 
@@ -17,8 +17,10 @@ Requires Python 3.11+.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # then add your CHANNEL3_API_KEY
+cp .env.example .env   # then add your CHANNEL3_API_KEY, and ANTHROPIC_API_KEY for the LLM parser
 ```
+
+Without `ANTHROPIC_API_KEY`, chat is parsed with keyword rules, so everything runs (and the tests pass) with no key. `.env.example` also shows how to point the parser at Groq's free tier or a local Ollama model instead.
 
 Collect the catalog into `data/seed_catalog.csv`:
 
@@ -39,7 +41,7 @@ python backend/src/stylist/jobs/tag.py
 python backend/src/stylist/jobs/tagging_report.py
 ```
 
-Chat with the stylist in the terminal. `--demo` plays Flows A–D from the PRD, and `--no-clip` runs without PyTorch (outfits are then scored without query relevance):
+Chat with the stylist in the terminal. `--demo` plays Flows A–D from the PRD, `--no-clip` runs without PyTorch (outfits are then scored without query relevance), and `--keyword` uses keyword rules even when an LLM is set up:
 
 ```bash
 python backend/src/stylist/cli.py
@@ -47,10 +49,10 @@ python backend/src/stylist/cli.py --demo
 python backend/src/stylist/cli.py "rooftop birthday dinner, it might get chilly" "different shoes" "perfect"
 ```
 
-Run the REST API, then open http://127.0.0.1:8000/docs for the interactive OpenAPI docs. Sessions and every turn are saved to `data/sessions.db`. Set `STYLIST_NO_CLIP=1` to run without PyTorch:
+Run the REST API, then open http://127.0.0.1:8000/docs for the interactive OpenAPI docs. Sessions and every turn are saved to `data/sessions.db`. Set `STYLIST_NO_CLIP=1` to run without PyTorch. Each client IP can send 20 chat messages a minute (`STYLIST_MESSAGES_PER_MINUTE`), so a script can't spend the LLM budget; buttons aren't limited, since they make no LLM call:
 
 ```bash
-uvicorn --factory --app-dir backend/src stylist.api.app:create_app --reload
+uvicorn --factory --app-dir backend/src stylist.api.app:create_app --env-file .env --reload
 ```
 
 With the API running, start the web client (needs Node 20.19+) and open http://localhost:5173. It calls the API at `http://localhost:8000`; set `VITE_API_BASE` in `web/.env` to change that:
@@ -75,7 +77,7 @@ python -m pytest backend/tests
 
 ## Status
 
-Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 is in progress: the REST API and the web client are done; the LLM parser and Docker are next.
+Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 is in progress: the REST API, the web client, and the LLM parser are done; the parser benchmark and Docker are next.
 
 Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 

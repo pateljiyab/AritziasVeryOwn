@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Last updated** | October 27, 2026 (v4: matches what Days 1–2 built) |
-| **Status** | v4 |
+| **Last updated** | October 29, 2026 (v5: the API, the web client, and the LLM parser) |
+| **Status** | v5 |
 | **Companion doc** | [Product Requirements](PRD.md) |
 
 This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code. Items marked *(Day 3)* are planned but not built yet.
@@ -25,9 +25,9 @@ flowchart LR
 
     subgraph Online["Online app"]
         CLI[cli.py] --> TURN
-        W["React + TypeScript client (Day 3)"] -->|REST / JSON| API["FastAPI service<br/>/api/v1"]
+        W["React + TypeScript client"] -->|REST / JSON| API["FastAPI service<br/>/api/v1"]
         API --> TURN[core/session.py<br/>one chat turn]
-        TURN --> P[Parser:<br/>keyword rules now,<br/>LLM on Day 3]
+        TURN --> P[Parser:<br/>Claude Haiku 5.5,<br/>keyword-rule fallback]
         TURN --> G[Outfit engine<br/>score + generate + feedback]
         E --> G
         B --> G
@@ -36,7 +36,7 @@ flowchart LR
 ```
 
 - **Offline:** collect the catalog from Channel3, load it into SQLite, then tag every item with CLIP and save its photo embedding. These steps are slow but only run once.
-- **Online:** a message goes to `core/session.py`. It parses the message into a request or a feedback action, updates the session, builds the best-scoring outfit, and returns it with a score breakdown. The CLI calls it directly; the Day 3 API will call the same functions.
+- **Online:** a message goes to `core/session.py`. It parses the message into a request or a feedback action, updates the session, builds the best-scoring outfit, and returns it with a score breakdown. The CLI calls it directly, and the API calls the same functions.
 
 ---
 
@@ -60,10 +60,11 @@ flowchart LR
 | Tagging | **open_clip** ViT-B/32 zero-shot (season, vibe, formality) + rules over alt text and hex (color) | No API key or per-item cost. Each label is scored against several prompt phrasings. |
 | Image + text embeddings | **open_clip** (ViT-B/32, CPU) | One model embeds photos and request text in a shared space, which powers query relevance (and "more like this," P1). |
 | Vector search | **NumPy** | With about 400 items, plain cosine similarity is instant, so a vector database isn't needed. |
-| LLM | **Claude** via the Anthropic Python SDK, for chat parsing *(Day 3)* | Reliable structured output through tool use. The model is configurable. |
+| LLM | **Claude Haiku 5.5** via the Anthropic Python SDK, for chat parsing | Structured outputs constrain the reply to the parser's schema, and a turn costs about $0.0003. The model is configurable (`CLAUDE_MODEL`). |
+| LLM, for comparison | Any **OpenAI-compatible** server through the `openai` SDK: Groq's free tier (Llama 3.3 70B) or a local Ollama model | Used by the parser benchmark and for offline development. Not used for the live site. |
 | Fuzzy name matching | **rapidfuzz** | Word-by-word matching tolerates typos, plurals, and missing words. |
 
-### Frontend *(Day 3)*
+### Frontend
 
 | Layer | Choice | Why |
 |---|---|---|
@@ -84,7 +85,7 @@ flowchart LR
 | Layer | Choice | Why |
 |---|---|---|
 | Python packaging | `requirements.txt` (exact pins) + `requirements-ml.txt` (PyTorch, CPU wheels) | Plain pip. PyTorch stays out of CI and the core install. |
-| JS packaging | **npm** *(Day 3)* | Standard. |
+| JS packaging | **npm** | Standard. |
 | Containers | **Docker** + **Docker Compose** *(Day 3)* | `docker compose up` runs the whole app. |
 | CI | **GitHub Actions** | On every PR and push to `main`, on Python 3.11 and 3.13: pytest, then a smoke test that runs `ingest.py`, `cli.py --demo --no-clip`, and `names_report.py` as scripts. |
 | Version control | **Git + GitHub** | Feature branches, small PRs, a protected `main`, and Conventional Commits. |
@@ -108,7 +109,9 @@ flowchart LR
 | The API is built by `create_app(catalog, embed, store, parse)`. | Tests pass a small catalog, a fake embedder, and a temporary database; `uvicorn --factory` passes nothing and gets the real ones. |
 | A chat message that doesn't fit the outfit ("keep the dress" with no dress) is a 200 with a note; the same thing as a button click is a 409. | Typed messages are conversation, so the reply explains. A button that targets a missing piece is a client bug, so it's an error (FR-API-2). |
 | Sessions and turns live in `data/sessions.db`, apart from `catalog.db`. | Re-running ingest can't touch them. Each turn row stores the parsed intent, outfit, locks, rejects, score, and latency, so G2 can be checked by scanning it. |
-| If the LLM fails or there is no API key, the app falls back to keyword rules (`core/keyword_parser.py`). | The demo never crashes. The keyword parser is also the CLI's parser until Day 3. |
+| The LLM fills in its own small schema (`LLMParse`), which code turns into `ParsedRequest` or `FeedbackIntent`. | The core validators still run (a swap needs a slot), and the message text and item IDs never come from the LLM. |
+| Invalid LLM output is retried once with the validation error; then, and on any API error, refusal, or timeout, the message goes to keyword rules (`core/keyword_parser.py`). No key means keyword rules from the start. | A chat turn never fails because of the LLM (FR-REQ-2), and tests and CI need no key. The SDK's own retries are off, so a failing call falls back within the 4 s chat budget (NFR-1). |
+| Chat messages are limited per client IP (20 a minute by default); buttons are not. | The site is public, and only chat makes an LLM call, so this caps what one script can spend. |
 | Evaluation sets are labeled before results are seen, and any reuse is disclosed. | The gold set was labeled before tagging ran. The G4 queries were used once while improving the resolver, so the report prints the pre-tuning baseline next to every result. |
 | NumPy instead of FAISS, and SQLite instead of Postgres. | They are the right size for about 400 items, with an easy upgrade path. |
 
@@ -118,19 +121,19 @@ flowchart LR
 
 ```text
 AritziasVeryOwn/
-├── docs/                      # PRD.md, TECH_SPEC.md
+├── docs/                      # PRD.md, TECH_SPEC.md, plans/
 ├── backend/
 │   ├── src/stylist/
 │   │   ├── core/              # outfit engine, pure Python: models, catalog (product grouping),
 │   │   │                      #   scoring, generator, feedback, names, keyword_parser, session
 │   │   ├── adapters/          # catalog_store (SQLite + embeddings -> Catalog), clip_text (query
-│   │   │                      #   embeddings), session_store (sessions.db); Claude wrapper on Day 3
+│   │   │                      #   embeddings), session_store (sessions.db), llm_parser (Claude, OpenAI-compatible)
 │   │   ├── tagging/           # clip_tagger.py (zero-shot), colors.py (alt-text and hex rules)
 │   │   ├── jobs/              # offline jobs: collect_channel3, ingest, tag, tagging_report, names_report
 │   │   ├── api/               # app.py (FastAPI routes, error handlers), schemas.py (request/response bodies)
 │   │   └── cli.py             # terminal chat; --demo plays Flows A–D
 │   └── tests/
-├── web/                       # React + TypeScript client (Day 3)
+├── web/                       # React + TypeScript client (Vite)
 ├── data/                      # seed_catalog.csv (committed); catalog.db, sessions.db, images/, embeddings (gitignored)
 ├── eval/                      # gold_set.csv + gold_labeling.md, tagging_report.md, names_test.csv
 ├── requirements.txt           # core + tests (what CI installs)
