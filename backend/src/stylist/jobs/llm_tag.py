@@ -8,8 +8,9 @@ CLIP misses the vibe target (43% top-1 vs. 75%), so vibe is tagged first. Season
 stay with CLIP, which meets their targets. Each item is sent once with its photo (when cached)
 and its name, slot, fabric, description, and alt text, and gets 1-3 vibes back.
 
-Answers are cached in data/llm_vibes.json, keyed by item and by a hash of what was sent, so a
-re-run only tags new or changed items. The cache is committed: without an API key the job still
+Answers are cached in data/llm_vibes.json, keyed by item and by a hash of the prompt, the item's
+details, and its photo URL, so a re-run only tags new or changed items. (The URL, not the photo
+file: a machine without the photo cache, like the Docker image, still reuses the answers.) The cache is committed: without an API key the job still
 saves the cached vibes, so anyone can rebuild the database without paying for the calls.
 
 The prompt is the PRD's vibe definitions (Appendix A) plus the vibe rules from
@@ -100,8 +101,8 @@ def photo_jpeg(item: Item) -> bytes | None:
         return None
 
 
-def content_hash(item: Item, photo: bytes | None) -> str:
-    sent = json.dumps([MODEL_VERSION, SYSTEM_PROMPT, details(item), hashlib.sha1(photo or b"").hexdigest()])
+def content_hash(item: Item) -> str:
+    sent = json.dumps([MODEL_VERSION, SYSTEM_PROMPT, details(item), item.image_url])
     return hashlib.sha1(sent.encode()).hexdigest()[:16]
 
 
@@ -145,9 +146,9 @@ def tag_vibes(db_url: str = DB_URL, client=None, limit: int | None = None, cache
         items = items[:limit]
 
     cache = read_cache(cache_path)
-    photos = {item.item_id: photo_jpeg(item) for item in items}
-    hashes = {item.item_id: content_hash(item, photos[item.item_id]) for item in items}
+    hashes = {item.item_id: content_hash(item) for item in items}
     todo = [item for item in items if cache.get(item.item_id, {}).get("hash") != hashes[item.item_id]]
+    photos = {item.item_id: photo_jpeg(item) for item in todo}
     print(f"{len(items) - len(todo)} of {len(items)} items are cached; {len(todo)} to tag "
           f"({sum(photos[i.item_id] is not None for i in todo)} with a photo).")
 

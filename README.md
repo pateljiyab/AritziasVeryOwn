@@ -2,12 +2,25 @@
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier) until it's something you'd actually wear.
 
-Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client; Docker Compose is next (Day 3).
+Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client, and Docker Compose runs both.
 
 ## Docs
 
 - [Product Requirements (PRD)](docs/PRD.md): problem, users, requirements, success metrics
 - [Technical Specification](docs/TECH_SPEC.md): tech stack, architecture, key design decisions
+
+## Run it with Docker
+
+Needs only Docker. Copy `.env.example` to `.env` and add `ANTHROPIC_API_KEY` if you want the LLM parser (without it, chat uses keyword rules). Then:
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8080 for the app and http://localhost:8080/docs for the API docs. nginx serves the built client and forwards `/api` to the FastAPI service, so the browser talks to one origin.
+
+- On first start, the API builds `data/catalog.db` from the committed files: the seed catalog, the CLIP tag snapshot (`data/clip_tags.json`), and the LLM vibe cache (`data/llm_vibes.json`). An existing database is used as is. `./data` is mounted into the container, so the database and sessions persist on your machine.
+- The image has no PyTorch, so outfits are scored without the CLIP relevance term (like `cli.py --no-clip`). Run the app outside Docker with `requirements-ml.txt` for the full scoring.
 
 ## Setup
 
@@ -28,10 +41,11 @@ Collect the catalog into `data/seed_catalog.csv`:
 python backend/src/stylist/jobs/collect_channel3.py
 ```
 
-Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
+Load the CSV into SQLite (`data/catalog.db`). Safe to re-run. Without PyTorch, `restore_tags.py` loads the committed CLIP tags instead of running the tagger below:
 
 ```bash
 python backend/src/stylist/jobs/ingest.py
+python backend/src/stylist/jobs/restore_tags.py
 ```
 
 Tag the catalog with CLIP (needs `pip install -r requirements-ml.txt`; the first run downloads the photos and model weights), add the LLM vibe tags, then score the tags against the gold set in `eval/tagging_report.md`. The LLM vibes are cached in the committed `data/llm_vibes.json`, so `llm_tag.py` needs an `ANTHROPIC_API_KEY` only for new or changed items (about $0.05 for the whole catalog):

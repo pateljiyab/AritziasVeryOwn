@@ -1,0 +1,22 @@
+# The whole app: docker compose up --build, then open http://localhost:8080
+# (API docs at http://localhost:8080/docs).
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - path: .env  # ANTHROPIC_API_KEY for the LLM parser; without it, chat uses keyword rules
+        required: false
+    volumes:
+      - ./data:/app/data  # the catalog, LLM vibes, and sessions.db live on the host
+    restart: unless-stopped
+
+  web:
+    build: web
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

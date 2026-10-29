@@ -28,6 +28,8 @@ def run_job(tmp_path, monkeypatch, limit=None, no_photo=()):
     monkeypatch.setattr(tag, "load_image", lambda path: object())
     monkeypatch.setattr(tag, "EMBEDDINGS_NPY", tmp_path / "embeddings.npy")
     monkeypatch.setattr(tag, "EMBEDDING_IDS_JSON", tmp_path / "embedding_ids.json")
+    if not str(tag.CLIP_TAGS_JSON).startswith(str(tmp_path)):  # never touch the committed snapshot
+        monkeypatch.setattr(tag, "CLIP_TAGS_JSON", tmp_path / "clip_tags.json")
     tag.tag_catalog(db, limit)
     with Session(create_engine(db)) as session:
         return list(session.scalars(select(tag.ItemTag)))
@@ -135,3 +137,28 @@ def test_cached_photo_is_refetched_when_the_image_url_changes(tmp_path, monkeypa
     new = type("FakeItem", (), {"item_id": "abc", "name": "Test", "image_url": "https://example.com/new.jpg"})()
 
     assert tag.image_path(old) != tag.image_path(new)
+
+
+def test_full_run_writes_a_snapshot_that_restore_loads(tmp_path, monkeypatch):
+    from stylist.jobs import restore_tags
+
+    snapshot = tmp_path / "clip_tags.json"
+    monkeypatch.setattr(tag, "CLIP_TAGS_JSON", snapshot)
+    rows = run_job(tmp_path, monkeypatch, limit=None)
+    saved = json.loads(snapshot.read_text())
+    assert saved["model_version"] == tag.MODEL_VERSION and len(saved["items"]) == len(rows)
+
+    fresh = f"sqlite:///{tmp_path / 'fresh.db'}"
+    ingest(CATALOG_CSV, fresh)
+    assert restore_tags.restore(fresh, snapshot) == len(rows)
+    assert restore_tags.restore(fresh, snapshot) == 0  # items with tags are left alone
+    with Session(create_engine(fresh)) as session:
+        restored = {r.item_id: r for r in session.scalars(select(tag.ItemTag))}
+    first = rows[0]
+    assert restored[first.item_id].vibes == first.vibes and restored[first.item_id].formality == first.formality
+
+
+def test_trial_run_does_not_rewrite_the_snapshot(tmp_path, monkeypatch):
+    run_job(tmp_path, monkeypatch, limit=3)
+
+    assert not (tmp_path / "clip_tags.json").exists()
