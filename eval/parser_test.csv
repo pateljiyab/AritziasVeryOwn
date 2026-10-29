@@ -1,0 +1,41 @@
+text,live,in_scope,kind,action,slot,vibes,formality,season,weather,named_items,notes
+im getting coffee then going to a bookstore and its kinda cold out what do i wear,0,1,request,,,off-duty;cozy,2,,cool|cold,,"layered casual. Changed: season fall;spring -> blank (not stated); weather clear -> cool|cold (""kinda cold""; either counts)"
+i have a presentation at my internship tmrw help me look put together pls,0,1,request,,,polished,4,,,,office appropriate. Changed: season -> blank
+wait can u make a date night fit with one of those aritzia satin midi dresses,0,1,request,,,going-out;romantic,3,,,satin midi dress,anchor dress
+going to a farmers market this weekend but its gonna rain lol what should i wear,0,1,request,,,off-duty;cozy,2,,rainy,,weather layers. Changed: season -> blank
+how do i style those agency pants for work without looking too corporate,0,1,request,,,polished,4,,,agency pants,anchor bottom. Changed: season -> blank
+need an airport fit for like an 8 hour flight but i still wanna look cute,0,1,request,,,cozy;cute,1,,,,comfort priority. Changed: season (all four) -> blank
+what do i wear to my friends bday dinner its kinda fancy but not THAT fancy,0,1,request,,,going-out;chic,3,,,,restaurant
+i have this soft cashmere sweater from aritzia can u make it look expensive lol,0,1,request,,,cozy;chic,3,,,cashmere sweater,anchor top. Changed: season -> blank
+going on a picnic then walking by the lake its gonna be hottt,0,1,request,,,romantic;off-duty,2,,hot,,easy walking. Changed: season summer -> blank (only the heat is stated); weather sunny -> hot
+i wanna wear that long white button up dress but idk what goes with it,0,1,request,,,cute;romantic,2,,,long white button up dress,anchor dress. Changed: season -> blank; named item -> as typed (was white poplin midi dress)
+need something for the library then dinner w my friends after,0,1,request,,,off-duty;going-out,2,,,,day to evening. Changed: season -> blank; added going-out (dinner) as also acceptable
+its drizzling and i wanna wear one of those long aritzia trench coats help,0,1,request,,,chic;polished,3,,rainy,long trench coat,anchor outerwear. Changed: season -> blank; named item -> as typed
+all black fit for an art gallery thing? but not boring pls,0,1,request,,,minimal;going-out,3,,,,monochrome. Changed: season -> blank
+how would u style some baggy low rise jeans for the weekend,0,1,request,,,off-duty;edgy,2,,,baggy low rise jeans,anchor denim. Changed: season -> blank
+i have an interview and its freezing outside what should i wear 😭,0,1,request,,,polished,4,,cold,,conservative. Changed: season winter -> blank (freezing is the weather)
+lunch by the water and i wanna wear a cute linen dress,0,1,request,,,cute;off-duty,2,,,linen dress,anchor dress. Changed: season summer -> blank; weather sunny -> blank (not stated)
+can u do an airport outfit with one of those oversized aritzia hoodies,0,1,request,,,athleisure;cozy,1,,,oversized hoodie,anchor top. Changed: season -> blank
+my bday party is coming up i wanna look hot but not show too much,0,1,request,,,going-out;chic,3,,,,modest coverage
+just got these loafers from aritzia what do i wear w them for preppy vibes,0,1,request,,,polished;chic,3,,,loafers,anchor footwear. Changed: season -> blank
+walking to class in the morning and its SO cold help,0,1,request,,,cozy,2,,cold,,warmth priority. Changed: season winter -> blank; weather snowy -> cold
+got a networking thing right after work what outfit works for both,0,1,request,,,polished,4,,,,day to evening. Changed: season -> blank
+i wanna wear a long trench coat this spring whats a cute fit,0,1,request,,,chic;minimal;cute,,spring,,long trench coat,"anchor outerwear. Changed: season spring;fall -> spring (stated); weather windy -> blank; formality 3 -> blank (no hint); added cute (""cute fit"")"
+style some loose linen pants for summer pls nothing too dressy,0,1,request,,,off-duty,2,summer,,linen pants,anchor bottom. Changed: weather hot -> blank (not stated)
+first date at a cute cafe what would u put me in,0,1,request,,,romantic;cute;going-out,2,,,,low key date. Changed: season -> blank; added going-out (date) as also acceptable
+i have this fitted contour dress for a fancy night out what else should i wear,0,1,request,,,going-out;chic,4,,,fitted contour dress,anchor dress. Changed: named item -> as typed
+hmm can i see diff shoes instead,1,1,feedback,swap,shoes,,,,,,replace footwear
+nah those pants are too tight can u do baggier ones,1,1,feedback,swap|reject,bottom,,,,,,relaxed fit. Reject also counts
+keep the skirt but pls change the top i dont want it that cropped,1,1,feedback,swap,top,,,,,,"more coverage. Two actions (lock the skirt, swap the top); the parser returns one, so swap is the gold answer"
+idk about that jacket show me another one,1,1,feedback,swap|reject,outerwear,,,,,,alternate layer. Reject also counts
+the bag is kinda doing too much can we try a simpler one,1,1,feedback,swap|reject,accessory,,,,,,"bag alternative. Reject also counts; ""simpler"" can't be expressed in a swap yet"
+wait make it a lil more formal,1,1,feedback,nudge,,,1,,,,increase formality. Changed: adjust + formality 4 -> nudge +1 (nudges are a direction); vibe polished -> not scored
+this looks like im going to a wedding lol make it more casual,1,1,feedback,nudge,,,-1,,,,"decrease formality. Changed: adjust + formality 2 -> nudge -1; vibe off-duty -> not scored. Trap: ""wedding"" must not start a new request"
+can u make it more romantic like date night vibes,1,1,feedback,nudge,,romantic|going-out,,,,,"change vibe. Changed: adjust -> nudge; going-out also counts (""date night"")"
+ok but what if its actually freezing outside,1,0,feedback,,,,,,cold,,weather adaptation. OUT OF SCOPE: feedback can't change the weather yet
+nvm its raining now can u fix the fit for that,1,0,feedback,,,,,,rainy,,weather adaptation. OUT OF SCOPE: feedback can't change the weather yet
+wait add a scarf i feel like its missing smth,1,0,feedback,,accessory,,,,,,extra accessory. OUT OF SCOPE: there's no add action
+take off the belt pls i dont like it,1,1,feedback,reject,accessory,,,,,,remove belt. Changed: remove -> reject (the closest action; it replaces the belt instead of leaving the slot empty)
+can u use a chunky cashmere scarf instead,1,1,feedback,swap,accessory,,,,,,specific accessory. Scored as a swap; the description (chunky cashmere) can't be expressed in a swap yet
+switch the pants to those aritzia tailored ones but dont change anything else,1,1,feedback,swap,bottom,,,,,,named replacement. Scored as a swap; the description (tailored) can't be expressed in a swap yet
+wait can we use some simple white sneakers instead of those shoes,1,1,feedback,swap,shoes,,,,,,named replacement. Scored as a swap; the description (white sneakers) can't be expressed in a swap yet

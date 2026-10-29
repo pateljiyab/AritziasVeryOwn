@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from factories import make_item, vector
 from stylist.adapters.session_store import SessionStore
-from stylist.api.app import create_app
+from stylist.api.app import RateLimiter, create_app
 from stylist.core.catalog import Catalog
 
 SLOTS = ("top", "bottom", "dress", "outerwear", "shoes", "accessory")
@@ -49,7 +49,8 @@ def piece(turn, slot):
 # ------------------------------------------------------------- endpoints
 
 def test_health(client):
-    assert client.get("/api/v1/health").json() == {"status": "ok", "items": len(small_catalog())}
+    assert client.get("/api/v1/health").json() == {"status": "ok", "items": len(small_catalog()),
+                                                   "parser": "keyword rules"}  # no LLM key in tests
 
 
 def test_create_session(client, store):
@@ -202,6 +203,26 @@ def test_chat_message_that_doesnt_fit_is_a_note_not_an_error(client, session_id)
     response = say(client, session_id, f"keep the {missing}")
 
     assert response.status_code == 200 and response.json()["notes"]
+
+
+def test_too_many_messages_is_429(store):
+    client = TestClient(create_app(catalog=small_catalog(), embed=lambda text: None, store=store,
+                                   limiter=RateLimiter(limit=2)))
+    sid = client.post("/api/v1/sessions").json()["session_id"]
+
+    codes = [say(client, sid, "dinner").status_code for _ in range(3)]
+
+    assert codes == [200, 200, 429]
+    assert act(client, sid, action="swap", slot="shoes").status_code != 429  # buttons make no LLM call
+
+
+def test_rate_limiter_window_slides():
+    now = [0.0]
+    limiter = RateLimiter(limit=1, window=60, clock=lambda: now[0])
+
+    assert limiter.allow("a") and not limiter.allow("a") and limiter.allow("b")
+    now[0] = 60.0
+    assert limiter.allow("a")
 
 
 def test_unexpected_error_is_a_clean_500(store):

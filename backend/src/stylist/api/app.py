@@ -1,13 +1,19 @@
 """The REST API (FR-API-1, -2): sessions, chat messages, button actions, and catalog lookups.
 
 Run (from the repo root, after ingest.py and tag.py):
-    uvicorn --factory --app-dir backend/src stylist.api.app:create_app --reload
+    uvicorn --factory --app-dir backend/src stylist.api.app:create_app --env-file .env --reload
 Then open http://127.0.0.1:8000/docs for the OpenAPI docs.
 
 Environment:
+    ANTHROPIC_API_KEY        parse chat with Claude Haiku 5.5 (otherwise LLM_* or keyword rules;
+                             see adapters/llm_parser.make_parser)
     STYLIST_NO_CLIP=1        don't load CLIP (no PyTorch needed; outfits skip query relevance)
     STYLIST_CORS_ORIGINS     comma-separated origins allowed to call the API
                              (default: the Vite dev server, http://localhost:5173)
+    STYLIST_MESSAGES_PER_MINUTE
+                             chat messages allowed per client IP per minute (default 20), so a
+                             script can't spend the LLM budget. Behind a proxy, run uvicorn with
+                             --proxy-headers so the client IP is the user's, not the proxy's.
 
 Every turn is saved to data/sessions.db and logged as one JSON line (NFR-6).
 """
@@ -18,6 +24,7 @@ import json
 import logging
 import os
 import time
+from collections import defaultdict, deque
 from collections.abc import Callable
 from typing import Annotated
 
@@ -29,6 +36,7 @@ from fastapi.responses import JSONResponse
 
 from stylist.adapters.catalog_store import load_catalog
 from stylist.adapters.clip_text import TextEmbedder
+from stylist.adapters.llm_parser import make_parser
 from stylist.adapters.session_store import SessionStore
 from stylist.api.schemas import (
     ItemOut, MessageIn, OutfitOut, ResolutionOut, SessionCreated, SessionOut, TurnOut, TurnSummary,
@@ -49,13 +57,34 @@ if not log.handlers:  # uvicorn only configures its own loggers; print one JSON 
     log.propagate = False
 
 
+class RateLimiter:
+    """At most `limit` calls per `window` seconds for each key. In memory and per process, so it
+    resets on restart: enough to stop one client from spending the LLM budget."""
+
+    def __init__(self, limit: int, window: float = 60.0, clock: Callable[[], float] = time.monotonic):
+        self.limit, self.window, self.clock = limit, window, clock
+        self.calls: dict[str, deque[float]] = defaultdict(deque)
+
+    def allow(self, key: str) -> bool:
+        now = self.clock()
+        calls = self.calls[key]
+        while calls and calls[0] <= now - self.window:
+            calls.popleft()
+        if len(calls) >= self.limit:
+            return False
+        calls.append(now)
+        return True
+
+
 def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store: SessionStore | None = None,
-               parse: Parse = keyword_parser.parse) -> FastAPI:
-    """The app. With no arguments it loads the real catalog, CLIP, and data/sessions.db;
-    tests pass small fakes instead."""
+               parse: Parse | None = None, limiter: RateLimiter | None = None) -> FastAPI:
+    """The app. With no arguments it loads the real catalog, CLIP, data/sessions.db, and the
+    parser from the environment; tests pass small fakes instead."""
     catalog = catalog if catalog is not None else load_catalog()
     embed = embed if embed is not None else TextEmbedder(enabled=os.environ.get("STYLIST_NO_CLIP") != "1")
     store = store if store is not None else SessionStore()
+    parse = parse if parse is not None else make_parser()
+    limiter = limiter or RateLimiter(int(os.environ.get("STYLIST_MESSAGES_PER_MINUTE", "20")))
 
     app = FastAPI(title="AI Outfit Stylist", version="0.3.0",
                   description="Conversational outfit stylist over the Aritzia catalog.")
@@ -94,7 +123,8 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
 
     @api.get("/health")
     def health() -> dict:
-        return {"status": "ok", "items": len(catalog)}
+        parser = getattr(parse, "name", "keyword rules" if parse is keyword_parser.parse else "custom")
+        return {"status": "ok", "items": len(catalog), "parser": parser}
 
     @api.post("/sessions", status_code=status.HTTP_201_CREATED, response_model=SessionCreated)
     def create_session() -> SessionCreated:
@@ -108,10 +138,14 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
                  for t in store.turns(session_id)]
         return SessionOut(session_id=session_id, outfit=outfit, accepted=bool(state and state.accepted), turns=turns)
 
-    @api.post("/sessions/{session_id}/messages", response_model=TurnOut)
-    def send_message(session_id: str, body: MessageIn) -> TurnOut:
+    @api.post("/sessions/{session_id}/messages", response_model=TurnOut,
+              responses={429: {"description": "Too many messages from this client"}})
+    def send_message(session_id: str, body: MessageIn, request: Request) -> TurnOut:
         """A chat message: a new request, or feedback on the outfit on screen. A message that
         can't be applied ("keep the dress" with no dress) comes back as a note, not an error."""
+        if not limiter.allow(request.client.host if request.client else "unknown"):
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
+                                "That's a lot of messages. Wait a minute, then try again.")
         reply = run_turn(session_id, "message", {"text": body.text},
                          lambda state: handle_message(catalog, state, body.text, embed, parse))
         return TurnOut.of(session_id, reply)

@@ -93,3 +93,28 @@ def test_missing_tags_count_as_misses_and_are_named(tmp_path):
 
     assert "29/30 (97%)" in text
     assert skipped.name in text.split("## By slot")[0]
+
+
+def test_llm_vibes_get_a_comparison_table(tmp_path):  # FR-TAG-5
+    db = f"sqlite:///{tmp_path / 'catalog.db'}"
+    ingest(CATALOG_CSV, db)
+    wrong = lambda g: [next(v for v in report.VIBE_PHRASES if v not in g.tags.vibes)]  # noqa: E731
+    write_tags(db, lambda g: Tags(g.tags.seasons, wrong(g), g.tags.colors, g.tags.formality))  # CLIP always misses vibe
+    clip, versions = report.read_predictions(db)
+    llm = {g.item_id: Tags([], g.tags.vibes, [], None) for g in read_gold()}  # LLM always right
+
+    text = report.build_report(read_gold(), clip, versions, llm, {"llm-test"})
+
+    table = text.split("## Vibe: CLIP vs. LLM")[1].split("## First vibe")[0]
+    assert "| Vibe top-1 (target ≥ 75%) | 0/30 (0%) | 30/30 (100%) |" in table
+    assert "agree on the first vibe (0 items)" in table
+    assert "LLM vibe |" in text.split("## Every item")[1]
+
+
+def test_report_without_llm_vibes_has_no_comparison(tmp_path):
+    db = f"sqlite:///{tmp_path / 'catalog.db'}"
+    ingest(CATALOG_CSV, db)
+    write_tags(db, lambda g: g.tags)
+    clip, versions = report.read_predictions(db)
+
+    assert "CLIP vs. LLM" not in report.build_report(read_gold(), clip, versions)

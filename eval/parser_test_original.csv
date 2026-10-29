@@ -1,0 +1,41 @@
+text,live,kind,action,slot,vibes,formality,season,weather,named_items,notes
+im getting coffee then going to a bookstore and its kinda cold out what do i wear,0,request,,,off-duty;cozy,2,fall;spring,clear,,layered casual
+i have a presentation at my internship tmrw help me look put together pls,0,request,,,polished,4,fall;winter;spring,,,office appropriate
+wait can u make a date night fit with one of those aritzia satin midi dresses,0,request,,,going-out;romantic,3,,,satin midi dress,anchor dress
+going to a farmers market this weekend but its gonna rain lol what should i wear,0,request,,,off-duty;cozy,2,fall;spring,rainy,,weather layers
+how do i style those agency pants for work without looking too corporate,0,request,,,polished,4,fall;winter;spring,,agency pants,anchor bottom
+need an airport fit for like an 8 hour flight but i still wanna look cute,0,request,,,cozy;cute,1,spring;summer;fall;winter,,,comfort priority
+what do i wear to my friends bday dinner its kinda fancy but not THAT fancy,0,request,,,going-out;chic,3,,,,restaurant
+i have this soft cashmere sweater from aritzia can u make it look expensive lol,0,request,,,cozy;chic,3,winter;fall,,cashmere sweater,anchor top
+going on a picnic then walking by the lake its gonna be hottt,0,request,,,romantic;off-duty,2,summer,sunny,,easy walking
+i wanna wear that long white button up dress but idk what goes with it,0,request,,,cute;romantic,2,spring;summer,,white poplin midi dress,anchor dress
+need something for the library then dinner w my friends after,0,request,,,off-duty,2,fall;spring,,,day to evening
+its drizzling and i wanna wear one of those long aritzia trench coats help,0,request,,,chic;polished,3,spring;fall,rainy,trench coat,anchor outerwear
+all black fit for an art gallery thing? but not boring pls,0,request,,,minimal;going-out,3,fall;winter,,,monochrome
+how would u style some baggy low rise jeans for the weekend,0,request,,,off-duty;edgy,2,fall;spring,,baggy low rise jeans,anchor denim
+i have an interview and its freezing outside what should i wear 😭,0,request,,,polished,4,winter,cold,,conservative
+lunch by the water and i wanna wear a cute linen dress,0,request,,,cute;off-duty,2,summer,sunny,linen dress,anchor dress
+can u do an airport outfit with one of those oversized aritzia hoodies,0,request,,,athleisure;cozy,1,winter;fall,,oversized hoodie,anchor top
+my bday party is coming up i wanna look hot but not show too much,0,request,,,going-out;chic,3,,,,modest coverage
+just got these loafers from aritzia what do i wear w them for preppy vibes,0,request,,,polished;chic,3,fall;spring,,loafers,anchor footwear
+walking to class in the morning and its SO cold help,0,request,,,cozy,2,winter,snowy,,warmth priority
+got a networking thing right after work what outfit works for both,0,request,,,polished,4,fall;spring,,,day to evening
+i wanna wear a long trench coat this spring whats a cute fit,0,request,,,chic;minimal,3,spring;fall,windy,long trench coat,anchor outerwear
+style some loose linen pants for summer pls nothing too dressy,0,request,,,off-duty,2,summer,hot,linen pants,anchor bottom
+first date at a cute cafe what would u put me in,0,request,,,romantic;cute,2,spring;summer;fall,,,low key date
+i have this fitted contour dress for a fancy night out what else should i wear,0,request,,,going-out;chic,4,,,contour dress,anchor dress
+hmm can i see diff shoes instead,1,feedback,swap,shoes,,,,,,replace footwear
+nah those pants are too tight can u do baggier ones,1,feedback,swap,bottom,,,,,,relaxed fit
+keep the skirt but pls change the top i dont want it that cropped,1,feedback,swap,top,,,,,,more coverage
+idk about that jacket show me another one,1,feedback,swap,outerwear,,,,,,alternate layer
+the bag is kinda doing too much can we try a simpler one,1,feedback,swap,accessory,,,,,,bag alternative
+wait make it a lil more formal,1,feedback,adjust,,polished,4,,,,increase formality
+this looks like im going to a wedding lol make it more casual,1,feedback,adjust,,off-duty,2,,,,decrease formality
+can u make it more romantic like date night vibes,1,feedback,adjust,,romantic,,,,,change vibe
+ok but what if its actually freezing outside,1,feedback,adjust,,,,winter,cold,,weather adaptation
+nvm its raining now can u fix the fit for that,1,feedback,adjust,,,,,rainy,,weather adaptation
+wait add a scarf i feel like its missing smth,1,feedback,add,accessory,,,,,,extra accessory
+take off the belt pls i dont like it,1,feedback,remove,accessory,minimal,,,,,remove belt
+can u use a chunky cashmere scarf instead,1,feedback,swap,accessory,,,winter,,cashmere scarf,specific accessory
+switch the pants to those aritzia tailored ones but dont change anything else,1,feedback,swap,bottom,,,,,tailored pants,named replacement
+wait can we use some simple white sneakers instead of those shoes,1,feedback,swap,shoes,off-duty,2,,,white sneakers,named replacement

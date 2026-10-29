@@ -265,7 +265,7 @@ Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, ou
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Channel3 tags other retailers' and brands' products as Aritzia, and lists one product several times. | Wrong products in outfits; repeated colorways. | Seller and brand filters in the collector (FR-CAT-4) and product grouping (FR-CAT-6). |
-| CLIP vibe tags miss the target (vibe top-1 is 43% vs. 75%; `polished` and `going-out` are rarely predicted). | Weak vibe matching, especially for going-out requests. | FR-TAG-5: an LLM vibe tagger compared on the gold set. Any prompt tuning is tested on items outside the gold set. |
+| Vibe tags miss the target. CLIP's vibe top-1 is 43% vs. 75%, with `polished` and `going-out` rarely predicted; the LLM vibe tagger (FR-TAG-5, built) reaches 63%. | Weaker vibe matching. | The app uses the LLM's vibes. Any prompt tuning is done on items outside the gold set, and a second person's labels would show how much the gold set's own judgment calls cap the score. |
 | The LLM returns malformed structured output. | A broken turn. | Pydantic validation, one retry, then keyword-rule fallback. Tests cover the fallback path. |
 | The small catalog limits variety. Shoes are the thinnest slot: 13 listings but only 5 distinct products. | Repetitive outfits. | An optional accessory, no repeat of the last outfit, and pulling more shoes if time allows. |
 | PyTorch makes the API image large and slow to build. | Slow CI and Docker builds. | CPU-only torch wheel. CI tests use a fake embedder and never install torch. |
@@ -279,7 +279,7 @@ Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, ou
 
 **Resolved during the build (v3)**
 
-4. *Tag with an LLM or with CLIP?* CLIP zero-shot on the photos, with rules for color: it needs no API key or paid calls. CLIP meets the season and formality targets but not vibe, so an LLM vibe tagger is FR-TAG-5.
+4. *Tag with an LLM or with CLIP?* CLIP zero-shot on the photos, with rules for color: it needs no API key or paid calls. CLIP meets the season and formality targets but not vibe, so vibe comes from an LLM tagger (FR-TAG-5): Claude Haiku 5.5 reads each photo and its details, scoring 63% vibe top-1 against CLIP's 43%, for about $0.05 per catalog run.
 5. *What does "top-1" mean when an item has several gold tags?* The model's first tag is one of the gold tags (G3). The report also shows the stricter "first tag matches the gold first tag".
 6. *Does reject rebuild the whole outfit?* No. Only the rejected piece is replaced, like a swap, so one disliked top doesn't throw away the rest.
 7. *Should the G4 test queries be used while improving the resolver?* They were, once. The report prints the pre-tuning baseline (17/30) next to every result, so the score isn't presented as held out.

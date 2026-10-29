@@ -12,3 +12,6 @@ rapidfuzz==3.13.0
 fastapi==0.143.0
 uvicorn==0.54.0
 httpx==0.28.1
+# LLM parser: Claude (live), and any OpenAI-compatible server (Groq, Ollama) for the benchmark.
+anthropic==1.14.0
+openai==3.31.0

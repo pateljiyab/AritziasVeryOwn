@@ -1,6 +1,6 @@
 """Score the tagger against the hand-labeled gold set and write eval/tagging_report.md (FR-TAG-4).
 
-Usage (from the repo root, after jobs/tag.py has run):
+Usage (from the repo root, after jobs/tag.py has run, and jobs/llm_tag.py for the LLM vibe column):
     python backend/src/stylist/jobs/tagging_report.py
 
 Metrics (PRD §7, G3):
@@ -9,6 +9,8 @@ Metrics (PRD §7, G3):
 - Formality: within ±1 of the gold score, plus exact match and mean absolute error.
 - Color: the model's main color equals the gold main color (the PRD sets no target).
 An item the tagger skipped (no tags row, or no photo so no CLIP tags) counts as a miss.
+
+When the LLM vibe tagger has run (FR-TAG-5), the report adds a CLIP-vs-LLM vibe table.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ from sqlalchemy import create_engine, select  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
 
 from stylist.jobs.ingest import DB_URL, ROOT, SLOTS, ItemTag  # noqa: E402
+from stylist.jobs.llm_tag import SOURCE as LLM_SOURCE  # noqa: E402
 from stylist.jobs.tag import SOURCE  # noqa: E402
 from stylist.tagging.clip_tagger import FORMALITY_PHRASES, SEASON_PHRASES, VIBE_PHRASES  # noqa: E402
 from stylist.tagging.colors import COLOR_WORDS  # noqa: E402
@@ -128,7 +131,50 @@ def cell(text: str) -> str:
     return text.replace("|", "\\|")
 
 
-def build_report(gold: list[GoldItem], predictions: dict[str, Tags], model_versions: set[str]) -> str:
+def vibe_comparison(gold: list[GoldItem], clip: dict[str, Tags], llm: dict[str, Tags], llm_versions: set[str]) -> list[str]:
+    """FR-TAG-5: CLIP and the LLM on vibe, overall, where they agree and disagree, and by slot."""
+    def top1(tags: dict[str, Tags], items: list[GoldItem]) -> int:
+        return sum(item_results(g.tags, tags.get(g.item_id))["vibe_top1"] for g in items)
+
+    def first(tags: dict[str, Tags], g: GoldItem) -> str | None:
+        t = tags.get(g.item_id)
+        return t.vibes[0] if t and t.vibes else None
+
+    n = len(gold)
+    agree = [g for g in gold if first(clip, g) is not None and first(clip, g) == first(llm, g)]
+    disagree = [g for g in gold if g not in agree]
+    lines = [
+        "",
+        "## Vibe: CLIP vs. LLM (FR-TAG-5)",
+        "",
+        f"The LLM vibe tagger (`{', '.join(sorted(llm_versions))}`, `jobs/llm_tag.py`) sees each item's photo and "
+        "details. Its prompt is the PRD's vibe definitions plus the vibe rules in "
+        "[`gold_labeling.md`](gold_labeling.md), the same instructions the gold set was labeled with. It was written "
+        "without looking at gold items and isn't tuned on them. The app uses the LLM's vibe when an item has one, "
+        "and CLIP's otherwise; season, formality, and color stay with CLIP.",
+        "",
+        "| Metric | CLIP | LLM |",
+        "|---|---|---|",
+        f"| Vibe top-1 (target ≥ 75%) | {ratio(top1(clip, gold), n)} | {ratio(top1(llm, gold), n)} |",
+        f"| Vibe first tag matches | {ratio(sum(first(clip, g) == g.tags.vibes[0] for g in gold), n)} "
+        f"| {ratio(sum(first(llm, g) == g.tags.vibes[0] for g in gold), n)} |",
+        f"| Top-1 where they agree on the first vibe ({len(agree)} items) | {ratio(top1(clip, agree), len(agree))} "
+        f"| {ratio(top1(llm, agree), len(agree))} |",
+        f"| Top-1 where they disagree ({len(disagree)} items) | {ratio(top1(clip, disagree), len(disagree))} "
+        f"| {ratio(top1(llm, disagree), len(disagree))} |",
+        "",
+        "| Slot | CLIP vibe top-1 | LLM vibe top-1 |",
+        "|---|---|---|",
+    ]
+    for slot in SLOTS:
+        in_slot = [g for g in gold if g.slot == slot]
+        lines.append(f"| {slot} | {ratio(top1(clip, in_slot), len(in_slot))} | {ratio(top1(llm, in_slot), len(in_slot))} |")
+    return lines
+
+
+def build_report(gold: list[GoldItem], predictions: dict[str, Tags], model_versions: set[str],
+                 llm: dict[str, Tags] | None = None, llm_versions: set[str] = frozenset()) -> str:
+    llm = llm or {}
     results = {g.item_id: item_results(g.tags, predictions.get(g.item_id)) for g in gold}
     n = len(gold)
 
@@ -176,20 +222,23 @@ def build_report(gold: list[GoldItem], predictions: dict[str, Tags], model_versi
         in_slot = [g for g in gold if g.slot == slot]
         row = [ratio(hits(k, in_slot), len(in_slot)) for k in ("season_top1", "vibe_top1", "formality_within_1", "color_main")]
         lines.append(f"| {slot} | {' | '.join(row)} |")
+    if llm:
+        lines += vibe_comparison(gold, predictions, llm, llm_versions)
 
     gold_first = Counter(g.tags.vibes[0] for g in gold)
     model_first = Counter(predictions[g.item_id].vibes[0] for g in gold if g not in untagged)
+    llm_first = Counter(llm[g.item_id].vibes[0] for g in gold if g.item_id in llm and llm[g.item_id].vibes)
     lines += [
         "",
         "## First vibe: gold vs. model",
         "",
         "How often each vibe is the first tag, across the gold items.",
         "",
-        "| Vibe | Gold | Model |",
-        "|---|---|---|",
+        "| Vibe | Gold | Model |" + (" LLM |" if llm else ""),
+        "|---|---|---|" + ("---|" if llm else ""),
     ]
     for vibe in sorted(VIBE_PHRASES, key=lambda v: (-gold_first[v], -model_first[v], v)):
-        lines.append(f"| {vibe} | {gold_first[vibe]} | {model_first[vibe]} |")
+        lines.append(f"| {vibe} | {gold_first[vibe]} | {model_first[vibe]} |" + (f" {llm_first[vibe]} |" if llm else ""))
 
     lines += [
         "",
@@ -199,8 +248,8 @@ def build_report(gold: list[GoldItem], predictions: dict[str, Tags], model_versi
         "",
         "<details><summary>Show all items</summary>",
         "",
-        "| Slot | Item | Season | Vibe | Formality | Color |",
-        "|---|---|---|---|---|---|",
+        "| Slot | Item | Season | Vibe | Formality | Color |" + (" LLM vibe |" if llm else ""),
+        "|---|---|---|---|---|---|" + ("---|" if llm else ""),
     ]
     for g in gold:
         p = predictions.get(g.item_id) or Tags([], [], [], None)
@@ -216,9 +265,15 @@ def build_report(gold: list[GoldItem], predictions: dict[str, Tags], model_versi
             pair(p.vibes, g.tags.vibes, "vibe_top1"),
             pair(p.formality, g.tags.formality, "formality_within_1"),
             pair(p.colors, g.tags.colors, "color_main"),
-        ]) + " |")
+        ]) + " |" + (f" {llm_cell(g, llm)} |" if llm else ""))
     lines += ["", "</details>", ""]
     return "\n".join(lines)
+
+
+def llm_cell(g: GoldItem, llm: dict[str, Tags]) -> str:
+    vibes = llm[g.item_id].vibes if g.item_id in llm else []
+    hit = item_results(g.tags, llm.get(g.item_id))["vibe_top1"]
+    return f"{'' if hit else '✗ '}{';'.join(vibes) or '–'} / {';'.join(g.tags.vibes)}"
 
 
 def main() -> None:
@@ -233,12 +288,16 @@ def main() -> None:
     predictions, versions = read_predictions(args.db, args.source)
     if not predictions:
         raise SystemExit(f"No '{args.source}' tags in the database. Run jobs/tag.py first.")
-    args.out.write_text(build_report(gold, predictions, versions), encoding="utf-8")
+    llm, llm_versions = read_predictions(args.db, LLM_SOURCE)
+    args.out.write_text(build_report(gold, predictions, versions, llm, llm_versions), encoding="utf-8")
 
     for key, axis, metric, target in METRICS:
         hits = sum(item_results(g.tags, predictions.get(g.item_id))[key] for g in gold)
         goal = f"   (target {target:.0%})" if target else ""
         print(f"  {axis:<9} {metric:<19} {ratio(hits, len(gold))}{goal}")
+    if llm:
+        hits = sum(item_results(g.tags, llm.get(g.item_id))["vibe_top1"] for g in gold)
+        print(f"  {'Vibe':<9} {'Top-1 (LLM)':<19} {ratio(hits, len(gold))}   (target 75%)")
     print(f"\nWrote {args.out.relative_to(ROOT) if args.out.is_relative_to(ROOT) else args.out}")
 
 
