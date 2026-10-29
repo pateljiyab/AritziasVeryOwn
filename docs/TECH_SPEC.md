@@ -61,7 +61,7 @@ flowchart LR
 | Image + text embeddings | **open_clip** (ViT-B/32, CPU) | One model embeds photos and request text in a shared space, which powers query relevance (and "more like this," P1). |
 | Vector search | **NumPy** | With about 400 items, plain cosine similarity is instant, so a vector database isn't needed. |
 | LLM | **Claude Haiku 5.5** via the Anthropic Python SDK, for chat parsing | Structured outputs constrain the reply to the parser's schema, and a turn costs about $0.0003. The model is configurable (`CLAUDE_MODEL`). |
-| LLM, for comparison | Any **OpenAI-compatible** server through the `openai` SDK: Groq's free tier (Llama 3.3 70B) or a local Ollama model | Used by the parser benchmark and for offline development. Not used for the live site. |
+| LLM, for comparison | Any **OpenAI-compatible** server through the `openai` SDK: Groq's free tier (gpt-oss-120b) or a local Ollama model | Used by the parser benchmark and for offline development. Not used for the live site. |
 | Fuzzy name matching | **rapidfuzz** | Word-by-word matching tolerates typos, plurals, and missing words. |
 
 ### Frontend

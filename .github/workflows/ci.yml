@@ -39,6 +39,7 @@ jobs:
           python backend/src/stylist/jobs/ingest.py
           python backend/src/stylist/cli.py --demo --no-clip
           python backend/src/stylist/jobs/names_report.py
+          python backend/src/stylist/jobs/parser_report.py --keyword-only
 
   web:
     runs-on: ubuntu-latest

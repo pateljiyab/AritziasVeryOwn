@@ -69,6 +69,12 @@ Score the name resolver on the hand-written queries in `eval/names_test.csv`:
 python backend/src/stylist/jobs/names_report.py
 ```
 
+Benchmark the chat parsers on the hand-written messages in `eval/parser_test.csv` and write `eval/parser_report.md`. It runs keyword rules plus every LLM that's set up: Claude (`ANTHROPIC_API_KEY`), gpt-oss-120b on Groq's free tier (`GROQ_API_KEY`), and a local model on Ollama if it's running. `--keyword-only` makes no LLM calls:
+
+```bash
+python backend/src/stylist/jobs/parser_report.py
+```
+
 Run the tests:
 
 ```bash
@@ -87,8 +93,10 @@ Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 | G3 Tagging: vibe top-1 | 13/30 (43%) | ≥ 75% | No |
 | G3 Tagging: formality within ±1 | 26/30 (87%) | ≥ 85% | Yes |
 | G4 Names: top-1 | 24/30 (80%) | ≥ 90% | No |
+| Chat parser: exact (every field right) | 24/37 (65%) with Claude Haiku 5.5; keyword rules 11/37 (30%) | none set | |
 
 - Tagging details are in [`eval/tagging_report.md`](eval/tagging_report.md). CLIP rarely predicts `polished` or `going-out`, and an LLM vibe tagger is the planned fix (FR-TAG-5).
+- Parser details are in [`eval/parser_report.md`](eval/parser_report.md): 40 hand-written messages, scored for keyword rules, Claude Haiku 5.5, gpt-oss-120b on Groq's free tier, and Llama 3.1 8B on Ollama. Haiku and gpt-oss-120b tie within noise (65% vs 68% exact), but Groq's free tier allows only about 4 messages a minute with this prompt, so the live app uses Haiku (about $0.0004 a message).
 - G4 is not a held-out score: the resolver was revised once using these queries (17/30 before). All 6 misses are queries that fit several products ("sweater", "chinos"), and 3 of them have the right product among the choices offered.
 
 ---

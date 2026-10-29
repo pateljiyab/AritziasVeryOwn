@@ -10,7 +10,7 @@ Jiya's `feat/web` (c09a2c7) finishes the React client. It covers cards, lock/swa
 - **Live provider:** Claude Haiku 5.5 (`claude-haiku-5-5`, $0.10 / $0.50 per million tokens) for the parser and the vibe tagger.
   - Expected spend is about $1.50 for the whole recruiting cycle, and about $4 if traffic is heavy. The $15 budget, with a spend cap, covers it.
   - Structured outputs constrain replies to the schema, and paid access won't change partway through the cycle.
-- **Benchmark only:** the Groq free tier (Llama 3.3 70B), as a free comparison point.
+- **Benchmark only:** the Groq free tier, as a free comparison point. (Planned as Llama 3.3 70B; Groq no longer serves it, so the benchmark uses OpenAI's open-weight gpt-oss-120b.)
 - **Benchmark and offline dev mode:** a local 8B model on Ollama (on the M1 Pro, 16 GB).
   - Not used for the live site, because hosting it would need several GB of RAM or a GPU.
   - Ollama serves an OpenAI-compatible endpoint, so `OpenAICompatParser` covers it with only env vars.

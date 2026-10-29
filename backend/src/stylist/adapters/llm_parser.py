@@ -95,9 +95,11 @@ occasion.
 Otherwise null.
 - weather: each of cold, cool, mild, warm, hot, rainy that the message mentions. "Might get \
 chilly" is cool. Snow is cold.
-- named_items: Aritzia product names the message mentions, as typed, without "the" or "my" \
-("build around the Effortless Pant" gives "Effortless Pant"). Generic garments ("a black \
-dress", "some boots") are not product names.
+- named_items: the pieces the user wants the outfit built around, as typed but without words \
+like "the", "my", "those" or "one of those". That includes product names ("build around the \
+Effortless Pant" gives "Effortless Pant") and described pieces the user has or wants to wear \
+("i have this cashmere sweater" gives "cashmere sweater"). A bare category with no description \
+("a top", "some shoes") is not one.
 
 Feedback ("kind": "feedback") fills in "feedback" with an action:
 - lock: keep a piece ("keep the coat", "love the shoes"). Needs a slot.
