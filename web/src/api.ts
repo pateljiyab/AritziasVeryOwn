@@ -57,6 +57,8 @@ export interface Turn {
   summary: Summary | null;
   parsed: Record<string, unknown> | null;
   error: string | null; // a message's change couldn't be applied; the outfit is unchanged
+  budget: Budget | null; // the session's budget, also before there's an outfit
+  omitted: Slot[]; // optional pieces the user asked to leave out
 }
 
 export interface TurnSummary {
@@ -73,12 +75,18 @@ export interface Session {
   session_id: string;
   outfit: Outfit | null;
   accepted: boolean;
+  budget: Budget | null;
+  omitted: Slot[];
   turns: TurnSummary[];
 }
 
 /** A button click; mirrors FeedbackIntent. */
 export type Action =
-  | { action: "lock" | "unlock" | "reject" | "swap"; item_id: string }
+  | { action: "lock" | "unlock"; item_id: string }
+  | { action: "reject"; item_id: string; cheaper?: boolean; color?: string } // never again; what to fix in the replacement
+  | { action: "swap"; item_id: string; color?: string } // a color keeps that piece to it
+  | { action: "swap"; slot: Slot } // a piece the outfit doesn't have yet ("add a bag")
+  | { action: "remove"; item_id: string } // leave an optional piece out from now on
   | { action: "nudge"; formality?: -1 | 1; vibe?: Vibe }
   | { action: "accept" }
   | { action: "cheaper"; item_id?: string } // one piece, or the whole outfit

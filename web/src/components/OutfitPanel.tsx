@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { formatLimit, formatPrice, VIBES, type Action, type Outfit, type Slot, type Vibe } from "../api";
+import { useState } from "react";
+import { formatLimit, formatPrice, VIBES, type Action, type Outfit, type Piece, type Slot, type Vibe } from "../api";
 import { OutfitCard } from "./OutfitCard";
 import styles from "./OutfitPanel.module.css";
 
@@ -9,6 +9,7 @@ interface Props {
   accepted: boolean;
   busy: boolean;
   onAction: (action: Action) => void;
+  onReject: (piece: Piece) => void; // asks why in the chat before replacing it
 }
 
 /** "Under $200", "Under $200 · over by $40", "$80 max a piece". */
@@ -26,18 +27,19 @@ function budgetText(outfit: Outfit): string {
   return parts.join(" · ");
 }
 
-/** The outfit on screen: score, cards, outfit-wide nudges, and the summary once accepted. */
-export function OutfitPanel({ outfit, changed, accepted, busy, onAction }: Props) {
-  const [vibe, setVibe] = useState<Vibe>(VIBES[0]);
-  const [budgetDraft, setBudgetDraft] = useState("");
-  const draftAmount = Number(budgetDraft);
+/** What each bar of the match score measures (core/scoring.py). */
+const TERMS: Record<string, string> = {
+  relevance: "how closely the photos match your words",
+  vibe: "how well each piece fits the vibe you asked for",
+  formality: "how close each piece is to the occasion's dress level",
+  color: "how well the colours go together",
+  season: "whether the pieces suit the season",
+};
 
-  function setBudget(e: FormEvent) {
-    e.preventDefault();
-    if (!(draftAmount > 0)) return;
-    onAction({ action: "budget", max_total: draftAmount, max_item: outfit?.budget?.max_item ?? null });
-    setBudgetDraft("");
-  }
+/** The outfit on screen: score, cards, outfit-wide nudges, and the summary once accepted.
+ *  The budget is set in the chat, which shares this state. */
+export function OutfitPanel({ outfit, changed, accepted, busy, onAction, onReject }: Props) {
+  const [vibe, setVibe] = useState<Vibe>(VIBES[0]);
 
   if (!outfit) {
     return (
@@ -72,12 +74,21 @@ export function OutfitPanel({ outfit, changed, accepted, busy, onAction }: Props
               </div>
             ))}
           </dl>
+          <details className={styles.explain}>
+            <summary>How is this scored?</summary>
+            <p>A weighted mix of how well the outfit fits what you asked for. Relevance counts most, then vibe,
+              formality and colour; terms that don't apply to your request are left out.</p>
+            <ul>
+              {Object.keys(outfit.breakdown).map((term) => <li key={term}><strong>{term}</strong>: {TERMS[term] ?? term}</li>)}
+            </ul>
+          </details>
         </div>
       </div>
 
       {accepted && (
         <div className={styles.accepted}>
-          <h2>Your outfit</h2>
+          <h2>Your final outfit</h2>
+          <p className={styles.muted}>Accepted. Start over in the chat to style something new.</p>
           <ul>
             {outfit.pieces.map((p) => (
               <li key={p.item_id}>
@@ -99,6 +110,7 @@ export function OutfitPanel({ outfit, changed, accepted, busy, onAction }: Props
             overLimit={!piece.locked && outfit.budget?.max_item != null && piece.price > outfit.budget.max_item}
             disabled={busy || accepted}
             onAction={onAction}
+            onReject={() => onReject(piece)}
           />
         ))}
       </div>
@@ -113,23 +125,6 @@ export function OutfitPanel({ outfit, changed, accepted, busy, onAction }: Props
             </select>
             <button disabled={busy} onClick={() => onAction({ action: "nudge", vibe })}>More {vibe}</button>
           </span>
-          <form className={styles.budgetForm} onSubmit={setBudget}>
-            <input
-              type="number"
-              min="1"
-              step="any"
-              inputMode="decimal"
-              aria-label="Budget for the whole outfit, in dollars"
-              placeholder={outfit.budget?.max_total != null ? `$${outfit.budget.max_total}` : "Budget $"}
-              value={budgetDraft}
-              disabled={busy}
-              onChange={(e) => setBudgetDraft(e.target.value)}
-            />
-            <button type="submit" disabled={busy || !(draftAmount > 0)}>Set budget</button>
-            {outfit.budget && (
-              <button type="button" disabled={busy} onClick={() => onAction({ action: "budget" })}>Clear</button>
-            )}
-          </form>
           <button className={styles.accept} disabled={busy} onClick={() => onAction({ action: "accept" })}>
             Accept outfit
           </button>

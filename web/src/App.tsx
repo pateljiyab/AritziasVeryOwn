@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError, formatLimit, type Action, type Item, type Outfit, type Session, type Slot, type Turn } from "./api";
+import { api, ApiError, type Action, type Budget, type Item, type Outfit, type Piece, type Session, type Slot, type Turn } from "./api";
+import {
+  activityText, changedSlots, overBudgetText, recoveryFor, replyText, REPLACING, the, type Intent, type Look,
+} from "./chat";
 import { ChatPanel, type ChatEntry } from "./components/ChatPanel";
 import { OutfitPanel } from "./components/OutfitPanel";
 import styles from "./App.module.css";
@@ -22,107 +25,63 @@ function storeSession(id: string) {
   }
 }
 
-/** Slots whose piece differs from the previous outfit (FR-UI-4). Nothing is "changed" on the first outfit. */
-function changedSlots(before: Outfit | null, after: Outfit): Set<Slot> {
-  if (!before) return new Set();
-  const old = new Map(before.pieces.map((p) => [p.slot, p.item_id]));
-  return new Set(after.pieces.filter((p) => old.get(p.slot) !== p.item_id).map((p) => p.slot));
+/** Notes the chat words itself: the over-budget explanation (with numbers and ways out) and the
+ *  confirmation of a budget the activity line already shows. */
+function ownNotes(notes: string[], action?: Intent): string[] {
+  return notes.filter((n) => !n.startsWith("Nothing fits")
+    && !(action?.action === "budget" && (n.startsWith("Got it:") || n === "Budget cleared.")));
 }
 
-const dollars = (amount: number) => formatLimit(amount, "USD");
-
-/** "under $200 for the whole outfit", "nothing over $80 a piece", or both; "" for no budget. */
-function budgetWords(intent: { max_total?: number | null; max_item?: number | null }): string {
-  const parts = [];
-  if (intent.max_total != null) parts.push(`under ${dollars(intent.max_total)} for the whole outfit`);
-  if (intent.max_item != null) parts.push(`nothing over ${dollars(intent.max_item)} a piece`);
-  return parts.join(", and ");
-}
-
-/** What the user did, as a chat line. */
-function describeAction(action: Action, name?: string): string {
-  const it = name ?? "this piece";
-  switch (action.action) {
-    case "lock": return `Keep the ${it}`;
-    case "unlock": return `Unlock the ${it}`;
-    case "swap": return `Show me a different ${it}`;
-    case "reject": return `Not the ${it}`;
-    case "accept": return "I'll take this outfit";
-    case "cheaper": return action.item_id ? `Find something cheaper than the ${it}` : "Make it cheaper";
-    case "budget": {
-      const words = budgetWords(action);
-      return words ? `Keep it ${words}` : "Forget the budget";
-    }
-    case "nudge":
-      if (action.vibe) return `Make it more ${action.vibe}`;
-      return action.formality === 1 ? "Dress it up" : "Make it more relaxed";
-  }
-}
-
-/** What a turn did: a button's Action, or the intent a chat message was parsed into. */
-type Intent = {
-  action: Action["action"];
-  slot?: Slot | null;
-  item_id?: string | null;
-  formality?: number | null;
-  vibe?: string | null;
-  max_total?: number | null;
-  max_item?: number | null;
-  color?: string | null;
-};
-
-/** The stylist's reply line. The API sends notes and an outfit; the wording around them lives here. */
-function replyText(notes: string[], hasOutfit: boolean, accepted: boolean, action?: Intent, name?: string): string {
-  const lines = [...notes];
-  if (accepted) lines.push("Great choice! Your final outfit is ready, with a link to every piece.");
-  else if (hasOutfit) {
-    const it = name ?? "that piece";
-    switch (action?.action) {
-      case undefined: lines.push("Here's a look for that. Lock the pieces you love, and swap or reject the rest."); break;
-      case "lock": lines.push(`Locked the ${it}. It stays through the next outfits.`); break;
-      case "unlock": lines.push(`Unlocked the ${it}.`); break;
-      case "swap":
-        lines.push(action.color === "any" ? "Any color goes again. Here's another option."
-          : action.color ? `Here's one in ${action.color}. I'll stick to ${action.color} for that piece.`
-          : "Here's a different option for that slot.");
-        break;
-      case "reject": lines.push(`Got it, I won't show the ${it} again. Here's a replacement.`); break;
-      case "nudge":
-        lines.push(action.vibe ? `Leaning more ${action.vibe} now.`
-          : action.formality === 1 ? "Dressed it up a notch." : "Made it a bit more relaxed.");
-        break;
-      case "cheaper":
-        lines.push(action.slot || action.item_id ? `Here's something cheaper than the ${it}.`
-          : "Here's a cheaper version, and later outfits won't cost more than this.");
-        break;
-      case "budget": {
-        if (notes.length) break; // the notes already say why the budget can't be met
-        const words = budgetWords(action);
-        lines.push(words ? `Got it: ${words}. Every outfit from here on keeps to that.`
-          : "No budget now, so I'm choosing from everything again.");
-        break;
-      }
-    }
-  }
-  if (lines.length === 0) lines.push("I couldn't build an outfit for that. Try describing the occasion differently.");
-  return lines.join("\n\n");
-}
-
-/** Rebuild the chat from a saved session, so a reload keeps the conversation. */
+/** Rebuild the chat from a saved session, so a reload keeps the conversation. Only the names of
+ *  the pieces on screen now are known, so older activity lines name slots instead. */
 function historyOf(session: Session): ChatEntry[] {
   const names = new Map(session.outfit?.pieces.map((p) => [p.item_id, p.name]) ?? []);
+  const look = (shown: Record<string, string> | null): Look | null => shown && {
+    pieces: Object.entries(shown).map(([slot, item_id]) => ({ slot: slot as Slot, item_id, name: names.get(item_id) })),
+  };
+  let before: Look | null = null;
   return session.turns.flatMap((turn, i): ChatEntry[] => {
-    const action = turn.kind === "action" ? (turn.input as unknown as Action) : undefined;
-    const name = action && "item_id" in action && action.item_id ? names.get(action.item_id) : undefined;
-    const said = action ? describeAction(action, name) : String(turn.input.text ?? "");
-    // A typed message read as feedback ("keep it under $200") gets the same reply wording as the button.
-    const intent = action ?? (turn.parsed && "action" in turn.parsed ? (turn.parsed as Intent) : undefined);
-    const accepted = intent?.action === "accept";
-    return [
-      { id: `${i}u`, role: "user", text: said },
-      { id: `${i}s`, role: "stylist", text: replyText(turn.notes, turn.outfit !== null && !turn.error, accepted, intent, name) },
-    ];
+    const after = look(turn.outfit);
+    const entries: ChatEntry[] = [];
+    if (turn.kind === "action") {
+      const action = turn.input as unknown as Action;
+      if (action.action === "accept") {
+        entries.push({ id: `${i}s`, role: "stylist", text: replyText(turn.notes, true, true) });
+      } else if (!turn.error) {
+        entries.push({ id: `${i}a`, role: "activity", text: activityText(action, before, after ?? before) });
+        const notes = turn.notes.filter((n) => !(action.action === "budget" && (n.startsWith("Got it:") || n === "Budget cleared.")));
+        if (notes.length) entries.push({ id: `${i}s`, role: "stylist", text: notes.join("\n\n") });
+      }
+    } else {
+      // A typed message read as feedback ("keep it under $200") gets the same reply wording as the button.
+      const intent = turn.parsed && "action" in turn.parsed ? (turn.parsed as Intent) : undefined;
+      const name = intent?.slot && before ? before.pieces.find((p) => p.slot === intent.slot)?.name : undefined;
+      entries.push(
+        { id: `${i}u`, role: "user", text: String(turn.input.text ?? "") },
+        { id: `${i}s`, role: "stylist",
+          text: replyText(turn.notes, turn.outfit !== null && !turn.error, intent?.action === "accept", intent, name) },
+      );
+    }
+    if (after) before = after;
+    return entries;
   });
+}
+
+/** The piece an action is about, in the outfit it was taken on. */
+function targetOf(action: Action | Intent, outfit: Outfit | null): Piece | undefined {
+  if ("item_id" in action && action.item_id) return outfit?.pieces.find((p) => p.item_id === action.item_id);
+  if ("slot" in action && action.slot) return outfit?.pieces.find((p) => p.slot === action.slot);
+  return undefined;
+}
+
+/** After a piece is replaced, offer to keep the rest: "I like everything except the jacket". */
+function keepAfter(action: Action | Intent, before: Outfit | null, after: Outfit | null): Slot[] | undefined {
+  // Only when one piece was replaced: not a cheaper outfit overall, or leaving out a piece that wasn't there.
+  if (!after || !REPLACING.has(action.action) || (action.action !== "swap" && !targetOf(action, before))) return undefined;
+  const changed = new Set(changedSlots(before, after));
+  const target = targetOf(action, before)?.slot;
+  const rest = after.pieces.filter((p) => p.slot !== target && !changed.has(p.slot)).map((p) => p.slot);
+  return rest.length ? rest : undefined;
 }
 
 let nextId = 0;
@@ -178,7 +137,11 @@ function Hero({ leaving, onStart }: { leaving: boolean; onStart: () => void }) {
 export default function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [entries, setEntries] = useState<ChatEntry[]>([]);
+  // One outfit state. The cards, the chat's state bar and the chat's own controls all change it
+  // through the same API actions, so they can't disagree.
   const [outfit, setOutfit] = useState<Outfit | null>(null);
+  const [budget, setBudget] = useState<Budget | null>(null);
+  const [omitted, setOmitted] = useState<Slot[]>([]);
   const [changed, setChanged] = useState<Set<Slot>>(new Set());
   const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -217,6 +180,8 @@ export default function App() {
           setSessionId(stored);
           setEntries(historyOf(session));
           setOutfit(session.outfit);
+          setBudget(session.budget);
+          setOmitted(session.omitted);
           setAccepted(session.accepted);
           return;
         } catch (e) {
@@ -235,8 +200,18 @@ export default function App() {
     void startUp();
   }, []);
 
-  const say = (role: ChatEntry["role"], text: string, extra?: Partial<ChatEntry>) =>
-    setEntries((all) => [...all, { id: entryId(), role, text, ...extra }]);
+  const entriesNow = useRef(entries);
+  entriesNow.current = entries;
+
+  function add(...added: Omit<ChatEntry, "id">[]) {
+    setEntries((all) => [...all, ...added.map((e) => ({ ...e, id: entryId() }))]);
+  }
+
+  /** Notes the stylist's last message already said, word for word, aren't said again. */
+  function unsaid(notes: string[]): string[] {
+    const last = [...entriesNow.current].reverse().find((e) => e.role === "stylist" && !e.error)?.text ?? "";
+    return notes.filter((note) => !last.includes(note));
+  }
 
   /** Run one turn. If the session vanished (sessions.db was reset), start a new one and retry once. */
   async function runTurn(call: (id: string) => Promise<Turn>): Promise<Turn | null> {
@@ -252,7 +227,9 @@ export default function App() {
         throw e;
       }
     } catch (e) {
-      say("stylist", e instanceof Error ? e.message : String(e), { error: true });
+      // A 409 is the stylist explaining why it can't do that (over budget, nothing cheaper): a reply, not a failure.
+      const explained = e instanceof ApiError && e.status === 409;
+      add({ role: "stylist", text: e instanceof Error ? e.message : String(e), error: !explained });
       return null;
     } finally {
       setBusy(false);
@@ -261,33 +238,75 @@ export default function App() {
 
   function show(turn: Turn) {
     if (turn.outfit) {
-      setChanged(changedSlots(outfit, turn.outfit));
+      setChanged(new Set(changedSlots(outfit, turn.outfit)));
       setOutfit(turn.outfit);
     }
+    setBudget(turn.budget);
+    setOmitted(turn.omitted);
     setAccepted(turn.accepted);
   }
 
+  /** The stylist's follow-up: what the notes say, and when the budget can't be met, by how much
+   *  and the ways out, once, instead of the same note every turn. */
+  function followUp(turn: Turn, lines: string[], keep?: Slot[]): Omit<ChatEntry, "id"> {
+    const over = turn.outfit && !turn.accepted ? overBudgetText(turn.outfit) : null;
+    return {
+      role: "stylist",
+      text: [...lines, ...unsaid(over ? [over] : [])].join("\n\n"),
+      offers: turn.outfit && !turn.accepted ? recoveryFor(turn.outfit, turn.budget) : undefined,
+      keep,
+    };
+  }
+
   async function sendMessage(text: string) {
-    say("user", text);
+    add({ role: "user", text });
+    const before = outfit;
     const turn = await runTurn((id) => api.sendMessage(id, text));
     if (!turn) return;
     // A message like "swap the shoes" is parsed into the same intent a button sends; word the reply to match.
     const intent = turn.parsed && "action" in turn.parsed ? (turn.parsed as Intent) : undefined;
-    const name = intent?.slot ? outfit?.pieces.find((p) => p.slot === intent.slot)?.name : undefined;
     show(turn);
     const hasChoices = Object.keys(turn.choices).length > 0;
     // A change that couldn't be applied: the note explains, and nothing changed to describe.
-    say("stylist", replyText(turn.notes, turn.outfit !== null && !turn.error, turn.accepted, intent, name),
-      hasChoices ? { choices: turn.choices, requestText: text } : undefined);
+    const reply = replyText(unsaid(ownNotes(turn.notes, intent)), turn.outfit !== null && !turn.error, turn.accepted, intent,
+                            intent && targetOf(intent, before)?.name);
+    const next = followUp(turn, [reply], intent && !turn.error ? keepAfter(intent, before, turn.outfit) : undefined);
+    add({ ...next, ...(hasChoices ? { choices: turn.choices, requestText: text } : {}) });
   }
 
-  async function sendAction(action: Action) {
-    const name = "item_id" in action ? outfit?.pieces.find((p) => p.item_id === action.item_id)?.name : undefined;
-    say("user", describeAction(action, name));
+  /** A button or chat control. Routine actions show as one activity line; `quiet` shows nothing,
+   *  for controls that show the new state themselves (a lock checkbox, the state bar's tags). */
+  async function sendAction(action: Action, quiet = false) {
+    const before = outfit;
     const turn = await runTurn((id) => api.sendAction(id, action));
     if (!turn) return;
     show(turn);
-    say("stylist", replyText(turn.notes, turn.outfit !== null, turn.accepted, action, name));
+    if (action.action === "accept") {
+      add({ role: "stylist", text: replyText(turn.notes, true, true) });
+      return;
+    }
+    const notes = unsaid(ownNotes(turn.notes, action));
+    const keep = keepAfter(action, before, turn.outfit);
+    const added: Omit<ChatEntry, "id">[] = [];
+    if (!quiet) added.push({ role: "activity", text: activityText(action, before, turn.outfit ?? before) });
+    const next = followUp(turn, notes);
+    if (next.text || next.offers?.length) added.push(next);
+    if (keep && added.length) added[added.length - 1].keep = keep; // the newest entry holds the live controls
+    add(...added);
+  }
+
+  /** Reject asks why first, so the replacement can fix what was wrong (too pricey, wrong colour, ...). */
+  function askWhy(piece: Piece) {
+    add({ role: "stylist", text: `What's not working about ${the(piece.name)}?`,
+          ask: { item_id: piece.item_id, slot: piece.slot, colors: piece.colors } });
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      document.getElementById("stylist-chat")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function answer(entryId: string, label: string, action: Action) {
+    setEntries((all) => all.map((e) => e.id === entryId && e.ask ? { ...e, ask: { ...e.ask, answer: label } } : e));
+    void sendAction(action);
   }
 
   /** Picking one of several close name matches (FR-NAME-3) re-sends the request with the full name. */
@@ -305,10 +324,12 @@ export default function App() {
       await newSession();
       setEntries([]);
       setOutfit(null);
+      setBudget(null);
+      setOmitted([]);
       setChanged(new Set());
       setAccepted(false);
     } catch (e) {
-      say("stylist", e instanceof Error ? e.message : String(e), { error: true });
+      add({ role: "stylist", text: e instanceof Error ? e.message : String(e), error: true });
     } finally {
       setBusy(false);
     }
@@ -328,11 +349,17 @@ export default function App() {
           <div className={styles.panels}>
             <ChatPanel
               entries={entries}
+              outfit={outfit}
+              budget={budget}
+              omitted={omitted}
               busy={busy}
               ready={sessionId !== null}
+              accepted={accepted}
               onSend={sendMessage}
               onChoose={choose}
               onStartOver={startOver}
+              onAction={sendAction}
+              onAnswer={answer}
             />
             <OutfitPanel
               outfit={outfit}
@@ -340,6 +367,7 @@ export default function App() {
               accepted={accepted}
               busy={busy}
               onAction={sendAction}
+              onReject={askWhy}
             />
           </div>
         )}
