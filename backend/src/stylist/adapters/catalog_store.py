@@ -67,5 +67,6 @@ def load_catalog(db_url: str = DB_URL, npy: Path = EMBEDDINGS_NPY, ids_json: Pat
             colors=tuple(tags.colors) if tags else (),
             formality=tags.formality if tags else None,
             embedding=embeddings.get(row.item_id),
+            category=row.category_path or "",
         ))
     return Catalog(items)

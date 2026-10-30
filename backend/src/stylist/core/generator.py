@@ -4,7 +4,8 @@
    product, and take the top few. Locked slots hold only the locked item; rejected
    products are left out.
 2. Enumerate: try every valid combination of the shortlists (top + bottom or a dress,
-   shoes, optional outerwear and accessory) and keep the highest outfit score.
+   shoes, optional outerwear and accessory) and keep the highest outfit score. Valid means at
+   most one print, and no belt with a piece that doesn't take one (Item.takes_a_belt).
 
 With TOP_K = 6 that is about 12,000 combinations, small enough to score them all.
 
@@ -137,6 +138,17 @@ def shortlist(catalog: Catalog, slot: str, items: list[Item], request: ParsedReq
     return picks + cheaper_picks(scored, picks, CHEAP_K)
 
 
+def belt_clash(items: list[Item], locked: dict[str, Item]) -> bool:
+    """A belt with a dress, a skirt, or athletic or lounge bottoms. When the user locked both
+    pieces, that's their call."""
+    belt = next((item for item in items if item.is_belt), None)
+    if belt is None:
+        return False
+    locked_ids = {item.item_id for item in locked.values()}
+    return any(not item.takes_a_belt and not (belt.item_id in locked_ids and item.item_id in locked_ids)
+               for item in items)
+
+
 def generate(catalog: Catalog, request: ParsedRequest, query: np.ndarray | None = None,
              constraints: Constraints | None = None, formality: int | None = None) -> Outfit:
     """The best outfit. `query` is the CLIP embedding of the request text (None skips the
@@ -157,10 +169,18 @@ def search(catalog: Catalog, request: ParsedRequest, query: np.ndarray | None, c
     target = formality if formality is not None else request.formality
     locked = check_locks(catalog, constraints.locked)
     required = constraints.required | locked.keys() | request.colors.keys()  # "a black bag" asks for a bag
-    if request.needs_outerwear:
+    if request.needs_outerwear and "outerwear" not in constraints.empty:  # "no coat" wins over the weather
         required = required | {"outerwear"}
 
     pools = {slot: candidates(catalog, slot, request, constraints, locked) for slot in SLOTS}
+    # Apply the belt rule to the pools too, not only to whole outfits, so a locked piece can't
+    # leave shortlists with nothing that goes with it.
+    if "accessory" in locked and locked["accessory"].is_belt:
+        for slot in ("bottom", "dress"):
+            if slot not in locked:
+                pools[slot] = [item for item in pools[slot] if item.takes_a_belt]
+    elif "accessory" not in locked and any(not item.takes_a_belt for item in locked.values()):
+        pools["accessory"] = [item for item in pools["accessory"] if not item.is_belt]
     caps = price_caps(pools, required, request) if within_budget else dict.fromkeys(SLOTS, inf)
     caps.update(dict.fromkeys(locked, inf))  # a locked piece stays, whatever it costs
     cheap = cheapest or (within_budget and request.max_total is not None)
@@ -193,6 +213,8 @@ def search(catalog: Catalog, request: ParsedRequest, query: np.ndarray | None, c
             continue
         if sum(item.main_color == "multi" for item in items) > 1:
             continue  # at most one print per outfit (PRD Appendix A)
+        if belt_clash(items, locked):
+            continue
         if frozenset(item.item_id for item in items) in constraints.avoid:
             continue
         breakdown = scoring.outfit_breakdown([terms for _, terms in chosen], items)

@@ -39,6 +39,11 @@ class BudgetOut(BaseModel):
     max_total: float | None  # the whole outfit
     max_item: float | None  # each piece
 
+    @classmethod
+    def of(cls, state: SessionState | None) -> BudgetOut | None:
+        request = state.request if state else None
+        return cls(max_total=request.max_total, max_item=request.max_item) if request and request.has_budget else None
+
 
 class OutfitOut(BaseModel):
     pieces: list[PieceOut]  # in slot order: top, bottom, dress, outerwear, shoes, accessory
@@ -56,9 +61,8 @@ class OutfitOut(BaseModel):
                   for slot, item in outfit.pieces.items()]
         currency = pieces[0].currency if pieces else "USD"
         request = state.request if state else None
-        budget = BudgetOut(max_total=request.max_total, max_item=request.max_item) if request and request.has_budget else None
         return cls(pieces=pieces, score=outfit.score, breakdown=outfit.breakdown,
-                   total_price=outfit.total_price, currency=currency, budget=budget,
+                   total_price=outfit.total_price, currency=currency, budget=BudgetOut.of(state),
                    over_budget=bool(request and over_budget(outfit, request, locked)))
 
 
@@ -73,11 +77,15 @@ class TurnOut(BaseModel):
     summary: dict | None  # links and total price, once accepted (FR-FB-5)
     parsed: dict | None  # what the message was understood as
     error: str | None  # set when a message's change couldn't be applied; the outfit is unchanged
+    budget: BudgetOut | None  # the session's budget, also before there's an outfit
+    omitted: list[str]  # optional slots the user asked to leave out
 
     @classmethod
     def of(cls, session_id: str, reply: Reply) -> TurnOut:
         return cls(
             session_id=session_id,
+            budget=BudgetOut.of(reply.state),
+            omitted=sorted(reply.state.omitted) if reply.state else [],
             outfit=OutfitOut.of(reply.outfit, reply.state) if reply.outfit else None,
             notes=reply.notes,
             choices={name: [ItemOut.of(i) for i in items] for name, items in reply.choices.items()},
@@ -110,6 +118,8 @@ class SessionOut(BaseModel):
     session_id: str
     outfit: OutfitOut | None
     accepted: bool
+    budget: BudgetOut | None  # the session's budget, also before there's an outfit
+    omitted: list[str]  # optional slots the user asked to leave out
     turns: list[TurnSummary]
 
 

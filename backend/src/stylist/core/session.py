@@ -74,13 +74,17 @@ def handle_message(catalog: Catalog, state: SessionState | None, text: str, embe
         # A budget holds for the whole session (FR-REQ-5) until the user changes or clears it.
         parsed = parsed.model_copy(update={"max_total": state.request.max_total, "max_item": state.request.max_item})
         notes.append(f"Keeping to {feedback.budget_words(parsed)}.")
+    omitted = state.omitted if state is not None else set()
+    if omitted:
+        notes.append(f"Leaving out the {' and '.join(feedback.MANY[s] for s in sorted(omitted))}, as you asked.")
     for slot, color in parsed.colors.items():
         if not any(color in item.colors for item in catalog.in_slot(slot)):
             notes.append(f"I don't have any {color} {feedback.MANY[slot]}, so I left the color open.")
     parsed = parsed.model_copy(update={"colors": {
         slot: color for slot, color in parsed.colors.items() if any(color in i.colors for i in catalog.in_slot(slot))}})
     try:
-        new_state, outfit = feedback.start(catalog, parsed, embed(parsed.text), locked)
+        rejected = state.rejected if state is not None else set()  # a rejected product stays out (FR-FB-2)
+        new_state, outfit = feedback.start(catalog, parsed, embed(parsed.text), locked, omitted, rejected)
     except NoOutfitError as exc:
         return Reply(state, None, [*notes, f"I couldn't build an outfit: {exc}."], choices, parsed=parsed)
     notes += feedback.budget_notes(catalog, new_state, outfit)
@@ -89,6 +93,8 @@ def handle_message(catalog: Catalog, state: SessionState | None, text: str, embe
 
 def handle_action(catalog: Catalog, state: SessionState | None, intent: FeedbackIntent, embed: Embed) -> Reply:
     """Apply a button click or a parsed feedback message (FR-FB-7: both come through here)."""
+    if intent.action == "budget" and (state is None or not state.current):
+        return set_budget_first(state, intent)
     if state is None or not state.current:
         message = "There's no outfit yet. Tell me what you're dressing for first."
         return Reply(state, None, [message], parsed=intent, error=message)
@@ -100,3 +106,12 @@ def handle_action(catalog: Catalog, state: SessionState | None, intent: Feedback
     summary = feedback.summary(outfit) if new_state.accepted else None
     notes = [] if intent.action in {"accept", "unlock"} else feedback.budget_notes(catalog, new_state, outfit)
     return Reply(new_state, outfit, notes, summary=summary, parsed=intent)
+
+
+def set_budget_first(state: SessionState | None, intent: FeedbackIntent) -> Reply:
+    """A budget set before the first outfit: keep it in the session, so the first request uses it
+    (handle_message carries a session's budget into each new request)."""
+    base = state or SessionState(request=ParsedRequest())
+    request = base.request.model_copy(update={"max_total": intent.max_total, "max_item": intent.max_item})
+    note = f"Got it: I'll keep to {feedback.budget_words(request)}." if request.has_budget else "Budget cleared."
+    return Reply(base.model_copy(update={"request": request}), None, [note], parsed=intent)

@@ -3,7 +3,8 @@
 Buttons and chat both end up here as a FeedbackIntent, so they behave the same (FR-FB-7).
 
 - lock / unlock: pin a piece through later outfits, or release it. The outfit doesn't change.
-- reject: never show that product again this session, and replace just that piece.
+- reject: never show that product again this session, new requests included, and replace just
+  that piece. The reject can say what was wrong: a cheaper replacement, or one in a color.
 - swap: replace just that piece with one not shown yet in that slot; once every option has been
   shown, they come round again. With a color ("black shoes"), the slot keeps to that color from
   then on, and a slot the outfit doesn't have gets a piece ("a black dress instead").
@@ -15,6 +16,8 @@ Buttons and chat both end up here as a FeedbackIntent, so they behave the same (
   keeps to it.
 - cheaper: replace one piece with a cheaper one, or bring the whole outfit's total down by
   about 15% (that becomes the new budget) (FR-FB-9).
+- remove: leave an optional piece (outerwear, accessory) out, and keep it out of later outfits
+  until the user asks for one again ("add a bag"). The other pieces stay as they are.
 
 The state stores item ids only, so it can be saved to the database as JSON.
 """
@@ -28,7 +31,7 @@ from pydantic import BaseModel, Field
 
 from stylist.core.catalog import Catalog
 from stylist.core.generator import CENT, NoOutfitError, generate
-from stylist.core.models import SLOTS, Constraints, FeedbackIntent, Item, Outfit, ParsedRequest
+from stylist.core.models import OPTIONAL_SLOTS, SLOTS, Constraints, FeedbackIntent, Item, Outfit, ParsedRequest
 
 DEFAULT_FORMALITY = 3
 CHEAPER_STEP = 0.85  # "make it cheaper" aims for a total about 15% lower
@@ -43,6 +46,7 @@ class SessionState(BaseModel):
     target_formality: int | None = None  # the request's formality, moved by nudges
     locked: dict[str, str] = Field(default_factory=dict)  # slot -> item_id
     rejected: set[str] = Field(default_factory=set)  # product keys
+    omitted: set[str] = Field(default_factory=set)  # optional slots the user asked to leave out
     current: dict[str, str] = Field(default_factory=dict)  # slot -> item_id of the outfit on screen
     score: float = 0.0  # of the outfit on screen
     breakdown: dict[str, float] = Field(default_factory=dict)
@@ -77,7 +81,7 @@ def build(catalog: Catalog, state: SessionState, query: np.ndarray | None, *,
         rejected=state.rejected | set(exclude),
         avoid={frozenset(state.current.values())} if state.current else set(),  # FR-GEN-5
         below=dict(below or {}),
-        empty=set(empty),
+        empty=set(empty) | state.omitted,
     )
     try:
         outfit = generate(catalog, state.request, query, constraints, state.target_formality)
@@ -100,9 +104,12 @@ def build(catalog: Catalog, state: SessionState, query: np.ndarray | None, *,
 
 
 def start(catalog: Catalog, request: ParsedRequest, query: np.ndarray | None = None,
-          locked: dict[str, str] | None = None) -> tuple[SessionState, Outfit]:
-    """First outfit for a request. `locked` holds pieces the user named (Flow C)."""
-    state = SessionState(request=request, target_formality=request.formality, locked=dict(locked or {}))
+          locked: dict[str, str] | None = None, omitted: set[str] = frozenset(),
+          rejected: set[str] = frozenset()) -> tuple[SessionState, Outfit]:
+    """First outfit for a request. `locked` holds pieces the user named (Flow C); `omitted` and
+    `rejected`, the optional slots left out and the products rejected earlier in the session."""
+    state = SessionState(request=request, target_formality=request.formality, locked=dict(locked or {}),
+                         omitted=set(omitted), rejected=set(rejected))
     return build(catalog, state, query)
 
 
@@ -154,8 +161,10 @@ def apply_feedback(catalog: Catalog, state: SessionState, intent: FeedbackIntent
         return build(catalog, state, query)  # over the new budget, or more room to choose from
     if intent.action == "cheaper" and not (intent.slot or intent.item_id):
         return cheaper_outfit(catalog, state, query)
+    if intent.action == "remove":
+        return remove_piece(catalog, state, intent, query)
 
-    if intent.action == "swap" and intent.color is not None:
+    if intent.action in {"swap", "reject"} and intent.color is not None:
         slot = intent.slot or target_piece(catalog, state, intent).slot
         state = with_color(catalog, state, slot, intent.color)
     if intent.action == "swap" and intent.slot and not intent.item_id and intent.slot not in state.current:
@@ -174,8 +183,12 @@ def apply_feedback(catalog: Catalog, state: SessionState, intent: FeedbackIntent
     # reject, swap, or a cheaper piece: replace this one piece and keep every other piece as it is (FR-FB-3)
     below = {}
     empty = set(SLOTS) - state.current.keys()  # only this piece changes: no new pieces appear (FR-FB-3)
-    if intent.action == "cheaper":
-        if not any(i.price < item.price - CENT and i.product_key not in state.rejected for i in catalog.in_slot(item.slot)):
+    if intent.action == "cheaper" or intent.cheaper:
+        if not any(i.price < item.price - CENT for i in options(catalog, state, item.slot, {item.product_key})):
+            color = state.request.colors.get(item.slot)
+            if color and any(i.price < item.price - CENT and i.product_key not in state.rejected
+                             for i in catalog.in_slot(item.slot)):
+                raise FeedbackError(f"I don't have cheaper {color} {MANY[item.slot]}; ask for any color to see cheaper ones")
             raise FeedbackError(f"the {item.name} is already the cheapest {item.slot} I have")
         below = {item.slot: item.price}
     others = {slot: i for slot, i in state.current.items() if slot != item.slot}
@@ -248,7 +261,41 @@ def add_piece(catalog: Catalog, state: SessionState, slot: str, query: np.ndarra
         name = catalog.items[state.locked[locked_slot]].name
         raise FeedbackError(f"the {name} you locked can't be worn with a {slot}; unlock it first")
     keep = {s: i for s, i in state.current.items() if s not in clash}
-    return replace(catalog, state, query, slot, keep, set(), {}, set(SLOTS) - keep.keys() - {slot})
+    state = state.model_copy(update={"omitted": state.omitted - {slot}})  # asking for one brings the slot back
+    empty = set(SLOTS) - keep.keys() - {slot}
+    new_state, outfit = replace(catalog, state, query, slot, keep, set(), {}, empty)
+    if over_budget(outfit, state.request, state.locked):
+        # Adding a piece never breaks the budget: say what it would cost at the least, even with the
+        # unlocked pieces swapped for cheaper ones, and keep the outfit as it is.
+        _, cheapest = build(catalog, state, query, required={slot}, empty=empty)
+        lowest = min(outfit.total_price, cheapest.total_price)
+        raise FeedbackError(f"adding {'an' if ONE[slot][0] in 'aeiou' else 'a'} {ONE[slot]} would go over "
+                            f"{budget_words(state.request)}: the cheapest way to add one brings the outfit to "
+                            f"{money(lowest)}. I've kept the outfit as it is; raise the budget if you'd like one")
+    return new_state, outfit
+
+
+# What an outfit can't go without, for the slots that can't be left out.
+NEEDS = {"top": "a top and bottom, or a dress", "bottom": "a top and bottom, or a dress",
+         "dress": "a top and bottom, or a dress", "shoes": "shoes"}
+
+
+def remove_piece(catalog: Catalog, state: SessionState, intent: FeedbackIntent,
+                 query: np.ndarray | None) -> tuple[SessionState, Outfit]:
+    """Leave an optional piece out of this outfit and the ones after it, keeping every other piece."""
+    slot = intent.slot or target_piece(catalog, state, intent).slot
+    if slot not in OPTIONAL_SLOTS:
+        piece = f"the {catalog.items[state.current[slot]].name}" if slot in state.current else f"the {slot}"
+        raise FeedbackError(f"every outfit needs {NEEDS[slot]}, so I can't leave out {piece}; swap it instead")
+    state = state.model_copy(update={
+        "omitted": state.omitted | {slot},
+        "locked": {s: i for s, i in state.locked.items() if s != slot},
+        "request": state.request.model_copy(update={"colors": {s: c for s, c in state.request.colors.items() if s != slot}}),
+    })
+    if slot not in state.current:
+        return state, outfit_of(catalog, state)  # nothing on screen to take away: just keep it out from now on
+    keep = {s: i for s, i in state.current.items() if s != slot}
+    return build(catalog, state, query, keep=keep, empty=set(SLOTS) - keep.keys())
 
 
 def replace(catalog: Catalog, state: SessionState, query: np.ndarray | None, slot: str, keep: dict[str, str],

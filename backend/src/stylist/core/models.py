@@ -21,6 +21,8 @@ Color = Literal["black", "white", "cream", "beige", "camel", "brown", "grey", "n
 # Weather that makes outerwear required (FR-REQ-4 names cold and rain; Flow B expects a
 # layer for "might get chilly", so cool counts too).
 OUTERWEAR_WEATHER = {"cold", "cool", "rainy"}
+# Pieces an outfit can do without, so the user can ask to leave them out.
+OPTIONAL_SLOTS = {"outerwear", "accessory"}
 
 
 @dataclass(frozen=True, eq=False)
@@ -41,10 +43,33 @@ class Item:
     colors: tuple[str, ...] = ()
     formality: int | None = None
     embedding: np.ndarray | None = None
+    category: str = ""  # the retailer's category path, e.g. "Clothing > Skirts > Mini Skirts"
 
     @property
     def main_color(self) -> str | None:
         return self.colors[0] if self.colors else None
+
+    @property
+    def is_belt(self) -> bool:
+        return self.slot == "accessory" and "belt" in self.name.lower()
+
+    @property
+    def takes_a_belt(self) -> bool:
+        """Whether a belt makes sense with this piece: not with a dress or jumpsuit, a skirt, or
+        athletic and lounge bottoms (leggings, joggers, sweatpants, bike shorts)."""
+        if self.slot == "dress":
+            return False
+        if self.slot != "bottom":
+            return True
+        text = f"{self.category} {self.name}".lower()
+        return not any(word in text for word in BELTLESS_WORDS)
+
+
+# Words in a bottom's category or name that mean it has no belt loops to speak of. The last row
+# catches lounge and athletic pieces the catalog files under plain "Pants" or "Shorts", by fabric or line.
+BELTLESS_WORDS = ("skirt", "activewear", "legging", "jogger", "sweatpant", "track pant", "bicycle", "bike short",
+                  "loungewear", "lounge pant",
+                  "dolphin", "fleece", "velour", "waffle", "besthug", "homestretch")
 
 
 class ParsedRequest(BaseModel):
@@ -76,23 +101,28 @@ class FeedbackIntent(BaseModel):
 
     budget sets the session's budget: either limit or both, and neither clears it. cheaper with a
     piece swaps that piece for a cheaper one; without one, it makes the whole outfit cheaper.
-    swap with a color ("black shoes") swaps in a piece of that color and keeps to it; "any" drops it."""
+    swap with a color ("black shoes") swaps in a piece of that color and keeps to it; "any" drops it.
+    remove leaves an optional piece (outerwear, accessory) out of this and later outfits.
+    reject can say what the replacement should fix: cheaper, or a color (kept for that piece like a swap's)."""
 
-    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept", "budget", "cheaper"]
+    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept", "budget", "cheaper", "remove"]
     slot: Slot | None = None
     item_id: str | None = None
     formality: Literal[-1, 1] | None = None  # nudge: dressier (+1) or more relaxed (-1)
     vibe: Vibe | None = None  # nudge toward this vibe
     max_total: float | None = Field(default=None, gt=0)  # budget: the whole outfit
     max_item: float | None = Field(default=None, gt=0)  # budget: each piece
-    color: Color | Literal["any"] | None = None  # swap: a piece in this color
+    color: Color | Literal["any"] | None = None  # swap or reject: a piece in this color
+    cheaper: bool = False  # reject: the replacement costs less ("too expensive")
 
     @model_validator(mode="after")
     def has_a_target(self) -> FeedbackIntent:
-        if self.action in {"lock", "unlock", "reject", "swap"} and not (self.slot or self.item_id):
+        if self.action in {"lock", "unlock", "reject", "swap", "remove"} and not (self.slot or self.item_id):
             raise ValueError(f"{self.action} needs a slot or an item_id")
-        if self.color is not None and self.action != "swap":
-            raise ValueError("only a swap takes a color")
+        if self.color is not None and self.action not in {"swap", "reject"}:
+            raise ValueError("only a swap or a reject takes a color")
+        if self.cheaper and self.action != "reject":
+            raise ValueError("only a reject takes cheaper; use the cheaper action")
         if self.action == "nudge" and self.formality is None and self.vibe is None:
             raise ValueError("nudge needs a formality direction or a vibe")
         return self
