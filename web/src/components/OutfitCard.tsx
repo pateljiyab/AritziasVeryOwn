@@ -4,12 +4,13 @@ import styles from "./OutfitCard.module.css";
 interface Props {
   piece: Piece;
   changed: boolean; // differs from the previous outfit (FR-UI-4)
+  overLimit: boolean; // costs more than the per-piece budget
   disabled: boolean;
   onAction: (action: Action) => void;
 }
 
 /** One piece of the outfit: image, name, brand line, price (FR-UI-1), and its buttons (FR-UI-3). */
-export function OutfitCard({ piece, changed, disabled, onAction }: Props) {
+export function OutfitCard({ piece, changed, overLimit, disabled, onAction }: Props) {
   const classes = [styles.card, piece.locked && styles.locked, changed && styles.changed].filter(Boolean).join(" ");
   return (
     <article className={classes}>
@@ -23,7 +24,10 @@ export function OutfitCard({ piece, changed, disabled, onAction }: Props) {
         <h3 className={styles.name}>
           <a href={piece.product_url} target="_blank" rel="noreferrer">{piece.name}</a>
         </h3>
-        <p className={styles.price}>{formatPrice(piece.price, piece.currency)}</p>
+        <p className={`${styles.price} ${overLimit ? styles.overLimit : ""}`}
+           title={overLimit ? "Over your per-piece budget" : undefined}>
+          {formatPrice(piece.price, piece.currency)}
+        </p>
       </div>
       <div className={styles.actions}>
         <button

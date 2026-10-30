@@ -1,41 +1,32 @@
 :root {
-  --bg: #f7f4ef;
-  --surface: #ffffff;
-  --surface-2: #efeae2;
-  --text: #1f1b16;
-  --muted: #6f675d;
-  --border: #ddd5c9;
-  --accent: #6b4f3a;
+  --navy: #021121;
+  --ember: #8f1f04;
+  --bg: var(--navy);
+  /* Glass on navy: cards, buttons and bars are white at 20%. */
+  --surface: rgb(255 255 255 / 0.2);
+  --surface-2: rgb(255 255 255 / 0.1);
+  --text: #ffffff;
+  --muted: rgb(255 255 255 / 0.7);
+  --border: rgb(255 255 255 / 0.3);
+  --frame: rgb(255 255 255 / 0.85);
+  --accent: var(--ember);
   --accent-text: #ffffff;
-  --highlight: #c58b2b;
-  --danger: #a33a2c;
-  --user-bubble: #2b2520;
-  --user-text: #f7f4ef;
+  --highlight: #e8b45a;
+  --danger: #ff9b87;
+  --user-bubble: var(--ember);
+  --user-text: #ffffff;
   --radius: 12px;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 16px rgb(0 0 0 / 0.04);
-  color-scheme: light dark;
+  --frame-radius: 40px;
+  --shadow: none;
+  /* Free Google Fonts: Pinyon Script and wide Archivo stand in for New Icon Script and Cy Grotesk Key. */
+  --font-script: "Pinyon Script", cursive;
+  --font-display: "Gabriela", Georgia, serif;
+  --font-grotesk: "Archivo", system-ui, sans-serif;
+  color-scheme: dark;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.45;
   color: var(--text);
   background: var(--bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #161412;
-    --surface: #211e1b;
-    --surface-2: #2b2723;
-    --text: #f1ece5;
-    --muted: #a99f93;
-    --border: #3a3530;
-    --accent: #d9b897;
-    --accent-text: #1f1b16;
-    --highlight: #e0a94a;
-    --danger: #e07a6b;
-    --user-bubble: #d9b897;
-    --user-text: #1f1b16;
-    --shadow: none;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -50,10 +41,12 @@ button, select {
   border-radius: 999px;
   padding: 6px 14px;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
-button:hover:not(:disabled) { border-color: var(--accent); }
+button:hover:not(:disabled) { border-color: var(--frame); background: rgb(255 255 255 / 0.28); }
 button:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; }
 button:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
   outline: 2px solid var(--highlight);
   outline-offset: 2px;
 }
+option { background: var(--navy); }

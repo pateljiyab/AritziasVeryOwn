@@ -17,6 +17,7 @@ interface Props {
   ready: boolean;
   onSend: (text: string) => void;
   onChoose: (requestText: string, typed: string, item: Item) => void;
+  onStartOver: () => void;
 }
 
 const EXAMPLES = [
@@ -26,13 +27,15 @@ const EXAMPLES = [
 ];
 
 /** The conversation, oldest first; earlier turns stay visible (FR-UI-2). */
-export function ChatPanel({ entries, busy, ready, onSend, onChoose }: Props) {
+export function ChatPanel({ entries, busy, ready, onSend, onChoose, onStartOver }: Props) {
   const [draft, setDraft] = useState("");
-  const end = useRef<HTMLDivElement>(null);
+  const log = useRef<HTMLDivElement>(null);
   const canSend = ready && !busy && draft.trim().length > 0;
 
+  // Scroll the log itself, not the page: scrollIntoView would pull a reload past the hero.
   useEffect(() => {
-    end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const el = log.current;
+    el?.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [entries.length, busy]);
 
   function submit(e?: FormEvent) {
@@ -48,7 +51,13 @@ export function ChatPanel({ entries, busy, ready, onSend, onChoose }: Props) {
 
   return (
     <section className={styles.panel}>
-      <div className={styles.log} aria-live="polite">
+      <header className={styles.header}>
+        <h2 className={styles.heading}>Your stylist</h2>
+        <button className={styles.startOver} onClick={onStartOver} disabled={busy || !ready}>
+          Start over
+        </button>
+      </header>
+      <div ref={log} className={styles.log} aria-live="polite">
         {entries.length === 0 && (
           <div className={styles.intro}>
             <p>Hi! What are you dressing for? Try one of these:</p>
@@ -85,7 +94,6 @@ export function ChatPanel({ entries, busy, ready, onSend, onChoose }: Props) {
           </div>
         ))}
         {busy && <div className={`${styles.bubble} ${styles.stylist} ${styles.typing}`}>Styling…</div>}
-        <div ref={end} />
       </div>
       <form className={styles.composer} onSubmit={submit}>
         <textarea
@@ -94,7 +102,7 @@ export function ChatPanel({ entries, busy, ready, onSend, onChoose }: Props) {
           onKeyDown={onKeyDown}
           placeholder={'Describe the occasion, or say "dressier" or "swap the shoes"'}
           maxLength={500}
-          rows={2}
+          rows={3}
           aria-label="Message"
         />
         <button type="submit" disabled={!canSend}>Send</button>
