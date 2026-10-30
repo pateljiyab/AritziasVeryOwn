@@ -33,6 +33,13 @@ export interface Outfit {
   breakdown: Record<string, number>; // score term -> value in [0, 1]
   total_price: number;
   currency: string;
+  budget: Budget | null; // the session's budget, if it has one
+  over_budget: boolean; // nothing fit the budget, so this is the closest outfit
+}
+
+export interface Budget {
+  max_total: number | null; // the whole outfit
+  max_item: number | null; // each piece
 }
 
 export interface Summary {
@@ -49,11 +56,14 @@ export interface Turn {
   accepted: boolean;
   summary: Summary | null;
   parsed: Record<string, unknown> | null;
+  error: string | null; // a message's change couldn't be applied; the outfit is unchanged
 }
 
 export interface TurnSummary {
   kind: "message" | "action";
   input: Record<string, unknown>;
+  parsed: Record<string, unknown> | null; // what a message was understood as
+  error: string | null;
   outfit: Record<string, string> | null; // slot -> item_id
   notes: string[];
   latency_ms: number;
@@ -70,7 +80,9 @@ export interface Session {
 export type Action =
   | { action: "lock" | "unlock" | "reject" | "swap"; item_id: string }
   | { action: "nudge"; formality?: -1 | 1; vibe?: Vibe }
-  | { action: "accept" };
+  | { action: "accept" }
+  | { action: "cheaper"; item_id?: string } // one piece, or the whole outfit
+  | { action: "budget"; max_total?: number | null; max_item?: number | null }; // neither clears it
 
 export class ApiError extends Error {
   constructor(readonly status: number, message: string) {
@@ -104,4 +116,10 @@ export const api = {
 
 export function formatPrice(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
+}
+
+/** A budget limit: "$200", or "$199.50" when it has cents. */
+export function formatLimit(amount: number, currency: string): string {
+  const cents = Number.isInteger(amount) ? 0 : 2;
+  return new Intl.NumberFormat(undefined, { style: "currency", currency, minimumFractionDigits: cents }).format(amount);
 }
