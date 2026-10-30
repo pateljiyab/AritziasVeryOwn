@@ -126,6 +126,7 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-REQ-2 | Convert each message into either a `ParsedRequest` or a `FeedbackIntent`, validated by schema. | P0 | Invalid LLM output is retried once and then falls back to keyword rules. It never crashes the API. |
 | FR-REQ-3 | When a request is too vague (e.g. *"something nice"*), fall back to sensible defaults. | P0 | Vague requests still produce an outfit. |
 | FR-REQ-4 | Cold, cool, or rainy weather requires outerwear. (Cool is included because Flow B's "might get chilly" expects a layer.) | P0 | A unit test covers this. |
+| FR-REQ-5 | Accept a budget for the whole outfit ("under $200") or for each piece ("nothing over $80"), in any message. It is a hard limit that holds for the rest of the session, including new requests, until the user changes or clears it. When nothing fits, show the cheapest outfit that meets the other constraints and say so. | P1 | Tests check that no outfit goes over the budget through swaps, rejects, and nudges, and that an impossible budget is explained. |
 
 ### 5.4 Outfit Generation (`FR-GEN`)
 
@@ -152,11 +153,13 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 |---|---|---|---|
 | FR-FB-1 | **Lock / unlock**: a locked item stays in its slot through every regeneration. | P0 | Unit test. |
 | FR-FB-2 | **Reject**: a rejected product never reappears in the session, in any colorway. Only that piece is replaced; the rest of the outfit stays. | P0 | Unit test. |
-| FR-FB-3 | **Swap**: replace one slot and keep the others unchanged. | P0 | Unit test. |
+| FR-FB-3 | **Swap**: replace one slot and keep the others unchanged. Each swap shows a piece not yet shown in that slot, until every option has been. A color ("black shoes") swaps in a piece of that color and holds for that slot; "any color" drops it, and a color the catalog lacks is explained. | P0 | Unit tests, including swapping through every option and the color cases. |
 | FR-FB-4 | **Nudge**: relative formality or vibe changes move the outfit in the requested direction. | P0 | A test checks that the mean formality moves in the requested direction after "dressier." |
 | FR-FB-5 | **Accept**: end the session and show a summary with links and the total price. | P0 | API and UI. |
 | FR-FB-6 | **More like this**: shift the session preference vector toward an item. | P1 | A test checks that similarity to that item increases in the next outfit. |
 | FR-FB-7 | Buttons and chat produce the same state change through the same code path. Buttons skip the LLM. | P0 | Both inputs call `apply_feedback`. |
+| FR-FB-8 | **Budget**: set, change, or clear the budget for the outfit on screen ("keep it under $200"). It keeps the request and the locked pieces, and rebuilds only if the outfit doesn't fit or the budget got looser. | P1 | Unit test, plus a budget field in the UI. |
+| FR-FB-9 | **Cheaper**: swap one piece for a cheaper one, or bring the whole outfit's total down by about 15%, which becomes the new budget. | P1 | Unit test (chat: "make it cheaper", "cheaper shoes"). |
 
 ### 5.7 API & Interface (`FR-API`, `FR-UI`)
 

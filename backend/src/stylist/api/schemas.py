@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from stylist.core.feedback import SessionState
+from stylist.core.feedback import SessionState, over_budget
 from stylist.core.models import Item, Outfit
 from stylist.core.names import Resolution
 from stylist.core.session import Reply
@@ -35,12 +35,19 @@ class PieceOut(ItemOut):
     locked: bool
 
 
+class BudgetOut(BaseModel):
+    max_total: float | None  # the whole outfit
+    max_item: float | None  # each piece
+
+
 class OutfitOut(BaseModel):
     pieces: list[PieceOut]  # in slot order: top, bottom, dress, outerwear, shoes, accessory
     score: float
     breakdown: dict[str, float]  # score term -> value in [0, 1] (FR-GEN-3)
     total_price: float
     currency: str
+    budget: BudgetOut | None  # the session's budget, if it has one (FR-REQ-5)
+    over_budget: bool  # nothing fit the budget, so this is the closest outfit
 
     @classmethod
     def of(cls, outfit: Outfit, state: SessionState | None) -> OutfitOut:
@@ -48,8 +55,11 @@ class OutfitOut(BaseModel):
         pieces = [PieceOut(**ItemOut.of(item).model_dump(), locked=locked.get(slot) == item.item_id)
                   for slot, item in outfit.pieces.items()]
         currency = pieces[0].currency if pieces else "USD"
+        request = state.request if state else None
+        budget = BudgetOut(max_total=request.max_total, max_item=request.max_item) if request and request.has_budget else None
         return cls(pieces=pieces, score=outfit.score, breakdown=outfit.breakdown,
-                   total_price=outfit.total_price, currency=currency)
+                   total_price=outfit.total_price, currency=currency, budget=budget,
+                   over_budget=bool(request and over_budget(outfit, request, locked)))
 
 
 class TurnOut(BaseModel):
@@ -62,6 +72,7 @@ class TurnOut(BaseModel):
     accepted: bool
     summary: dict | None  # links and total price, once accepted (FR-FB-5)
     parsed: dict | None  # what the message was understood as
+    error: str | None  # set when a message's change couldn't be applied; the outfit is unchanged
 
     @classmethod
     def of(cls, session_id: str, reply: Reply) -> TurnOut:
@@ -73,6 +84,7 @@ class TurnOut(BaseModel):
             accepted=bool(reply.state and reply.state.accepted),
             summary=reply.summary,
             parsed=reply.parsed.model_dump(mode="json") if reply.parsed else None,
+            error=reply.error,
         )
 
 
@@ -87,6 +99,8 @@ class SessionCreated(BaseModel):
 class TurnSummary(BaseModel):
     kind: str
     input: dict
+    parsed: dict | None  # what a message was understood as, so a reloaded chat can word replies right
+    error: str | None
     outfit: dict | None
     notes: list[str]
     latency_ms: float

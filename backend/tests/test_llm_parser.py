@@ -188,3 +188,45 @@ def test_make_parser_prefers_claude_then_compat_then_keywords():
 def test_claude_model_can_be_overridden():
     assert make_parser({"ANTHROPIC_API_KEY": "sk-test", "CLAUDE_MODEL": "claude-sonnet-5-5"}).model == \
         "claude-sonnet-5-5"
+
+
+# ------------------------------------------------------------ budgets
+
+def test_budget_in_a_request_passes_through():
+    parser, _ = claude(request(vibes=["polished"], formality=4, max_item=100))
+
+    assert parser("office outfit, nothing over $100", False).max_item == 100
+
+
+def test_budget_and_cheaper_feedback():
+    parser, fake = claude(feedback(action="budget", max_total=200), feedback(action="cheaper", slot="outerwear"))
+
+    assert parser("keep the price under $200", True) == FeedbackIntent(action="budget", max_total=200)
+    assert parser("cheaper coat please", True) == FeedbackIntent(action="cheaper", slot="outerwear")
+    assert "keep the price under $200" in fake.calls[0]["system"]  # the prompt shows this case
+
+
+def test_an_invalid_budget_is_retried():
+    parser, fake = claude(feedback(action="budget", max_total=-5), feedback(action="budget", max_total=150))
+
+    assert parser("keep it under $150", True) == FeedbackIntent(action="budget", max_total=150)
+    assert len(fake.calls) == 2
+
+
+# ------------------------------------------------------------ colors
+
+def test_piece_colors_pass_through():
+    from stylist.adapters.llm_parser import SlotColor
+
+    parser, _ = claude(request(vibes=["going-out"], colors=[SlotColor(slot="shoes", color="black")]),
+                       feedback(action="swap", slot="shoes", color="black"))
+
+    assert parser("date night, i want black shoes", False).colors == {"shoes": "black"}
+    assert parser("can i get black shoes", True) == FeedbackIntent(action="swap", slot="shoes", color="black")
+
+
+def test_a_color_on_anything_but_a_swap_is_retried():
+    parser, fake = claude(feedback(action="lock", slot="shoes", color="black"), feedback(action="lock", slot="shoes"))
+
+    assert parser("keep the black shoes", True) == FeedbackIntent(action="lock", slot="shoes")
+    assert len(fake.calls) == 2

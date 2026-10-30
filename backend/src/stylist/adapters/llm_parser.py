@@ -23,7 +23,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, ValidationError
 
 from stylist.core import keyword_parser
-from stylist.core.models import FeedbackIntent, ParsedRequest, Season, Slot, Vibe, Weather
+from stylist.core.models import Color, FeedbackIntent, ParsedRequest, Season, Slot, Vibe, Weather
 from stylist.core.session import Parse
 
 log = logging.getLogger("stylist.llm")
@@ -33,19 +33,30 @@ CLAUDE_MODEL = "claude-haiku-5-5"
 
 # ------------------------------------------------------------ what the LLM fills in
 
+class SlotColor(BaseModel):
+    slot: Slot
+    color: Color
+
+
 class LLMRequest(BaseModel):
     vibes: list[Vibe] = Field(default_factory=list)  # most important first; the first 3 are kept
     formality: Literal[1, 2, 3, 4, 5] | None = None
     season: Season | None = None
     weather: list[Weather] = Field(default_factory=list)
     named_items: list[str] = Field(default_factory=list)
+    max_total: float | None = None
+    max_item: float | None = None
+    colors: list[SlotColor] = Field(default_factory=list)  # a list, not a dict: simpler for structured outputs
 
 
 class LLMFeedback(BaseModel):
-    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept"]
+    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept", "budget", "cheaper"]
     slot: Slot | None = None
     formality: Literal[-1, 1] | None = None
     vibe: Vibe | None = None
+    max_total: float | None = None
+    max_item: float | None = None
+    color: Color | Literal["any"] | None = None
 
 
 class LLMParse(BaseModel):
@@ -68,6 +79,7 @@ def to_core(answer: LLMParse, text: str, live: bool) -> ParsedRequest | Feedback
     request = answer.request or LLMRequest()  # a vague request ("something nice") may come back empty
     fields = request.model_dump()
     fields["vibes"] = list(dict.fromkeys(fields["vibes"]))[:3]
+    fields["colors"] = {pair.slot: pair.color for pair in reversed(request.colors)}  # the first one for a slot wins
     return ParsedRequest(text=text.strip(), **fields)
 
 
@@ -100,37 +112,73 @@ like "the", "my", "those" or "one of those". That includes product names ("build
 Effortless Pant" gives "Effortless Pant") and described pieces the user has or wants to wear \
 ("i have this cashmere sweater" gives "cashmere sweater"). A bare category with no description \
 ("a top", "some shoes") is not one.
+- max_total: the most the whole outfit may cost, in dollars, when the message sets a budget \
+("under $200", "i have $150 to spend"). max_item: the most any one piece may cost ("nothing over \
+$80", "$50 each"). Otherwise null. A price that isn't a limit ("a $50 gift card") sets neither.
+- colors: a color the user wants for a particular piece ("black shoes" gives {"slot": "shoes", \
+"color": "black"}). Use the nearest of: black, white, cream, beige, camel, brown, grey, navy, denim, \
+olive, red, burgundy, pink, orange, yellow, green, teal, blue, purple, metallic, multi. Tan is camel, \
+gray is grey, ivory is cream, gold or silver is metallic, and floral, striped or printed is multi. \
+A color for the whole look ("all black") is not one.
 
 Feedback ("kind": "feedback") fills in "feedback" with an action:
 - lock: keep a piece ("keep the coat", "love the shoes"). Needs a slot.
 - unlock: stop keeping a piece. Needs a slot.
 - reject: never show that piece again ("not that top", "hate the bag"). Needs a slot.
-- swap: show a different one in a slot ("different shoes"). Needs a slot.
+- swap: show a different one in a slot ("different shoes"). Needs a slot. When the user asks for \
+a piece in a color ("black shoes", "can i get the coat in navy", "swap the shoes for black ones"), \
+it is a swap with that slot and color, using the color names above; "any color shoes" has color \
+"any". Otherwise color is null. A piece the outfit doesn't have yet ("a black dress instead", \
+"add a bag") is a swap too.
 - nudge: change the whole outfit. Set formality to 1 for dressier or -1 for more relaxed, or \
 set vibe ("edgier" is edgy).
 - accept: the user is happy with the outfit ("perfect", "I'll take it").
+- budget: set the budget of the outfit on screen, with max_total and max_item as in a request \
+("keep the price under $200" is max_total 200; "nothing over $80" is max_item 80). Both null \
+removes the budget ("price doesn't matter"). A message that only sets a budget is this feedback, \
+not a new request; one that also asks for something new ("a wedding instead, under $300") is a \
+request with max_total.
+- cheaper: make it cost less. With a slot, a cheaper piece in that slot ("cheaper shoes", "the \
+coat is too expensive", "swap the coat for something cheaper"); with no slot, a cheaper outfit \
+overall ("make it cheaper", "this is too expensive").
 Slots: top, bottom, dress (also jumpsuits), outerwear (coats, jackets, blazers), shoes, \
 accessory (bags, scarves, belts, hats).
 
 Examples:
 Outfit on screen: no. Message: cozy fall Sunday, running errands
 {"kind": "request", "request": {"vibes": ["cozy", "off-duty"], "formality": 2, "season": "fall", \
-"weather": [], "named_items": []}, "feedback": null}
+"weather": [], "named_items": [], "max_total": null, "max_item": null, "colors": []}, "feedback": null}
 Outfit on screen: no. Message: rooftop birthday dinner, it might get chilly
 {"kind": "request", "request": {"vibes": ["going-out"], "formality": 3, "season": null, \
-"weather": ["cool"], "named_items": []}, "feedback": null}
+"weather": ["cool"], "named_items": [], "max_total": null, "max_item": null, "colors": []}, "feedback": null}
 Outfit on screen: no. Message: build something around the Effortless Pant
 {"kind": "request", "request": {"vibes": [], "formality": null, "season": null, "weather": [], \
-"named_items": ["Effortless Pant"]}, "feedback": null}
+"named_items": ["Effortless Pant"], "max_total": null, "max_item": null, "colors": []}, "feedback": null}
+Outfit on screen: no. Message: office outfit, nothing over $100
+{"kind": "request", "request": {"vibes": ["polished"], "formality": 4, "season": null, "weather": [], \
+"named_items": [], "max_total": null, "max_item": 100, "colors": []}, "feedback": null}
+Outfit on screen: no. Message: date night, i want black shoes
+{"kind": "request", "request": {"vibes": ["going-out"], "formality": 3, "season": null, "weather": [], \
+"named_items": [], "max_total": null, "max_item": null, "colors": [{"slot": "shoes", "color": "black"}]}, \
+"feedback": null}
 Outfit on screen: yes. Message: different shoes
 {"kind": "feedback", "request": null, "feedback": {"action": "swap", "slot": "shoes", \
-"formality": null, "vibe": null}}
+"formality": null, "vibe": null, "max_total": null, "max_item": null, "color": null}}
+Outfit on screen: yes. Message: can i get black shoes
+{"kind": "feedback", "request": null, "feedback": {"action": "swap", "slot": "shoes", \
+"formality": null, "vibe": null, "max_total": null, "max_item": null, "color": "black"}}
 Outfit on screen: yes. Message: make it edgier
 {"kind": "feedback", "request": null, "feedback": {"action": "nudge", "slot": null, \
-"formality": null, "vibe": "edgy"}}
+"formality": null, "vibe": "edgy", "max_total": null, "max_item": null, "color": null}}
+Outfit on screen: yes. Message: keep the price under $200
+{"kind": "feedback", "request": null, "feedback": {"action": "budget", "slot": null, \
+"formality": null, "vibe": null, "max_total": 200, "max_item": null, "color": null}}
+Outfit on screen: yes. Message: cheaper coat please
+{"kind": "feedback", "request": null, "feedback": {"action": "cheaper", "slot": "outerwear", \
+"formality": null, "vibe": null, "max_total": null, "max_item": null, "color": null}}
 Outfit on screen: yes. Message: looks good
 {"kind": "feedback", "request": null, "feedback": {"action": "accept", "slot": null, \
-"formality": null, "vibe": null}}
+"formality": null, "vibe": null, "max_total": null, "max_item": null, "color": null}}
 
 Reply with the JSON object only."""
 

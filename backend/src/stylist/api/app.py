@@ -134,7 +134,8 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
     def get_session(session_id: str) -> SessionOut:
         state = load_state(session_id)
         outfit = OutfitOut.of(outfit_of(catalog, state), state) if state and state.current else None
-        turns = [TurnSummary(kind=t.kind, input=t.input, outfit=t.outfit, notes=t.notes, latency_ms=t.latency_ms)
+        turns = [TurnSummary(kind=t.kind, input=t.input, parsed=t.parsed, error=t.error, outfit=t.outfit,
+                             notes=t.notes, latency_ms=t.latency_ms)
                  for t in store.turns(session_id)]
         return SessionOut(session_id=session_id, outfit=outfit, accepted=bool(state and state.accepted), turns=turns)
 

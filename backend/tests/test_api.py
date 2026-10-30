@@ -236,3 +236,55 @@ def test_unexpected_error_is_a_clean_500(store):
     response = say(client, sid, "dinner")
 
     assert response.status_code == 500 and response.json() == {"detail": "Something went wrong on our side."}
+
+
+# ------------------------------------------------------------- budgets (FR-REQ-5, FR-FB-8, -9)
+
+def test_outfit_without_a_budget(client, session_id):
+    outfit = say(client, session_id, "cozy fall Sunday, running errands").json()["outfit"]
+
+    assert outfit["budget"] is None and outfit["over_budget"] is False
+
+
+def test_budget_button_and_the_outfit_reports_it(client, session_id):
+    say(client, session_id, "cozy fall Sunday, running errands")
+
+    turn = act(client, session_id, action="budget", max_total=100).json()
+
+    assert turn["outfit"]["budget"] == {"max_total": 100, "max_item": None}
+    assert turn["outfit"]["total_price"] <= 100 and turn["outfit"]["over_budget"] is False
+    reloaded = client.get(f"/api/v1/sessions/{session_id}").json()
+    assert reloaded["outfit"]["budget"]["max_total"] == 100  # saved with the session
+
+
+def test_impossible_budget_is_flagged_and_explained(client, session_id):
+    turn = say(client, session_id, "cozy fall Sunday, running errands, under $60").json()
+
+    assert turn["outfit"]["over_budget"] is True and turn["outfit"]["total_price"] == 100
+    assert turn["notes"] == ["Nothing fits a $60 budget for this, so here's the cheapest outfit I could put "
+                             "together ($100)."]
+
+
+def test_cheaper_when_nothing_is_cheaper_is_a_409(client, session_id):
+    say(client, session_id, "cozy fall Sunday, running errands, under $60")  # already the cheapest: $100
+
+    response = act(client, session_id, action="cheaper")
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "This is already the cheapest outfit I can put together for this request."
+
+
+def test_swap_with_a_color(client, session_id):
+    say(client, session_id, "cozy fall Sunday, running errands")
+
+    turn = act(client, session_id, action="swap", slot="shoes", color="navy").json()
+
+    assert piece(turn, "shoes")["colors"] == ["navy"]
+
+
+def test_swap_to_a_color_the_catalog_doesnt_have_is_a_409(client, session_id):
+    say(client, session_id, "cozy fall Sunday, running errands")
+
+    response = act(client, session_id, action="swap", slot="shoes", color="pink")
+
+    assert response.status_code == 409 and response.json()["detail"].startswith("I don't have any pink shoes")

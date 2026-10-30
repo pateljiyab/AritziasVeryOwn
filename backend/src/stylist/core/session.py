@@ -70,10 +70,20 @@ def handle_message(catalog: Catalog, state: SessionState | None, text: str, embe
         return handle_action(catalog, state, parsed, embed)
 
     locked, notes, choices = lock_named_items(catalog, parsed.named_items)
+    if state is not None and state.request.has_budget and not parsed.has_budget:
+        # A budget holds for the whole session (FR-REQ-5) until the user changes or clears it.
+        parsed = parsed.model_copy(update={"max_total": state.request.max_total, "max_item": state.request.max_item})
+        notes.append(f"Keeping to {feedback.budget_words(parsed)}.")
+    for slot, color in parsed.colors.items():
+        if not any(color in item.colors for item in catalog.in_slot(slot)):
+            notes.append(f"I don't have any {color} {feedback.MANY[slot]}, so I left the color open.")
+    parsed = parsed.model_copy(update={"colors": {
+        slot: color for slot, color in parsed.colors.items() if any(color in i.colors for i in catalog.in_slot(slot))}})
     try:
         new_state, outfit = feedback.start(catalog, parsed, embed(parsed.text), locked)
     except NoOutfitError as exc:
         return Reply(state, None, [*notes, f"I couldn't build an outfit: {exc}."], choices, parsed=parsed)
+    notes += feedback.budget_notes(catalog, new_state, outfit)
     return Reply(new_state, outfit, notes, choices, parsed=parsed)
 
 
@@ -88,4 +98,5 @@ def handle_action(catalog: Catalog, state: SessionState | None, intent: Feedback
         message = f"{str(exc)[:1].upper()}{str(exc)[1:]}."
         return Reply(state, feedback.outfit_of(catalog, state), [message], parsed=intent, error=message)
     summary = feedback.summary(outfit) if new_state.accepted else None
-    return Reply(new_state, outfit, [], summary=summary, parsed=intent)
+    notes = [] if intent.action in {"accept", "unlock"} else feedback.budget_notes(catalog, new_state, outfit)
+    return Reply(new_state, outfit, notes, summary=summary, parsed=intent)

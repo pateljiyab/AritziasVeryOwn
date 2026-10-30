@@ -7,6 +7,10 @@ covers what the keywords miss.
 
 With an outfit on screen, a message is read as feedback first ("different shoes",
 "dressier", "keep the coat"). If no feedback rule matches, it is a new request.
+
+Prices given as limits set a budget (FR-REQ-5): "under $200" for the whole outfit, "nothing over
+$80" for each piece. With an outfit on screen, a budget on its own changes the budget, and
+"cheaper" asks for a cheaper piece or a cheaper outfit (FR-FB-8, -9).
 """
 
 from __future__ import annotations
@@ -14,6 +18,7 @@ from __future__ import annotations
 import re
 
 from stylist.core.models import FeedbackIntent, ParsedRequest
+from stylist.tagging.colors import COLOR_WORDS
 
 SLOT_WORDS = {
     "top": ["top", "shirt", "sweater", "tee", "t-shirt", "blouse", "hoodie", "cardigan", "tank", "bodysuit",
@@ -28,6 +33,18 @@ SLOT_WORDS = {
 _WORD_TO_SLOT = {w: slot for slot, words in SLOT_WORDS.items() for w in words}
 _SLOT = r"(?P<noun>" + "|".join(sorted(map(re.escape, _WORD_TO_SLOT), key=len, reverse=True)) + r")\b"
 _DET = r"(?:(?:the|that|this|those|these|my|a|an)\s+)?"
+
+# Colors for one piece ("black shoes", "shoes in black"), with the tagger's color words.
+_COLOR_TAG = {word: tag for tag, words in COLOR_WORDS.items() for word in words}
+_COLOR_WORD = "|".join(sorted(map(re.escape, _COLOR_TAG), key=len, reverse=True))
+_COLOR = r"(?P<color>" + _COLOR_WORD + r")"
+_STYLE = (r"(?:(?:leather|suede|knit|satin|silk|wool|ankle|chunky|strappy|mini|midi|maxi|long|short|cropped|"
+          r"wide-leg|straight-leg)\s+)?")
+_ADJ = r"(?:(?:" + _COLOR_WORD + r")\s+)?" + _STYLE  # "keep the black shoes" is still a lock
+_COLOR_THEN_SLOT = re.compile(r"\b" + _COLOR + r"\s+" + _STYLE + _SLOT)  # "black shoes", "black leather boots"
+_SLOT_THEN_COLOR = re.compile(r"\b" + _SLOT + r"\s+(?:(?:in|be|to|that are|that is)\s+)?" + _COLOR + r"\b")
+_LOOSE_COLOR = re.compile(r"\b" + _COLOR + r"\b")  # "swap the shoes for black ones"
+_ANY_COLOR = re.compile(r"\b(?:any|whatever|other|different)\s+colou?r(?:ed)?\b|\bin\s+(?:any|another|a different)\s+colou?r\b")
 
 VIBE_WORDS = {
     "cozy": ["cozy", "cosy", "comfy", "snug", "lounge"],
@@ -72,10 +89,82 @@ _WITH_NAMED = re.compile(r"\bwith\s+(?:the|my)\s+(?P<name>[^.,!?;]+?)\s*(?:[.,!?
 _ACCEPT = re.compile(r"\b(?:perfect|love it|i'?ll take it|that'?s it|looks (?:great|good)|accept|done|sold)\b")
 _DRESSIER = re.compile(r"\b(?:dressier|fancier|more (?:formal|dressy|elevated)|less casual|dress (?:it|this) up)\b")
 _RELAXED = re.compile(r"\b(?:more (?:relaxed|casual|comfortable)|less (?:formal|dressy)|dress (?:it|this) down)\b")
-_UNLOCK = re.compile(r"\b(?:unlock|unpin|let go of)\s+" + _DET + _SLOT)
-_LOCK = re.compile(r"\b(?:keep|lock|love)\s+" + _DET + _SLOT)  # not "like": "I'd like a jacket" isn't a lock
-_REJECT = re.compile(r"\b(?:not|no|hate|don'?t like|remove|ditch|lose|drop|not a fan of)\s+" + _DET + _SLOT)
-_SWAP = re.compile(r"\b(?:different|another|other|new|swap|change|switch|replace)\s+(?:out\s+)?" + _DET + _SLOT)
+
+# Budgets (FR-REQ-5): "$200", "200 dollars", "200 bucks", or a bare number right after a budget
+# word ("keep it under 200"), but not "under 20 degrees".
+_MONEY = re.compile(
+    r"\$\s?(?P<dollar>\d[\d,]*(?:\.\d{1,2})?)"
+    r"|\b(?P<unit>\d[\d,]*(?:\.\d{1,2})?)\s*(?:dollars|bucks|usd)\b"
+    r"|\b(?:under|below|less than|no more than|at most|max(?:imum)?|up to|budget(?: of| is)?)\s+(?P<bare>\d{2,}(?:\.\d{1,2})?)\b"
+    r"(?!\s*(?:degrees|deg|°|f\b|c\b|min|minutes|hours?|km|miles|people|guests|%|percent|years?))")
+# A price only counts as a budget when its clause says it's a limit ("I got a $50 gift card" isn't).
+_LIMIT_CUE = re.compile(r"\b(?:under|below|less than|no more than|not more than|at most|max(?:imum)?|up to|within|"
+                        r"budget|spend(?:ing)?|cheaper than|nothing (?:over|above|more than)|"
+                        r"no (?:one )?(?:piece|item) (?:over|above)|or (?:less|under|below)|tops|limit|cap)\b")
+_PER_PIECE_CUE = re.compile(r"\b(?:each|apiece|a piece|per (?:piece|item)|every (?:piece|item)|"
+                            r"nothing (?:over|above|more than)|no (?:one )?(?:piece|item)|any (?:one )?(?:piece|item)|"
+                            r"single (?:piece|item))\b")
+_NO_BUDGET = re.compile(r"\b(?:no budget|forget (?:about )?the budget|ignore the budget|drop the budget|"
+                        r"remove the budget|price doesn'?t matter|money is no object|don'?t care (?:about|what) "
+                        r"(?:the )?(?:price|it costs)|any price)\b")
+_CHEAPER = re.compile(r"\b(?:cheaper|less expensive|more affordable|budget[- ]friendly|lower[- ]priced|"
+                      r"cost(?:s)? less|too (?:expensive|pricey)|over ?priced)\b")
+# Each price is read with its own part of the sentence: "under $300 total but nothing over $100 each".
+_CLAUSE_BREAK = re.compile(r"[.,;!?\n]|\b(?:but|and|while|though|although)\b")
+
+
+def budget(text: str) -> tuple[float | None, float | None]:
+    """(max_total, max_item) from the prices a message gives as limits; None when it gives none."""
+    t = text.lower()
+    total: float | None = None
+    each: float | None = None
+    for match in _MONEY.finditer(t):
+        amount = float((match.group("dollar") or match.group("unit") or match.group("bare")).replace(",", ""))
+        start = max((b.end() for b in _CLAUSE_BREAK.finditer(t, 0, match.start())), default=0)
+        end = next((b.start() for b in _CLAUSE_BREAK.finditer(t, match.end())), len(t))
+        clause = t[start:end]
+        if amount <= 0 or not (_LIMIT_CUE.search(clause) or match.group("bare")):
+            continue
+        if _PER_PIECE_CUE.search(clause):
+            each = amount if each is None else min(each, amount)
+        else:
+            total = amount if total is None else min(total, amount)
+    return total, each
+
+
+def budget_feedback(text: str) -> FeedbackIntent | None:
+    """A budget change for the outfit on screen: clear it, set it, or make something cheaper."""
+    t = text.lower()
+    if _NO_BUDGET.search(t):
+        return FeedbackIntent(action="budget")  # neither limit: clears the budget
+    max_total, max_item = budget(t)
+    if max_total or max_item:
+        request = parse_request(text)
+        if request.vibes or request.formality or request.season or request.weather or request.named_items:
+            return None  # a budget for a new request ("a wedding instead, under $300")
+        return FeedbackIntent(action="budget", max_total=max_total, max_item=max_item)
+    if _CHEAPER.search(t):
+        slots = {_WORD_TO_SLOT[m.group("noun")] for m in re.finditer(r"\b" + _SLOT, t)}
+        if len(slots) == 1:  # "cheaper shoes", "swap the coat for something cheaper"
+            return FeedbackIntent(action="cheaper", slot=slots.pop())
+        return FeedbackIntent(action="cheaper")
+    return None
+
+
+_UNLOCK = re.compile(r"\b(?:unlock|unpin|let go of)\s+" + _DET + _ADJ + _SLOT)
+_LOCK = re.compile(r"\b(?:keep|lock|love)\s+" + _DET + _ADJ + _SLOT)  # not "like": "I'd like a jacket" isn't a lock
+_REJECT = re.compile(r"\b(?:not|no|hate|don'?t like|remove|ditch|lose|drop|not a fan of)\s+" + _DET + _ADJ + _SLOT)
+_SWAP = re.compile(r"\b(?:different|another|other|new|swap|change|switch|replace)\s+(?:out\s+)?" + _DET + _ADJ + _SLOT)
+
+
+def slot_colors(text: str) -> dict[str, str]:
+    """The colors asked for particular pieces: slot -> color tag ("black shoes" gives shoes: black)."""
+    t = text.lower()
+    found: dict[str, str] = {}
+    for pattern in (_COLOR_THEN_SLOT, _SLOT_THEN_COLOR):
+        for match in pattern.finditer(t):
+            found.setdefault(_WORD_TO_SLOT[match.group("noun")], _COLOR_TAG[match.group("color")])
+    return found
 
 
 def _has(text: str, phrase: str) -> bool:
@@ -85,9 +174,24 @@ def _has(text: str, phrase: str) -> bool:
 def parse_feedback(text: str) -> FeedbackIntent | None:
     """A refinement of the outfit on screen, or None if the message isn't one."""
     t = text.lower()
+    if intent := budget_feedback(text):  # before swap: "swap the coat for something cheaper" is a cheaper coat
+        return intent
     for pattern, action in ((_UNLOCK, "unlock"), (_REJECT, "reject"), (_SWAP, "swap"), (_LOCK, "lock")):
         if match := pattern.search(t):
-            return FeedbackIntent(action=action, slot=_WORD_TO_SLOT[match.group("noun")])
+            slot = _WORD_TO_SLOT[match.group("noun")]
+            if action != "swap":
+                return FeedbackIntent(action=action, slot=slot)
+            loose = _LOOSE_COLOR.search(t)  # "swap the shoes for black ones"
+            color = "any" if _ANY_COLOR.search(t) else slot_colors(t).get(slot) or (loose and _COLOR_TAG[loose.group("color")])
+            return FeedbackIntent(action="swap", slot=slot, color=color or None)
+    if colors := slot_colors(t):  # "black shoes", "can I get the coat in navy"
+        rest = _SLOT_THEN_COLOR.sub(" ", _COLOR_THEN_SLOT.sub(" ", t))  # "leather" in "black leather boots" isn't a vibe
+        request = parse_request(rest)
+        if not (request.vibes or request.formality or request.season or request.weather):
+            slot, color = next(iter(colors.items()))
+            return FeedbackIntent(action="swap", slot=slot, color=color)
+    if (_ANY_COLOR.search(t) and (match := re.search(r"\b" + _SLOT, t))):  # "any color shoes"
+        return FeedbackIntent(action="swap", slot=_WORD_TO_SLOT[match.group("noun")], color="any")
     if _DRESSIER.search(t):
         return FeedbackIntent(action="nudge", formality=1)
     if _RELAXED.search(t):
@@ -123,8 +227,10 @@ def parse_request(text: str) -> ParsedRequest:
 
     seasons = [season for word, season in SEASON_WORDS.items() if _has(t, word)]
     weather = [w for w, pattern in WEATHER_PATTERNS.items() if re.search(pattern, t)]
+    max_total, max_item = budget(t)
     return ParsedRequest(text=text.strip(), vibes=vibes, formality=formality, season=seasons[0] if seasons else None,
-                         weather=weather, named_items=named_items(text))
+                         weather=weather, named_items=named_items(text), max_total=max_total, max_item=max_item,
+                         colors=slot_colors(t))
 
 
 def parse(text: str, has_outfit: bool) -> ParsedRequest | FeedbackIntent:
