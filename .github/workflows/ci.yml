@@ -33,10 +33,13 @@ jobs:
         run: python -m pytest backend/tests
 
       # The tests import these modules; this runs the scripts the way the README does, so a
-      # broken entry point fails CI. No tags, embeddings, or torch: --no-clip skips CLIP.
+      # broken entry point fails CI. No torch: the tags come from the committed snapshots, and
+      # --no-clip skips CLIP query embeddings.
       - name: Smoke-test the scripts
         run: |
           python backend/src/stylist/jobs/ingest.py
+          python backend/src/stylist/jobs/restore_tags.py
+          python backend/src/stylist/jobs/llm_tag.py
           python backend/src/stylist/cli.py --demo --no-clip
           python backend/src/stylist/jobs/names_report.py
           python backend/src/stylist/jobs/parser_report.py --keyword-only

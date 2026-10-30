@@ -2,12 +2,26 @@
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier) until it's something you'd actually wear.
 
-Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client; Docker Compose is next (Day 3).
+Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client, and Docker Compose runs both.
 
 ## Docs
 
 - [Product Requirements (PRD)](docs/PRD.md): problem, users, requirements, success metrics
 - [Technical Specification](docs/TECH_SPEC.md): tech stack, architecture, key design decisions
+- [Day 3 plan](docs/plans/llm-parser.md): the LLM parser, the parser benchmark, LLM vibe tagging, and Docker
+
+## Run it with Docker
+
+Needs only Docker. Copy `.env.example` to `.env` and add `ANTHROPIC_API_KEY` if you want the LLM parser (without it, chat uses keyword rules). Then:
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8080 for the app and http://localhost:8080/docs for the API docs. nginx serves the built client and forwards `/api` to the FastAPI service, so the browser talks to one origin.
+
+- On first start, the API builds `data/catalog.db` from the committed files: the seed catalog, the CLIP tag snapshot (`data/clip_tags.json`), and the LLM vibe cache (`data/llm_vibes.json`). An existing database is used as is. `./data` is mounted into the container, so the database and sessions persist on your machine.
+- The image has no PyTorch, so outfits are scored without the CLIP relevance term (like `cli.py --no-clip`). Run the app outside Docker with `requirements-ml.txt` for the full scoring.
 
 ## Setup
 
@@ -28,10 +42,11 @@ Collect the catalog into `data/seed_catalog.csv`:
 python backend/src/stylist/jobs/collect_channel3.py
 ```
 
-Load the CSV into SQLite (`data/catalog.db`). Safe to re-run:
+Load the CSV into SQLite (`data/catalog.db`). Safe to re-run. Without PyTorch, `restore_tags.py` loads the committed CLIP tags instead of running the tagger below:
 
 ```bash
 python backend/src/stylist/jobs/ingest.py
+python backend/src/stylist/jobs/restore_tags.py
 ```
 
 Tag the catalog with CLIP (needs `pip install -r requirements-ml.txt`; the first run downloads the photos and model weights), add the LLM vibe tags, then score the tags against the gold set in `eval/tagging_report.md`. The LLM vibes are cached in the committed `data/llm_vibes.json`, so `llm_tag.py` needs an `ANTHROPIC_API_KEY` only for new or changed items (about $0.05 for the whole catalog):
@@ -84,7 +99,7 @@ python -m pytest backend/tests
 
 ## Status
 
-Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 is in progress: the REST API, the web client, and the LLM parser are done; the parser benchmark and Docker are next.
+Days 1–3 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog and tagging, the outfit engine, and the full app (REST API, React client, LLM parser, and Docker Compose), with Flows A–D working in the browser. Day 3.5 is next: the outfit-quality rating (G1), test coverage (G5), a latency report, the demo recording, and `v1.0.0`.
 
 Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 
@@ -95,6 +110,7 @@ Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 | G3 Tagging: formality within ±1 | 26/30 (87%) | ≥ 85% | Yes |
 | G4 Names: top-1 | 24/30 (80%) | ≥ 90% | No |
 | Chat parser: exact (every field right) | 24/37 (65%) with Claude Haiku 5.5; keyword rules 11/37 (30%) | none set | |
+| NFR-1 Chat latency p90 | 2.3 s with Haiku (parser benchmark, 40 messages) | ≤ 4 s | Yes |
 
 - Tagging details are in [`eval/tagging_report.md`](eval/tagging_report.md). CLIP rarely predicts `polished` or `going-out`, so vibe now comes from Claude Haiku 5.5 reading each item's photo and details (FR-TAG-5). That raised vibe top-1 from 43% to 63%, still short of the target. Most remaining misses are judgment calls (the gold set's first vibe is `polished` for 15 of 30 items), and the prompt is not tuned on the gold set.
 - Parser details are in [`eval/parser_report.md`](eval/parser_report.md): 40 hand-written messages, scored for keyword rules, Claude Haiku 5.5, gpt-oss-120b on Groq's free tier, and Llama 3.1 8B on Ollama. Haiku and gpt-oss-120b tie within noise (65% vs 68% exact), but Groq's free tier allows only about 4 messages a minute with this prompt, so the live app uses Haiku (about $0.0004 a message).

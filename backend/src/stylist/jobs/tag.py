@@ -11,6 +11,9 @@ Usage (from the repo root, after `pip install -r requirements-ml.txt`):
 Photos are downloaded once into data/images/. The CLIP image embeddings are also saved to
 data/embeddings.npy (+ data/embedding_ids.json) for outfit retrieval later.
 Re-running replaces this job's tags; nothing else in the database is touched.
+
+A full run also writes the tags to data/clip_tags.json, which is committed: machines without
+PyTorch (CI, the Docker image) load it with jobs/restore_tags.py instead of running CLIP.
 """
 
 from __future__ import annotations
@@ -37,6 +40,7 @@ from stylist.tagging.clip_tagger import MODEL_VERSION, ClipModel, LabelBank  # n
 from stylist.tagging.colors import main_color  # noqa: E402
 
 IMAGE_DIR = ROOT / "data" / "images"
+CLIP_TAGS_JSON = ROOT / "data" / "clip_tags.json"
 EMBEDDINGS_NPY = ROOT / "data" / "embeddings.npy"
 EMBEDDING_IDS_JSON = ROOT / "data" / "embedding_ids.json"
 SOURCE = "auto"
@@ -139,6 +143,7 @@ def tag_catalog(db_url: str = DB_URL, limit: int | None = None) -> None:
             tagged_at=now,
         ))
 
+    snapshot = snapshot_of(rows)  # before saving: the rows expire when the session commits
     stale = delete(ItemTag).where(ItemTag.source == SOURCE)
     if trial:  # a trial run only replaces the items it tagged
         stale = stale.where(ItemTag.item_id.in_([item.item_id for item in items]))
@@ -150,11 +155,19 @@ def tag_catalog(db_url: str = DB_URL, limit: int | None = None) -> None:
         ids = sorted(embeddings)
         np.save(EMBEDDINGS_NPY, np.stack([embeddings[i] for i in ids]))
         EMBEDDING_IDS_JSON.write_text(json.dumps({"model_version": MODEL_VERSION, "item_ids": ids}, indent=1))
+        CLIP_TAGS_JSON.write_text(json.dumps(snapshot, indent=1) + "\n")
 
     missing = len(items) - len(embeddings)
     print(f"\nTagged {len(rows)} items ({missing} without a usable photo got color only).")
     if not trial:
         print(f"Saved {len(embeddings)} image embeddings to {EMBEDDINGS_NPY}.")
+
+
+def snapshot_of(rows: list[ItemTag]) -> dict:
+    """The tags without CLIP's raw scores, for data/clip_tags.json and jobs/restore_tags.py."""
+    items = {r.item_id: {"seasons": r.seasons, "vibes": r.vibes, "colors": r.colors, "formality": r.formality,
+                         "color_source": r.color_source} for r in sorted(rows, key=lambda r: r.item_id)}
+    return {"model_version": MODEL_VERSION, "items": items}
 
 
 def positive_int(value: str) -> int:

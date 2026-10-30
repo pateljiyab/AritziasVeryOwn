@@ -1,5 +1,16 @@
 # Plan: Claude Haiku 5.5 parser, a four-way parser benchmark, and an LLM vibe tagger (on top of `feat/web`)
 
+## Status: done (October 29, 2026)
+
+| Phase | Result |
+|---|---|
+| 1. Haiku parser | Built (#13). Retry once, then keyword fallback; per-IP chat limit. |
+| 2. Parser benchmark | `eval/parser_report.md`: Haiku 65% exact, gpt-oss-120b on Groq 68% (a tie within noise), local Llama 3.1 8B 41%, keyword rules 30%. Groq replaced the planned Llama 3.3 70B, which it no longer serves. |
+| 3. Vibe tagger | Built (#13). Vibe top-1 43% → 63% on the gold set, short of the 75% target. |
+| 4. Docker Compose | Built on `feat/docker` and checked end to end. It added a committed CLIP tag snapshot (`jobs/restore_tags.py`) so the image needs no PyTorch. |
+
+The rest of this file is the plan as approved, kept for the record.
+
 ## Context
 
 Jiya's `feat/web` (c09a2c7) finishes the React client. It covers cards, lock/swap/reject, nudges, the choices picker, session restore, and a CI `web` job. Three things are left:

@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Last updated** | October 29, 2026 (v5: the API, the web client, and the LLM parser) |
-| **Status** | v5 |
+| **Last updated** | October 29, 2026 (v6: Day 3 complete, with the LLM parser, LLM vibe tagging, and Docker) |
+| **Status** | v6 |
 | **Companion doc** | [Product Requirements](PRD.md) |
 
-This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code. Items marked *(Day 3)* are planned but not built yet.
+This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code.
 
 ---
 
@@ -89,7 +89,7 @@ flowchart LR
 |---|---|---|
 | Python packaging | `requirements.txt` (exact pins) + `requirements-ml.txt` (PyTorch, CPU wheels) | Plain pip. PyTorch stays out of CI and the core install. |
 | JS packaging | **npm** | Standard. |
-| Containers | **Docker** + **Docker Compose** *(Day 3)* | `docker compose up` runs the whole app. |
+| Containers | **Docker** + **Docker Compose** | `docker compose up` runs the API (Python slim image, no PyTorch) and the client (built with Node, served by nginx, which also proxies `/api`). |
 | CI | **GitHub Actions** | On every PR and push to `main`, on Python 3.11 and 3.13: pytest, then a smoke test that runs `ingest.py`, `cli.py --demo --no-clip`, and `names_report.py` as scripts. |
 | Version control | **Git + GitHub** | Feature branches, small PRs, a protected `main`, and Conventional Commits. |
 | Project tracking | **GitHub Projects** | One issue per requirement, organized into day-sized milestones. |
@@ -116,6 +116,8 @@ flowchart LR
 | Invalid LLM output is retried once with the validation error; then, and on any API error, refusal, or timeout, the message goes to keyword rules (`core/keyword_parser.py`). No key means keyword rules from the start. | A chat turn never fails because of the LLM (FR-REQ-2), and tests and CI need no key. The SDK's own retries are off, so a failing call falls back within the 4 s chat budget (NFR-1). |
 | Chat messages are limited per client IP (20 a minute by default); buttons are not. | The site is public, and only chat makes an LLM call, so this caps what one script can spend. |
 | Evaluation sets are labeled before results are seen, and any reuse is disclosed. | The gold set was labeled before tagging ran. The G4 queries were used once while improving the resolver, so the report prints the pre-tuning baseline next to every result. |
+| Both tag snapshots are committed (`data/clip_tags.json`, `data/llm_vibes.json`), and `jobs/restore_tags.py` loads the CLIP one. | A fresh clone, CI, and the Docker image get the same tags as a full run, with no PyTorch, photo downloads, or API key. `tag.py` rewrites the snapshot after each full run. |
+| The Docker image leaves out PyTorch, and nginx serves the client and proxies `/api`. | The image stays small enough for cheap hosting (CLIP would add over 1 GB), and one origin means no CORS setup. nginx overwrites `X-Forwarded-For`, so the per-IP chat limit sees the real client and can't be dodged with a forged header. |
 | NumPy instead of FAISS, and SQLite instead of Postgres. | They are the right size for about 400 items, with an easy upgrade path. |
 
 ---
@@ -138,10 +140,12 @@ AritziasVeryOwn/
 │   │   └── cli.py             # terminal chat; --demo plays Flows A–D
 │   └── tests/
 ├── web/                       # React + TypeScript client (Vite)
-├── data/                      # seed_catalog.csv (committed); catalog.db, sessions.db, images/, embeddings (gitignored)
-├── eval/                      # gold_set.csv + gold_labeling.md, tagging_report.md, names_test.csv
+├── data/                      # committed: seed_catalog.csv, clip_tags.json, llm_vibes.json;
+│                              #   gitignored: catalog.db, sessions.db, images/, embeddings
+├── eval/                      # gold_set.csv + gold_labeling.md, tagging_report.md, names_test.csv,
+│                              #   parser_test.csv, parser_report.md
 ├── requirements.txt           # core + tests (what CI installs)
 ├── requirements-ml.txt        # adds PyTorch + open_clip for tagging and the CLI's query embeddings
-├── docker-compose.yml         # (Day 3)
+├── docker-compose.yml         # api (backend/Dockerfile) + web (web/Dockerfile, nginx.conf)
 └── .github/workflows/ci.yml
 ```

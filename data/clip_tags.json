@@ -1,0 +1,5612 @@
+{
+ "model_version": "open_clip/ViT-B-32/laion2b_s34b_b79k/prompts-v1",
+ "items": {
+  "011559a43e63fd2ab5c6a0be6d011ec04d47684d": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "0129cd2bf0e5f4df3526427d4eb832651cf89302": {
+   "seasons": [
+    "summer",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "027b4fe054bac7ff5c6349e48b6667498dd0defd": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure",
+    "cute"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "035eb0485450a2f0c521798d3675c44d4e57be28": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "04a5258010803fbb8d9209592a8b5a8ca6685f93": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "04feb7b31c89af985132436fded653778b05b424": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "054e77c4388d46183e06f3ab3ed0df1f01e53a06": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "076683c5abcaffd8d5888c2e5fb942deda385f5b": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "0858a536173a5ff77ccb37c348baae295b727023": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "088c0f513824c7e37c795942f93664a2b737c3fd": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "08a63f35e557522d643f1eace894db56a6ccef3b": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "08c90c4968ed10dc6fb2a9212894d074298d3024": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "091b6c19e13f12c836a04b7a2be18819d62a1a2d": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "going-out"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "0aa2a2a0c75c54ec9e68919ceb6869ebf2871572": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "0b8bc7ccd6f056cfab00915110ca9b1cbf76266c": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "0c5354649068d3f1701834a62440a64d06bfa734": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "0c9c0a94df73c67cbf2277496c485c8e5913bf73": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "0d05b9b05905005561563c5d0d29b485301c7007": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "0d42fa868b4f30e164a2c1a0bd5f51a6c9f6f79a": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy",
+    "athleisure",
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "118710043e56ff11359e4ed08b24ad4bd16cfec6": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "11d020c582049df6936553b338ba2496b765a154": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "12de78674b54923d098936d3fac2c5f350124c5d": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "13a04a76d5084695dc802be15af6cd663a9e04bb": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "going-out",
+    "chic"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "178095e5c7f2f9dc0fa8d7c072dcf3ddc9bcc319": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "polished",
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "1785e706f0be868faea88bc5a54b1ad10ad97b0c": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "17a0afbb9b29036a0e543535110e21d4086b14e0": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "17a78b992c4773180c3d70c5db9bd4297ca06280": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "1a4d5bd8f081f141254d24e5065c005b0a7d61c5": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "1af2bfa70b7f3c211eba02fcc64ac5ebc2e6fff4": {
+   "seasons": [
+    "fall",
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "1b62a90abf8681b0b98493997c57635c6cddb56f": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "1bad559c8aca10fd3fa34c0888d6da33e74d5d9a": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "1be087bb2c953fbefddaf9027953c08e204b49d1": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "1c7fabdf82631d056cf98abef59ee8ff47fb5f54": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "1d059d26a9fce0784bd7c88baa8a25e826e69db9": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "1d1ea9b2e1ff8be8d0b5f026a6e1b91989cc0f45": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "1d8665449664cf4d7a5c60471ebde3df0591540d": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "1e5c1a0098a5108a51b9671996bebf4ec4c71dc6": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "1ed682e4be2372d5c41cd9e5e900cabb522165cc": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "edgy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "1fe2971e6c35128d74bfe7a3e6b38d987ce85375": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "2039814ea5b6e74362adf0f03654f7d30b5d58ff": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "2123209e1d2d2e7ed36ed900e68417402c88acb0": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "2141e1935b82500bfe83ace78672c1944d2809ac": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "214ebe9ee5819be3b9f08c8ff0fc30067efd9477": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "22bfbaf745edf17e91491eb70405f6a50e75acf8": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "22ec7c911e335c787cfcde24cbd944c1635dbd6f": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "235453348c1571cd98fc1d1d34f9693557cfaeb1": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "23720d8ddbf7cfa13023e3301b70321ec16d18b8": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "2382f638d408f95fae9a8b2df35232ff9a0b467a": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "24a7050f1dfe5e7b605c9e41f224595792149b5f": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "25a0a0ee2a3c76699286a42ada223f4a4b3a9024": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "2799b5a285faf7364ac17d843dce7245573f8a0a": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "romantic"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "27cf7e493d152fd5706b0e90c4a86083f5175560": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "27dfedd04f3b63ae711638796a026543b06b61ec": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "off-duty",
+    "polished"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2811afb4749c87af37fb558acf128be1c68d98b6": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "2830e63cd194dd641b80410032134dc64a074111": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "29b37f38a6b583d0fe998c7291e44ea142d61bd4": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "polished",
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2a332acdf9b6edb7c51ecf479d780fd168826fa4": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2a69f275b6fdb1e414a431cb88f5869ff6d0866b": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "2a88842f041fac8527c974ee7802d5574a152f77": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "2af09eeb53b3992ebaa048262b8aab9c1360f532": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2b54836004f695b7701e6cefe01bde081c87a3d0": {
+   "seasons": [
+    "spring",
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2be28cb003b9533b413222613f5173fcbdf07142": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2c28f8647061b34228d1a8d1acec7cc5cb730f04": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2c821b31efd0d5c1d87355b4a12fcbb4a8b314e5": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [],
+   "formality": 1,
+   "color_source": "none"
+  },
+  "2d034d868d8a15b20fe0cba8b79bfa54a2f4cb5f": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "edgy",
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2e1b8ea2c9d72c2423360b58854aa7a51e3e6353": {
+   "seasons": [
+    "spring",
+    "fall",
+    "summer",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "2f282440babfc25c12633db490449622d20cd2ff": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "2f3346cb23a626bb50e3ed511a807e80b8ebe978": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "green"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "2fc3c89a4cc86f459f07f38c66b8246d50ef5c05": {
+   "seasons": [
+    "winter",
+    "spring",
+    "fall",
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "30a47e12890e8dbbb08dce9f8dd9445070a6d673": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "30fe0137c9c4b2924191ebcbd6d26f86a87f30be": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "310659511bf7a189525633660510f92a82d0f61e": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "3122bc9b1d617fb8e892e916d64b5a028bb411aa": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "314984bbb7204cea22c603215bb10eeab958e230": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "3619b0df60f049451e623e21c0c82e86938c1f34": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "36864ada58cc1d3b93d9431dee3eb66448c8a27f": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "cute",
+    "chic"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3745d377e89367c28016a9284ff47fe3c18aea72": {
+   "seasons": [
+    "summer",
+    "winter"
+   ],
+   "vibes": [
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "3751881a2cfe88392faa20d8f825bf6149e70c7e": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "381e9dc4ba1e00607e8a55f5a97dfd4ce4787363": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "39c2549dee988b397c194f89c9710dc4ebe31925": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "3bc8beb956638738b982d8af7e030063e70b8ded": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3bcb3e7e776adfe70418f9c152f91aac5f0139e1": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "green"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3c30becfb5a04607c41710b6001bf39bf82949e6": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3d142becdde7685e6fa8e5adafd3cfee4559d126": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "romantic",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3d4868a30347b56da60409bd34a7cbbd9e168c62": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3d9c98e75b313fe23be9f1a6734e2b45e7d10a2d": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3da058e14dc90c8ec0055b62ccc1fc0acd09d1dd": {
+   "seasons": [
+    "fall",
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "3da57fe1398320280fd9ad9e76ff7509fe7a3435": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "3dc5f4c58e21b3035e1c73b68c31bceb45bcc27a": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3e181d25015396d7f7dd4dfde296acb2c71549cf": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3e2afb2df2f79e66e32119f0b331b8e03182bd6c": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "3e4d5d8a10a4e568c7f6bcdc5eb45cb271915aa1": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy",
+    "edgy",
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3e602b5c02e8f9c68d7ba414f014ef5d2224aa0b": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3e8d4df52f293fb4bc2d378b9d4510ebb2989452": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3e8f2ccc5095841ae8d04c0313ac9dc078a95eee": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "3ec8cc0a696fd6df4b108c6d61af6a9b775eadb4": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "polished",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "3eca51b4bc35d366e63fbb2ac14eddd88db2a5d5": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "3f0f4e1e1181e1df006547a68d08b5bdffda9e49": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "3f5dc04fc03eca3700b9c5869d2075c8dd2ebfce": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "3fb7621a7378ef94e46651a79b787de33e1d0ccc": {
+   "seasons": [
+    "spring",
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "42c0d5db90be2a7889b85b447aeff340803b0934": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "43da5bc8c54e37e9d442c2f57472c74b5484b197": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "457041113cc75794f33c95452f0417a70515e03a": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "45ac5c03a9ffbe6e854cdc96b7538d42a429d64d": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "45c6aa24f5d548449ef0681606499ca0b1434bec": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "45e42f5134c28f8a2947000e3b995a5abea07003": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "46010955b1aed613618d59f296f721d92e904002": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "46ab6a346c868f8ee76f623d0d08359c6dbc66af": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "romantic",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "47ca2187b39441e4850e685a751a34a2a518aeb0": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "47cbf361237ea0463f62441ebc97693a31c9e600": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "48044e6d41a4f555d7c50b0aa6b4c1160aabfd17": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "484c133270c0091c24c7c26fe8df15ee7aba9c1c": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "48796887c6cfa2ed62dcfd3883e0c656e0f614cf": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "yellow"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "4915bea3d333101d6a5104189971101b3cd58547": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "4b1caf0d12df7ab7da6085648b90784cdb50940d": {
+   "seasons": [
+    "spring",
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "4bdfa563b679c8b52591e7cac452452b1e3b6b5a": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "4ca83c7bd14b0f830e41699d0a1c04acb00f2515": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "4dc13c596fb6f894ec3abfae0d9d94cd2fe2ba30": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "4e0a65bfcd0a997d3b78b8d2ae8a28bfa2353f71": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "4e4f3a65304026b3aa6f87384f39e82c33f35fa0": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "4fc196545bc84cf9211767e1d37290ea28529301": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "503f7821b56eec0bc2b58a6102f4e8b7074abc2a": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "505d2d6b4c8992d51b8f1086a62ce83c4eb77c77": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5139763340b917f954b1400f87d9078311fa5798": {
+   "seasons": [
+    "fall",
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "romantic"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "519009c0a84f788bc8429409bc38d2ee4a4bcb6f": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "51fd00654ceb55dcb53f1c065cd68f052602b79a": {
+   "seasons": [
+    "spring",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "52b8f1bdbf03ca67e7803cb87bc1d15eb7a73ffa": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5399d6888e72737c3d7a7febb4b6748cf8f6ad47": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5454063a8314250c0baa025f87815aa4b4e4149f": {
+   "seasons": [
+    "fall",
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "polished",
+    "chic"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "5484150734f41ea0210877bfe241c528fd5895ab": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "54e2cb928d191d54986ed2bd742951ea618072a6": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "556e9f65eb5a6691a5fc2d2eaccc36f7a7356a67": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "55f1667723ff085c423066f9e041ec226a0f25ff": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "56e84a6838cffbfce29bc1f6f36a997267cd5a8b": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "571e625ec51253ea667cd354616fa0bd938c53b4": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "57c7c9b1709788af87618a5f3595730ec01019ac": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "5848b4e27a61aff52fa7bef96a047f59cb868b1e": {
+   "seasons": [
+    "winter",
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "58b037dae319a2caf3879a03a609a80583411e6b": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5925ba852ef7fa505bbb4eea0603eb69a3223a19": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "chic",
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "595ca8ecb85211b4748f4ac1b2d78102153fa2a6": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "5a4641ba7940c8c26f570afbaf0c053f5d2a7355": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5b8d26d7784ad62ba9d8d5e6f5659a72e37b1e2a": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "5c5e110047e53c309064d2e7cc20cccf094ec6db": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "5cda11fe4a3675acb0caad8b090f0c13182a8fe7": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5d15d7f8b929c782f15b036836564b92b9586b8e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5ddb922c001e51296d4385d3c5a1aaffaea787dc": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "5df4486d7567a7d92070a7697b6d14f604688d0e": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5e81bf41bd7f4bb83740dc8f0051a39f106b2ad0": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "minimal",
+    "polished"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "5f6e6d89f3cd4fc28916f8effb62550b6727733e": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "5f7869b2698b19bd3d59ed8ba124c3344be0623b": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "6060ec9a7e002bf58ea14cbe5900567d29c3ee4b": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "60e8af93e048d349cfd926247b07dadfafeb4f3e": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "620de533c98d869aa04cae2eb9e8871b544d1c1a": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "polished",
+    "minimal"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "624aff22e31fcb219db11217e0394287ba9e8461": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "62c7228785836617f3d058c34899bb47d28b0d73": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "62d18f0845200982c6973570d981faecee474b5e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "63b2db628eb0d8831cdf2a20f5a991957d160e11": {
+   "seasons": [
+    "spring",
+    "fall",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "643495daf3e08499fbcade11b978b69bd69b911b": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "64a229667275f602305330e921c46843d8430ada": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "64e086c650d17d3506a611f13b7aed5bc1e34b9e": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "65a965bc8a9b813648f51bdaf0c549cb82064d4b": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "65b9241ff56670daaedcabf41d8bf631176ed65c": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "65eb3c477c1f0dcfe6aad4d0fb4a0679a5e56fef": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "6630dfadd689fdd2024493e9186c04009a1ec032": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "680a197260c85d21124df32dca661e279288075f": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "684fea8d59c4fd1d7e0406958a73c53450f001b4": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "68d7c104ace50b5e136f46186a6db847798972d6": {
+   "seasons": [
+    "spring",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "690c28fbd9cac9f7ca3d186a2f4866176e1d82a2": {
+   "seasons": [
+    "fall",
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "hex"
+  },
+  "6974c46c980eea15aa50cdfb2755250cc37f9b1d": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "699a6fec483fafa949ccc7aca8da9cc40f900d82": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "69a3e957a2c956f69993a0c3fe1c16e00e3e6394": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "6bc2ff6276b9e83d6c1702e6424d6f192e335405": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "6bf4f4b322e6952eeaa7ff13b238706aa10a6e6c": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "6e8fd4fec1f992837e6025c89c9c162520e93ea5": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "6ebc958e774f4c052606fb7b565eabd5a4aace7c": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "6f30cc6df5959fc8b144856bfb2f0ae5b0ace492": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "6ff80dc7d7713d7a350a604b4f66920b00437bef": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "70f206a66105539f83237dd1759e04bd93991e08": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "71e25e4f7d56ee1d402b9383127c63b10212fb5b": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "71f1260cd1fee5553b3e8ec5e48207ebdbd5700c": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "72199e2268107cfdfb0a4337d0573f0f946b455d": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "72386abcc76c1f4638bb6975304f54d589086247": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "7282c0a82abf379c6e48601b6754a275df55fb7f": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "72e62aef05d899925d2f0c534688e6ef0737b480": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "73077ce292f2dce11bd77f84602e672e84c2becb": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "7344cee42d5a1b6df23cbf64f7dcfe776b1bc35b": {
+   "seasons": [
+    "summer",
+    "fall"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "73a89152c7f900b5938966c963a55e28611d3c1a": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "74cdc716a9389dd97678404d5707f23d871e9fdb": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "74e351550b61d93dfa7ebbb3efff05345d4f9846": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished",
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "74f8bf5c82e348af5825044377bf3a004ebe950e": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "782f0f9b09ec316ae6f4ed302a9e9350384c6817": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [],
+   "formality": 2,
+   "color_source": "none"
+  },
+  "7842703ced664bc687626f89d839d5fd9f2593f7": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "7a3eab60c9d53d6d4d567e474d4ea16a5ce8e4c1": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty",
+    "chic",
+    "edgy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "7b3a087f32b718f61e5bee089df2bb9d82334a89": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "7cf02de2adb06ecda49eafbe1f1ffa6c3acab5eb": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "7cfe8ab64d0913e5676716f7bd496cd7c2dc9b39": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "7d29f1cb9cadb294e87120d1cf0806c4d27b4638": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "7d2ddf3a11d502ff134eeba1f5be17e8c1365b7a": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "7d42c6d61617b7aa8584b8cea6566e62f68f55fa": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "7e22a47f1441cb6d79b952b35235f1072a0538f4": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "7f6007a91ba61589422ea5a42ef51807c32da039": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cute"
+   ],
+   "colors": [
+    "yellow"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "8329510e95f57bd489488095b5b2c76cd0d7c342": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "838744fe7fedd79cc9d183df6c7f22a66b514827": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "83bd528c588b2d54e734560c1f76571197fb58b3": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 4,
+   "color_source": "hex"
+  },
+  "847a1241d4eeb0867bad654a29a294fbc2dc00d7": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "84b97a3fb064a9d7cf7f5b3185cf98eca8ae8d83": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "84bd78fcbf851c7cdc0b41639e22cbf02b2ebd73": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "8541cd0608ae651b90488fd27b9a0dd482bf0d5c": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "862b4b2e33af344cc69b920ede7130ce1ff5b6f2": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "869908ec5b82409d456db8939f3a13a463ace5c7": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "86fc495e1c9fee4695669c25414cfa24d6f65b2f": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "873dc0d95b9799aff093ddfec84809f8edf92fa6": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "88cbe10d60985b46a79d5b421260c2dea99659d8": {
+   "seasons": [
+    "winter",
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "8976a7edccf59e3912426756506c807e5ce243e1": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "8a1dc410dbbc5cc224005ed828f2501425dc082f": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "8c1ab73fb97c2fa7ec67bb401828e86dd2ff3e94": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "8c33e3a08425d047577dfe4d72dc4d16648a121c": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "8c54f65e02649fbd9e756720a57cdf2e88d0af90": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "8c86bbbda3da7a65b1dff50270536b332cc26673": {
+   "seasons": [
+    "fall",
+    "summer"
+   ],
+   "vibes": [
+    "polished",
+    "off-duty"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "8ccbd0eb360cadc5446983d715177053418489dd": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "polished",
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "8d4da04b9ed0a729b98ac2f70d6a2b0cd9f76f90": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "8f7e269d10fab2d41de39115bff07d68ee3abba1": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "8f9d46d8521969d72f9c0a8bba9988c241edea3e": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "8fe901eddb6580e90d7496f66484c101241159d6": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "9029f0c4544f33e5d6dc469ec6a1a0f822dd0686": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "91dd9278cab8f1e9929c91001864995a99b7b242": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "928bc1830f04a4b9bf81ac686c8aa036b23138ff": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "946e08e0a19d9c5cc03672fb86355eade61db685": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "romantic",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "94c1cbd73ab75f008995b48431cba2c7e1707525": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "95b00a45bc4deb0778087d0f5d697768e4fcbfe3": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "95f0c6102fc1476081bec8e63b6c5e69269ab5a1": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "9671d9e2af1eee833c52822ef6f491cec0ef5fc3": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "976cd0ee45a5cd7452d74a37894949a6d6c7b11f": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "98a6d0255f317d4f56825e6f3339a5bfc188e988": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "9957c6343621110cfe4b0db5aba1e866bf7409e8": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "995b0944e62ab54f20ebdaaef65a181bb4b1aa18": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "9a6e8c5bf942712e09f8f44b053f31425c33bad3": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "9a744dcaae90920f3fce6232e8b6ee9ea09f553d": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "9bf6f38be3d5821d509c1a5170b410b05fddbfb8": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "9c0ed2fc326bea70d7a5314a8221d1b77cfffdb4": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "9c5b2dbe1090f2031d29cfc736ccbe3991b875ef": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "romantic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "9c78d980255b6a9808d4c6486e9b2a06c7793691": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "9e05f78a182d4c47689df64e7baa56ac14f15c59": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "9ebcfd829843f6797abe960ad1290724e85382ef": {
+   "seasons": [
+    "winter",
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "a039d891a3674d0ca3085c1de0fc53ede4a2e0ed": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy",
+    "athleisure"
+   ],
+   "colors": [
+    "yellow"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "a0dff47b31877ec4613a419963bcc043ad64bbdd": {
+   "seasons": [
+    "spring",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "a17f668c9b9f697ccfdfff6e1a4dd7aa52bad1fd": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "a2619cc014683c1185ea992d6dded33d5759a542": {
+   "seasons": [
+    "spring",
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "a288b520d1c2afdbf7d8b4aaed5447c2e6bb82f0": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "teal"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "a2b3667b56cead4885ecc57d45eeec6b532dd685": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "a2fcbcbefcb21f5abe2a27a7edbda2ac650c72be": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "a37ab6e7c34219ba838f90c39b1641652178435d": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "a457bab17c7693f8b1decc1a5d9663fe8e67646c": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "a4b5657878af71d8d7e9d87a118883461c322117": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "a4be0d4ae00cc59441c04d3dec3348aa2b2f836f": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "minimal"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "a4d0fb815b77e32f156b63adecdccea437674c24": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "a5f86f5688450dad883b53cf41346802fd8767d1": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "a7c7fbbc5e4df77c2d6f9948157a7968da14cab1": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "a87df794a1ee133fe6ec3963207db86121072cb2": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "going-out",
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "a90ba35849f00bc02b4dd79950aafb0ea8a9839f": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "aae4bf42c18942013f03fc5154aa71ba1a29d118": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "athleisure"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "aaf83b69b7170d2a613ccaab6882129cd5b9ba92": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "ab3ffa6e153c5f0ae054206184afae051f26ce57": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "af3f0dd18cff1d234eb84a45768f380c93de2f22": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "aff8564ec20fba597a1c202fd976de1b8829183a": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b020bf1a2159543af6fc5ea58d51a2828a409c72": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b0328c238944b36ba416a17e1e28f6d9001b0d70": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b106382a41551e04aa87294a4a4aeebe5feaa36a": {
+   "seasons": [
+    "winter",
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b16d3639fa85bf8ed4bac103bdd7018dc935a0d2": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b177a9cb19b57f61d1ec6d5891319f318c5a95f4": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b1f7adfe29393bb15911bcac12355cdb9d08230d": {
+   "seasons": [
+    "winter",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b3d3e6f33ec6a4406fe7fb143f195e23a10788c3": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b42001469eb29b621b81286b8f4bb8a05e0c1127": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b4aaa80878b96344e3a4afe22845edecb621f017": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b4c31a473a82ab13638992695b556f97b01038b3": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy",
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b4c8456a03d85dda691e714e02acc0d277e0e44c": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b656a9578b599b6a3e7cf4efc81b04daf0383e9f": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "b692a04f0d064e4653263389d87efe37b45c6907": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "b74f79a8469678da605329f51d10c628d786910e": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "going-out"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 5,
+   "color_source": "alt_text"
+  },
+  "b7a1a763c04aad24c459e9505413128a2d6986bb": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "b7a73a7873e994c1359a81344037cbb55862520b": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "b8714ad9de9653669196cc32c77bcb0f25fc58ef": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "b984ec63ef013494135c53812015af6b16bfc57b": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "b9b4469e8c60fa20d35f6843c0623a19f8b1fcd5": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "ba490fbfb94c3d27b598cf83678d3ab714c27e42": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "bb081bc83a7963450e6761c6929e0cee2651c286": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "bb35a188ba76a558c34e912518dc29639d3c97a9": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "bc70a8273688d7be99ced01c6ca7981ceea29a59": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished",
+    "minimal",
+    "edgy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "bcfb6353da621e6998cc9912536dead603ec5b3b": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "bd06d56d2246c74f2da30e8608d7fc59d107cbfd": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "bd4f293dadfa3be52df31f27a0621e843d621131": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "be00924ddea3e8bd438fe65cccfe39002d59ee4a": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "athleisure"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "be37479f323cd3fb448cb869a733ae2b254e1e7f": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "bf17923c5806c3f4bca044281b12003b449e803d": {
+   "seasons": [
+    "spring",
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "bf344fab10432ae5ab16be6055ec9f2867b070d1": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "bfd17e28a3cb7c2b04ea1cdb625944fd23dbfef9": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "bfd21255febfef203ee258352eb80f11cc72d69a": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c01a28d917716b10e8e600dd7846af394f4ab390": {
+   "seasons": [
+    "spring",
+    "winter",
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "c12873c342fec8e8a854c92c988a709e15bed7db": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c16f5b3bec367840dfbd4251e8374f5d9cb660db": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "c268de3e53eb286638cbdfd9646630caec8bfc12": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "c2c4f0214b6e379c33cdf3c2e2e6ef53ba64092b": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "c3efedd4965fd2651d808b5abb4e85f68422b273": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "green"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c3fe411c1c7a21b5102370f554ecde57fba6ac24": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "c47027d6f61d6f97ef2efd21d0c2baef4fd851b0": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c4a49ef4c5705a3ae1c37b0f023917a8e59d640e": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "c5ea52aef7b82eb6942d9207ed81d567eaef2390": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "c667128bad587911c2a2ac59519b7134b72bc170": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "c6af071ee6a4a6a33a22dc604222c37ba4c7211a": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "polished",
+    "edgy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "c6b23c66bc64289fa148d94b3443e5ca0091903e": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c7b656bd64be8fe8452d0478a03d3d825673f0db": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c7ed89976a626b874caa5e26950797a268d8d1fd": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "c93e91f07d0e6056d42b5e9f28416032aefbc7af": {
+   "seasons": [
+    "spring",
+    "winter"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "c94d716d248560d239ce7c8c7572efcf251f747e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "edgy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "cad9a2f3a50df4d1c20a4946c500de6f9e762e46": {
+   "seasons": [
+    "spring",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "cb4caef837341a1b08796cd4e5dd1dff62a41bbd": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "cb4df9cad61e852b59e4f0492c15972eab585f2f": {
+   "seasons": [
+    "winter",
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "cb8300e840d7e24a010bf469311e68f73bfd7c74": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "cd9fb9871b3fe193112a89bad88a417c29a672b5": {
+   "seasons": [
+    "summer",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ce746572768bad9259a2485d9f593c71ac3b5f42": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "cf4097fa7f78f31fcb84a27d9d410b0b1283fde3": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "cf599a62ec0feb411f3c3454865c1502938faa85": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "cf94679fc4828859580cfda6b50e9620a510bef4": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "cozy"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "cfdfb15d90cefd2cadc936d240ba394bb558a3dc": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "cfe8ed7a04f708b5f4bc485f4b0ddcdb598618f4": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "cute",
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "d0437bd6a66775ed3c5e08d987ccd074e0fee352": {
+   "seasons": [
+    "winter",
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "d14bb5d9793e3f685a5bb8f71920d414ce577b34": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "edgy",
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "d2167deb1accfd7d7f2e2150c585f9a308849188": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "d22eedca9c1b27bf090cd9081c282f55cf73b1cf": {
+   "seasons": [
+    "spring",
+    "summer",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "d44df3f4ca9d6e0d1d1b47840342b68887327929": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "d4730e60b9b9d7fa2d587edf34508735a205c168": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "d4c05b48f7488b7d8123871f7163bc0f352ff0f3": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "d553b9b67e11ebaa55434d3e0483497fce99a433": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "d5ec9b77b9005ccf1ff0418b629fce2ceadae9ad": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "d6027e707d15c7dcb9fd6093b33cc1da55d9d0c5": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "d634b3483c9d9a8fa2211fc9a43192b7e3a56b53": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "d81f6c8aa3a868738ff25c9dfda9d6339df4bc59": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "d91582e8ea48a360aefc9ef9d80eb37a13c1f501": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "denim"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "d9321fc112ba56a6bfe564e82a01d39f51b5b156": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "edgy",
+    "chic",
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "d9e199cc6044f7aeb85a8b8c24c02d6b0416c3b8": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure",
+    "cozy"
+   ],
+   "colors": [
+    "camel"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "d9fdd9f07798bbb2fb2a00fe2d5b66fd1f8de700": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "going-out",
+    "romantic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "da69802ba372f569d7345cbc44fc0610bbdee7df": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "dab6c64119cfdbdf4da0bc1cc954cf3938edaa1b": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "db33c59928a5a31e5e057ddae7ee5fd2e0c20ee1": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "dbd71e2670ef8d18355e771e1bfb65d862018bd8": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "dc38c5a884812bd9e6062049ba5226b8683266a2": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "dd924e2af8e722ad78d552ee8db762e733cb47f4": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "polished",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "hex"
+  },
+  "de065f343ce51525666e22bde05eb3be70543bf3": {
+   "seasons": [
+    "winter",
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "de42a782094f382ce1bc08f98c3a8db8de023ef7": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "ded1b3dc6488b13d739b3304710a6a60e8c0e994": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "polished",
+    "chic",
+    "edgy"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "dff5a4aeb8802bf924a5fc40e34d33cfdb6c0a81": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e00340003b12dc9e24ca2443e2e26f1e7e8e71e3": {
+   "seasons": [
+    "winter",
+    "fall",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "e090a4324d73247b68a257c413873905e3626565": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "e0a603e68f44ccaf2aa469133346a667f5fb346d": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic",
+    "minimal",
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "e0b3ac205fcb9a0622fb3a5679a3de656ba8c910": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "e0ccc37d6d231bf3ffe7f01cece25c46d6eae72a": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "metallic"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e1073db9cb9868f380baf46bd41ff8a68fd5464c": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e15647e377f8d97c2b33a6f964723f5a0443705a": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "e196e528ad73b14b0b25f65e1b5ee81fffbad6b4": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "e38df05cf61340ed028287e925f234267b81d27d": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e39a35add6b9d37d184bbf4c14d69444dc109deb": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e425239a4d4b7d3092f927d2e38506fd4db3f1d5": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e4e05072f136762634f9d2e2c5bf136addfd8409": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "athleisure",
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "e5810ad9cfc8f7183772eeb8dd8e5b3380027029": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "e5ea5e7429a1abc187f108cf2e652d1c1af72a2e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "navy"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "e84c99ac3aa0affeef4d8bae74870e200f106a7b": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "e8667ddf63f95007e0106159a16cc6a3a57c9f3e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "edgy",
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "e9c33e0f3a521e3cd324cba425d9fa3ed07d4e5f": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "eae13c518f4dbc60aaf2da97c82001f211fa7a95": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy",
+    "polished"
+   ],
+   "colors": [
+    "multi"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ebc86399aae17a516b001fcfa9809f0eab48de45": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "athleisure"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "hex"
+  },
+  "ebce59b2a363af7c95c47ad1b0593d7295babc54": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "ec530582a01379263a196dfd973f47e10b2d360b": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ecef8ec5fedf71849e137f5b5764088046fd5305": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ee4ba0a9c1208b9edd7c6e85f9d70f8388a773a3": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "red"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ef0c3ff82e67ddb14d817f301f7272ddc50e3643": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "off-duty"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ef85c63652eafbe235fa900c16d6ef7dd2cedee0": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f0096d302969838f7efd7016ad5c5269cfb687ae": {
+   "seasons": [
+    "fall",
+    "winter"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "brown"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "f11d4b5e931b5e1d4c0f4e9cb5964008c4bd5858": {
+   "seasons": [
+    "spring",
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 2,
+   "color_source": "hex"
+  },
+  "f148a1f515c67cfdaa3259f60d6ba909053ecbe5": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f15c5aa97b8df3d9bbc8ed611b1819f2ff76c06a": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "polished"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f18659467497cecd6a41abe340c3d96db33e131c": {
+   "seasons": [
+    "winter",
+    "fall"
+   ],
+   "vibes": [
+    "cozy",
+    "off-duty"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "f2e035ac7f359b1612be8089796b347166637ac8": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f3fee8ddd3eea54535ead818a16d96432cbb476f": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "pink"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "f4532d2fa4c9e4f4d5bdc3a91209acb58a69ae8e": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "f4d93f66fb016c818cc51be5c031a94ff58d171d": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "olive"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f4f2eb421da36a24b62790a0ce7460bd97b0bf7d": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "f52f49edf9a81161548bad607aaa865bdce1d998": {
+   "seasons": [
+    "fall",
+    "spring",
+    "winter",
+    "summer"
+   ],
+   "vibes": [
+    "off-duty"
+   ],
+   "colors": [
+    "blue"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "f675d0949dee69d86b69ecaa64ec2573c251891f": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "off-duty",
+    "athleisure"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "f7150b1d90eb7f5e93e56b943d2cacde8e326713": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "f72eea2230c84178d9c3fdd8ae870cf7b2d036bc": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "minimal",
+    "polished"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f80dd97752ef3e28fc08500d2d1eafcbe4bd5021": {
+   "seasons": [
+    "summer",
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f819a4e348abb6f3d1f1ca56491aa8d063d2993b": {
+   "seasons": [
+    "summer"
+   ],
+   "vibes": [
+    "off-duty",
+    "cozy",
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f83d5a4def89f3918829b39ada08ef712cbf36b4": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "minimal",
+    "chic"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "f85dea51c331fccc1821a54cde14a9262a38e5c0": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "off-duty",
+    "minimal"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "fa7e0adbb5d6394f3b2d58836a01afb81a3e8a20": {
+   "seasons": [
+    "fall",
+    "spring"
+   ],
+   "vibes": [
+    "chic",
+    "minimal",
+    "cozy"
+   ],
+   "colors": [
+    "beige"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "fb91261d86dec93451e2fb73a8d52e11a1e040e4": {
+   "seasons": [
+    "spring",
+    "summer"
+   ],
+   "vibes": [
+    "chic",
+    "minimal",
+    "romantic"
+   ],
+   "colors": [
+    "white"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "fcae135009ab6289a9324277bdc79ec990a6a9f4": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "fcd83e29860474e53f0ad0a11cbcce53914b25bf": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "polished",
+    "off-duty"
+   ],
+   "colors": [
+    "orange"
+   ],
+   "formality": 2,
+   "color_source": "alt_text"
+  },
+  "fd9442ee99b8ebc09a2c2c46adb380dd4fa3a80b": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "athleisure",
+    "chic"
+   ],
+   "colors": [
+    "purple"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "fdcbc52904409f422430d3f87b98846c107781ac": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "cozy"
+   ],
+   "colors": [
+    "grey"
+   ],
+   "formality": 1,
+   "color_source": "alt_text"
+  },
+  "fe62d2853ae43d9d2d4a6f95da5d70ee3118d165": {
+   "seasons": [
+    "spring"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "cream"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  },
+  "ff653549da0edb60c743376d42e17d67ca238612": {
+   "seasons": [
+    "fall"
+   ],
+   "vibes": [
+    "chic"
+   ],
+   "colors": [
+    "burgundy"
+   ],
+   "formality": 4,
+   "color_source": "alt_text"
+  },
+  "ff950ef038775bfe51f192e98e4ba8a2fa712419": {
+   "seasons": [
+    "winter"
+   ],
+   "vibes": [
+    "minimal"
+   ],
+   "colors": [
+    "black"
+   ],
+   "formality": 3,
+   "color_source": "alt_text"
+  }
+ }
+}

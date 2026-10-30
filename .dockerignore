@@ -1,0 +1,13 @@
+# Keep the build context small, and secrets out of it.
+.git
+.env
+.env.*
+.venv
+venv
+**/__pycache__
+**/.pytest_cache
+web
+data/*
+!data/seed_catalog.csv
+!data/clip_tags.json
+!data/llm_vibes.json
