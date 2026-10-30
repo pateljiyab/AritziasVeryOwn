@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Last updated** | October 29, 2026 (v5: the API, the web client, and the LLM parser) |
-| **Status** | v5 |
+| **Last updated** | October 29, 2026 (v6: Day 3 complete, with the LLM parser, LLM vibe tagging, and Docker) |
+| **Status** | v6 |
 | **Companion doc** | [Product Requirements](PRD.md) |
 
-This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code. Items marked *(Day 3)* are planned but not built yet.
+This document defines the tech stack and how the pieces fit together. The *what* and *why* of the product live in the [PRD](PRD.md), and implementation details live in the code.
 
 ---
 

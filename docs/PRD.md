@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Date** | October 20, 2026 |
-| **Last updated** | October 27, 2026 (v3: matches what Days 1–2 built) |
-| **Status** | v3 |
+| **Last updated** | October 29, 2026 (v4: matches what Days 1–3 built) |
+| **Status** | v4 |
 | **Companion doc** | [Technical Specification](TECH_SPEC.md) |
 
 > **Disclaimer.** This is an independent educational project. It is not affiliated with, endorsed by, or sponsored by Aritzia. Product data comes from the Channel3 product API, and product images are not redistributed.
@@ -251,10 +251,10 @@ Each day ends with a merged PR and a green CI run.
 |---|---|---|---|
 | **Day 1** | **Foundation + data** | Repo scaffold, CI green, and the catalog in SQLite (FR-CAT). The gold set is hand-labeled first, then tagging and embedding run. | Done (#1–#8) |
 | **Day 2** | **Core engine** | Retrieval, scorer, generator, feedback state machine, and name resolver, all unit-tested. A CLI produces an outfit for Flows A–D. | Done (#9) |
-| **Day 3** | **API + client** | LLM parser, FastAPI endpoints with integration tests, React client, and Docker Compose. Flows A–D work in the browser. | Next |
-| **Day 3.5** | **Evaluate + ship** | Evaluation scripts run, results are in the README, the demo is recorded, and `v1.0.0` is tagged. | |
+| **Day 3** | **API + client** | LLM parser, FastAPI endpoints with integration tests, React client, and Docker Compose. Flows A–D work in the browser. | Done (#11–#13, plus the Docker PR) |
+| **Day 3.5** | **Evaluate + ship** | Evaluation scripts run, results are in the README, the demo is recorded, and `v1.0.0` is tagged. | Next |
 
-Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, outside brands, and duplicate listings.
+Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, outside brands, and duplicate listings. Day 3 also took on FR-TAG-5 and a parser benchmark, and the React cut line wasn't needed.
 
 **Cut line.** If the plan slips by more than half a day, drop the P1 items in this order: FR-TAG-5 (LLM tagging comparison), FR-FB-6 (more like this), FR-NAME-3 (ambiguity prompt), FR-GEN-6 (rationale). If the React client is not rendering outfits by midday on Day 3, switch to a Streamlit client that calls the same API, so that the API and the tests are still finished.
 
@@ -268,8 +268,8 @@ Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, ou
 | Vibe tags miss the target. CLIP's vibe top-1 is 43% vs. 75%, with `polished` and `going-out` rarely predicted; the LLM vibe tagger (FR-TAG-5, built) reaches 63%. | Weaker vibe matching. | The app uses the LLM's vibes. Any prompt tuning is done on items outside the gold set, and a second person's labels would show how much the gold set's own judgment calls cap the score. |
 | The LLM returns malformed structured output. | A broken turn. | Pydantic validation, one retry, then keyword-rule fallback. Tests cover the fallback path. |
 | The small catalog limits variety. Shoes are the thinnest slot: 13 listings but only 5 distinct products. | Repetitive outfits. | An optional accessory, no repeat of the last outfit, and pulling more shoes if time allows. |
-| PyTorch makes the API image large and slow to build. | Slow CI and Docker builds. | CPU-only torch wheel. CI tests use a fake embedder and never install torch. |
-| Frontend work overruns. | No browser demo. | The cut line in §10: fall back to a Streamlit client on the same API. |
+| PyTorch makes the API image large and slow to build. | Slow CI and Docker builds. | The Docker image leaves PyTorch out (453 MB), and CI never installs it. Both load the committed tag snapshots instead of running CLIP; the cost is no CLIP relevance term in those builds. |
+| Frontend work overruns. | No browser demo. | Didn't happen: the React client shipped on Day 3. The Streamlit fallback in §10 wasn't needed. |
 | Self-rated coherence is subjective. | A weak quality claim. | Commit the rubric, state the limitation, and list the multi-rater study as S-3. |
 
 **Resolved questions (from v1)**
@@ -283,6 +283,11 @@ Day 1 took longer than one day, mostly on data quality: non-Aritzia listings, ou
 5. *What does "top-1" mean when an item has several gold tags?* The model's first tag is one of the gold tags (G3). The report also shows the stricter "first tag matches the gold first tag".
 6. *Does reject rebuild the whole outfit?* No. Only the rejected piece is replaced, like a swap, so one disliked top doesn't throw away the rest.
 7. *Should the G4 test queries be used while improving the resolver?* They were, once. The report prints the pre-tuning baseline (17/30) next to every result, so the score isn't presented as held out.
+
+**Resolved on Day 3 (v4)**
+
+8. *Which LLM parses chat?* Claude Haiku 5.5, chosen after a benchmark on 40 hand-written messages (`eval/parser_report.md`). It scored 65% exact against 30% for keyword rules, tied within noise with gpt-oss-120b on Groq's free tier (68%), and beat a local Llama 3.1 8B (41%). Groq's free tier allows only about 4 messages a minute with this prompt, so Haiku runs the live app, at about $0.0004 a message.
+9. *How does the Docker image get tags without PyTorch?* Both tag sets are committed as snapshots (`data/clip_tags.json`, `data/llm_vibes.json`), and the container builds its database from them on first start. A fresh clone gets the same outfits as a full local run.
 
 ---
 

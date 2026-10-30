@@ -8,6 +8,7 @@ Under the hood: a catalog from the Channel3 product API in SQLite, tagged with C
 
 - [Product Requirements (PRD)](docs/PRD.md): problem, users, requirements, success metrics
 - [Technical Specification](docs/TECH_SPEC.md): tech stack, architecture, key design decisions
+- [Day 3 plan](docs/plans/llm-parser.md): the LLM parser, the parser benchmark, LLM vibe tagging, and Docker
 
 ## Run it with Docker
 
@@ -98,7 +99,7 @@ python -m pytest backend/tests
 
 ## Status
 
-Days 1–2 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog, CLIP tagging, and the outfit engine, with Flows A–D working in the terminal (`cli.py --demo`). Day 3 is in progress: the REST API, the web client, and the LLM parser are done; the parser benchmark and Docker are next.
+Days 1–3 of the [3.5-day plan](docs/PRD.md#10-milestones-35-day-plan) are done: the catalog and tagging, the outfit engine, and the full app (REST API, React client, LLM parser, and Docker Compose), with Flows A–D working in the browser. Day 3.5 is next: the outfit-quality rating (G1), test coverage (G5), a latency report, the demo recording, and `v1.0.0`.
 
 Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 
@@ -109,6 +110,7 @@ Results so far, against the [PRD targets](docs/PRD.md#7-success-metrics):
 | G3 Tagging: formality within ±1 | 26/30 (87%) | ≥ 85% | Yes |
 | G4 Names: top-1 | 24/30 (80%) | ≥ 90% | No |
 | Chat parser: exact (every field right) | 24/37 (65%) with Claude Haiku 5.5; keyword rules 11/37 (30%) | none set | |
+| NFR-1 Chat latency p90 | 2.3 s with Haiku (parser benchmark, 40 messages) | ≤ 4 s | Yes |
 
 - Tagging details are in [`eval/tagging_report.md`](eval/tagging_report.md). CLIP rarely predicts `polished` or `going-out`, so vibe now comes from Claude Haiku 5.5 reading each item's photo and details (FR-TAG-5). That raised vibe top-1 from 43% to 63%, still short of the target. Most remaining misses are judgment calls (the gold set's first vibe is `polished` for 15 of 30 items), and the prompt is not tuned on the gold set.
 - Parser details are in [`eval/parser_report.md`](eval/parser_report.md): 40 hand-written messages, scored for keyword rules, Claude Haiku 5.5, gpt-oss-120b on Groq's free tier, and Llama 3.1 8B on Ollama. Haiku and gpt-oss-120b tie within noise (65% vs 68% exact), but Groq's free tier allows only about 4 messages a minute with this prompt, so the live app uses Haiku (about $0.0004 a message).
