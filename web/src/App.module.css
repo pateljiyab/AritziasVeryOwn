@@ -50,7 +50,7 @@
 .studio:focus { outline: none; }
 
 .panels {
-  display: grid; grid-template-columns: minmax(300px, 3fr) 8fr; gap: clamp(20px, 3vw, 40px); align-items: start;
+  display: grid; grid-template-columns: minmax(340px, 4fr) 7fr; gap: clamp(20px, 3vw, 40px); align-items: start;
 }
 @media (prefers-reduced-motion: no-preference) {
   .panels { animation: rise 0.9s ease both; }

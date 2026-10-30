@@ -27,16 +27,17 @@
 .bar { display: block; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .fill { display: block; height: 100%; background: var(--text); }
 
+.explain { margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
+.explain summary { cursor: pointer; width: fit-content; }
+.explain summary:hover { color: var(--text); }
+.explain p { margin-top: 6px; }
+.explain ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px; }
+.explain strong { color: var(--text); font-weight: 600; text-transform: capitalize; }
+
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
 
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .vibe { display: inline-flex; gap: 6px; }
-.budgetForm { display: inline-flex; gap: 6px; align-items: center; }
-.budgetForm input {
-  width: 7.5em; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
-  background: var(--surface-2); color: inherit; font: inherit;
-}
-.budgetForm input::placeholder { color: var(--muted); }
 .accept { margin-left: auto; border-color: var(--frame); font-weight: 600; }
 
 .accepted {

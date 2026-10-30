@@ -7,10 +7,11 @@ interface Props {
   overLimit: boolean; // costs more than the per-piece budget
   disabled: boolean;
   onAction: (action: Action) => void;
+  onReject: () => void; // the chat asks why first
 }
 
 /** One piece of the outfit: image, name, brand line, price (FR-UI-1), and its buttons (FR-UI-3). */
-export function OutfitCard({ piece, changed, overLimit, disabled, onAction }: Props) {
+export function OutfitCard({ piece, changed, overLimit, disabled, onAction, onReject }: Props) {
   const classes = [styles.card, piece.locked && styles.locked, changed && styles.changed].filter(Boolean).join(" ");
   return (
     <article className={classes}>
@@ -44,8 +45,8 @@ export function OutfitCard({ piece, changed, overLimit, disabled, onAction }: Pr
         <button
           className={styles.reject}
           disabled={disabled}
-          title="Replace it and never show it again"
-          onClick={() => onAction({ action: "reject", item_id: piece.item_id })}
+          title="Tell the stylist what's wrong with it"
+          onClick={onReject}
         >
           Reject
         </button>
