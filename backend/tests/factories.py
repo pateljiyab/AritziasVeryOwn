@@ -19,13 +19,13 @@ def vector(seed: str) -> np.ndarray:
 
 def make_item(item_id: str, slot: str, *, name: str | None = None, vibes=("minimal",), colors=("black",),
               formality: int | None = 3, seasons=("spring", "summer", "fall", "winter"), price: float = 50.0,
-              embedding: bool = True) -> Item:
+              embedding: bool = True, category: str = "") -> Item:
     name = name or f"{slot.title()} {item_id}"
     return Item(
         item_id=item_id, name=name, brand_line="Aritzia", slot=slot, price=price, currency="USD",
         image_url=f"https://example.com/{item_id}.jpg", product_url=f"https://example.com/{item_id}",
         product_key=product_key(name), seasons=tuple(seasons), vibes=tuple(vibes), colors=tuple(colors),
-        formality=formality, embedding=vector(item_id) if embedding else None,
+        formality=formality, embedding=vector(item_id) if embedding else None, category=category,
     )
 
 

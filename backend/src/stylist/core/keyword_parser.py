@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import re
 
-from stylist.core.models import FeedbackIntent, ParsedRequest
+from stylist.core.models import OPTIONAL_SLOTS, FeedbackIntent, ParsedRequest
 from stylist.tagging.colors import COLOR_WORDS
 
 SLOT_WORDS = {
@@ -28,7 +28,7 @@ SLOT_WORDS = {
     "dress": ["dress", "jumpsuit", "romper"],
     "outerwear": ["coat", "jacket", "blazer", "trench", "vest", "outerwear", "layer", "parka", "puffer"],
     "shoes": ["shoes", "shoe", "sneakers", "sneaker", "loafers", "loafer", "boots", "boot", "heels", "flats", "sandals"],
-    "accessory": ["accessory", "bag", "tote", "scarf", "belt", "hat", "beanie", "fedora", "purse"],
+    "accessory": ["accessory", "accessories", "bag", "bags", "tote", "scarf", "belt", "hat", "beanie", "fedora", "purse"],
 }
 _WORD_TO_SLOT = {w: slot for slot, words in SLOT_WORDS.items() for w in words}
 _SLOT = r"(?P<noun>" + "|".join(sorted(map(re.escape, _WORD_TO_SLOT), key=len, reverse=True)) + r")\b"
@@ -151,6 +151,10 @@ def budget_feedback(text: str) -> FeedbackIntent | None:
     return None
 
 
+# Leaving out an optional piece ("no bag", "I don't need a coat"); for a piece every outfit needs,
+# the same words read as a reject.
+_REMOVE = re.compile(r"\b(?:remove|drop|ditch|lose|skip|leave out|without|get rid of|don'?t need|do not need|"
+                     r"no need for|no)\s+" + _DET + _ADJ + _SLOT)
 _UNLOCK = re.compile(r"\b(?:unlock|unpin|let go of)\s+" + _DET + _ADJ + _SLOT)
 _LOCK = re.compile(r"\b(?:keep|lock|love)\s+" + _DET + _ADJ + _SLOT)  # not "like": "I'd like a jacket" isn't a lock
 _REJECT = re.compile(r"\b(?:not|no|hate|don'?t like|remove|ditch|lose|drop|not a fan of)\s+" + _DET + _ADJ + _SLOT)
@@ -176,6 +180,8 @@ def parse_feedback(text: str) -> FeedbackIntent | None:
     t = text.lower()
     if intent := budget_feedback(text):  # before swap: "swap the coat for something cheaper" is a cheaper coat
         return intent
+    if (match := _REMOVE.search(t)) and _WORD_TO_SLOT[match.group("noun")] in OPTIONAL_SLOTS:
+        return FeedbackIntent(action="remove", slot=_WORD_TO_SLOT[match.group("noun")])
     for pattern, action in ((_UNLOCK, "unlock"), (_REJECT, "reject"), (_SWAP, "swap"), (_LOCK, "lock")):
         if match := pattern.search(t):
             slot = _WORD_TO_SLOT[match.group("noun")]

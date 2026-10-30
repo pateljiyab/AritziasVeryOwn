@@ -126,13 +126,13 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-REQ-2 | Convert each message into either a `ParsedRequest` or a `FeedbackIntent`, validated by schema. | P0 | Invalid LLM output is retried once and then falls back to keyword rules. It never crashes the API. |
 | FR-REQ-3 | When a request is too vague (e.g. *"something nice"*), fall back to sensible defaults. | P0 | Vague requests still produce an outfit. |
 | FR-REQ-4 | Cold, cool, or rainy weather requires outerwear. (Cool is included because Flow B's "might get chilly" expects a layer.) | P0 | A unit test covers this. |
-| FR-REQ-5 | Accept a budget for the whole outfit ("under $200") or for each piece ("nothing over $80"), in any message. It is a hard limit that holds for the rest of the session, including new requests, until the user changes or clears it. When nothing fits, show the cheapest outfit that meets the other constraints and say so. | P1 | Tests check that no outfit goes over the budget through swaps, rejects, and nudges, and that an impossible budget is explained. |
+| FR-REQ-5 | Accept a budget for the whole outfit ("under $200") or for each piece ("nothing over $80"), in any message. It can also be set before the first outfit. It is a hard limit that holds for the rest of the session, including new requests, until the user changes or clears it. When nothing fits, show the cheapest outfit that meets the other constraints and say so. | P1 | Tests check that no outfit goes over the budget through swaps, rejects, and nudges, and that an impossible budget is explained. |
 
 ### 5.4 Outfit Generation (`FR-GEN`)
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| FR-GEN-1 | Generate a valid outfit: either top + bottom or a dress, plus shoes, plus optional outerwear and an optional accessory. | P0 | No outfit has a dress together with a top or bottom, and no outfit is missing a required slot. Tests check this. |
+| FR-GEN-1 | Generate a valid outfit: either top + bottom or a dress, plus shoes, plus optional outerwear and an optional accessory. A belt only goes with bottoms that take one: never with a dress or jumpsuit, a skirt, or athletic and lounge bottoms (leggings, joggers, sweatpants, track pants, bike shorts), unless the user locked both pieces. | P0 | No outfit has a dress together with a top or bottom, no outfit is missing a required slot, and no outfit pairs a belt with a piece that doesn't take one. Tests check this. |
 | FR-GEN-2 | Use only real catalog items. | P0 | Every `item_id` in an outfit exists in the database. |
 | FR-GEN-3 | Score candidate outfits on query relevance, vibe match, formality match, and color harmony, and return the best one. | P0 | The API response includes the score breakdown. |
 | FR-GEN-4 | Respect hard constraints: locked items always appear, rejected items never do, and the season matches. | P0 | Zero violations in tests and in logged sessions. |
@@ -152,7 +152,7 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
 | FR-FB-1 | **Lock / unlock**: a locked item stays in its slot through every regeneration. | P0 | Unit test. |
-| FR-FB-2 | **Reject**: a rejected product never reappears in the session, in any colorway. Only that piece is replaced; the rest of the outfit stays. | P0 | Unit test. |
+| FR-FB-2 | **Reject**: a rejected product never reappears in the session, in any colorway, whatever reason was given and through new requests too. Only that piece is replaced; the rest of the outfit stays. A reason shapes the replacement: "too expensive" picks a cheaper one, "another colour" one in that colour. | P0 | Unit test. |
 | FR-FB-3 | **Swap**: replace one slot and keep the others unchanged. Each swap shows a piece not yet shown in that slot, until every option has been. A color ("black shoes") swaps in a piece of that color and holds for that slot; "any color" drops it, and a color the catalog lacks is explained. | P0 | Unit tests, including swapping through every option and the color cases. |
 | FR-FB-4 | **Nudge**: relative formality or vibe changes move the outfit in the requested direction. | P0 | A test checks that the mean formality moves in the requested direction after "dressier." |
 | FR-FB-5 | **Accept**: end the session and show a summary with links and the total price. | P0 | API and UI. |
@@ -160,6 +160,8 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-FB-7 | Buttons and chat produce the same state change through the same code path. Buttons skip the LLM. | P0 | Both inputs call `apply_feedback`. |
 | FR-FB-8 | **Budget**: set, change, or clear the budget for the outfit on screen ("keep it under $200"). It keeps the request and the locked pieces, and rebuilds only if the outfit doesn't fit or the budget got looser. | P1 | Unit test, plus a budget field in the UI. |
 | FR-FB-9 | **Cheaper**: swap one piece for a cheaper one, or bring the whole outfit's total down by about 15%, which becomes the new budget. | P1 | Unit test (chat: "make it cheaper", "cheaper shoes"). |
+| FR-FB-11 | **Adding a piece keeps to the budget**: asking for a piece the outfit doesn't have ("add a coat", a bag back) may swap unlocked pieces for cheaper ones to make room, but never goes over the budget. If even the cheapest way breaks it, the outfit stays as it is and the stylist says what adding one would cost. | P1 | Unit tests. |
+| FR-FB-10 | **Leave out**: drop an optional piece (outerwear, accessory) and keep it out of later outfits, new requests included, until the user asks for one again. The other pieces stay. It wins over weather that would add a coat. Pieces every outfit needs are swapped instead. | P1 | Unit tests (chat: "no bag", "I don't need a coat"). |
 
 ### 5.7 API & Interface (`FR-API`, `FR-UI`)
 
@@ -171,6 +173,7 @@ Priority key: **P0** = must ship in 3.5 days · **P1** = ship if on schedule · 
 | FR-UI-2 | A chat panel with visible conversation history. | P0 | Earlier turns stay visible. |
 | FR-UI-3 | Lock and reject buttons on each card. | P0 | Each click calls the actions endpoint and re-renders the outfit. |
 | FR-UI-4 | Highlight the slots that changed since the last outfit. | P2 | Changed cards get a visible border. |
+| FR-UI-5 | The chat and the cards share one outfit state. The chat shows and edits the budget (also before the first outfit), the locked pieces, and the pieces left out. Reject asks why first (too expensive, not my style, another colour, don't need one) and replaces the piece to match. Button actions are one compact line; after a replacement the chat offers to keep the other pieces; an outfit over budget says by how much and offers ways out (leave out a piece, a cheaper locked piece, raise or drop the budget) instead of repeating the same note. | P1 | Manual walkthrough in the browser. |
 
 ---
 

@@ -288,3 +288,21 @@ def test_swap_to_a_color_the_catalog_doesnt_have_is_a_409(client, session_id):
     response = act(client, session_id, action="swap", slot="shoes", color="pink")
 
     assert response.status_code == 409 and response.json()["detail"].startswith("I don't have any pink shoes")
+
+
+def test_budget_before_any_outfit_is_kept_and_reported(client, session_id):
+    turn = act(client, session_id, action="budget", max_total=150).json()
+
+    assert turn["outfit"] is None and turn["budget"] == {"max_total": 150, "max_item": None}
+    first = say(client, session_id, "cozy fall Sunday, running errands").json()
+    assert first["budget"] == {"max_total": 150, "max_item": None} and first["outfit"]["total_price"] <= 150
+    assert client.get(f"/api/v1/sessions/{session_id}").json()["budget"] == {"max_total": 150, "max_item": None}
+
+
+def test_remove_reports_the_slots_left_out(client, session_id):
+    say(client, session_id, "it might get chilly")
+
+    turn = act(client, session_id, action="remove", slot="outerwear").json()
+
+    assert turn["omitted"] == ["outerwear"] and all(p["slot"] != "outerwear" for p in turn["outfit"]["pieces"])
+    assert client.get(f"/api/v1/sessions/{session_id}").json()["omitted"] == ["outerwear"]

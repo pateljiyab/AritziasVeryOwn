@@ -50,7 +50,7 @@ class LLMRequest(BaseModel):
 
 
 class LLMFeedback(BaseModel):
-    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept", "budget", "cheaper"]
+    action: Literal["lock", "unlock", "reject", "swap", "nudge", "accept", "budget", "cheaper", "remove"]
     slot: Slot | None = None
     formality: Literal[-1, 1] | None = None
     vibe: Vibe | None = None
@@ -141,6 +141,9 @@ request with max_total.
 - cheaper: make it cost less. With a slot, a cheaper piece in that slot ("cheaper shoes", "the \
 coat is too expensive", "swap the coat for something cheaper"); with no slot, a cheaper outfit \
 overall ("make it cheaper", "this is too expensive").
+- remove: leave a piece out of the outfit altogether, not replace it ("no bag", "i don't need a \
+coat", "skip the accessories"). Only outerwear and accessory can be left out; for any other slot \
+it is a reject.
 Slots: top, bottom, dress (also jumpsuits), outerwear (coats, jackets, blazers), shoes, \
 accessory (bags, scarves, belts, hats).
 
@@ -175,6 +178,9 @@ Outfit on screen: yes. Message: keep the price under $200
 "formality": null, "vibe": null, "max_total": 200, "max_item": null, "color": null}}
 Outfit on screen: yes. Message: cheaper coat please
 {"kind": "feedback", "request": null, "feedback": {"action": "cheaper", "slot": "outerwear", \
+"formality": null, "vibe": null, "max_total": null, "max_item": null, "color": null}}
+Outfit on screen: yes. Message: i don't need a bag
+{"kind": "feedback", "request": null, "feedback": {"action": "remove", "slot": "accessory", \
 "formality": null, "vibe": null, "max_total": null, "max_item": null, "color": null}}
 Outfit on screen: yes. Message: looks good
 {"kind": "feedback", "request": null, "feedback": {"action": "accept", "slot": null, \

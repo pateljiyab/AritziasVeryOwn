@@ -39,7 +39,7 @@ from stylist.adapters.clip_text import TextEmbedder
 from stylist.adapters.llm_parser import make_parser
 from stylist.adapters.session_store import SessionStore
 from stylist.api.schemas import (
-    ItemOut, MessageIn, OutfitOut, ResolutionOut, SessionCreated, SessionOut, TurnOut, TurnSummary,
+    BudgetOut, ItemOut, MessageIn, OutfitOut, ResolutionOut, SessionCreated, SessionOut, TurnOut, TurnSummary,
 )
 from stylist.core import keyword_parser
 from stylist.core.catalog import Catalog
@@ -137,7 +137,8 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
         turns = [TurnSummary(kind=t.kind, input=t.input, parsed=t.parsed, error=t.error, outfit=t.outfit,
                              notes=t.notes, latency_ms=t.latency_ms)
                  for t in store.turns(session_id)]
-        return SessionOut(session_id=session_id, outfit=outfit, accepted=bool(state and state.accepted), turns=turns)
+        return SessionOut(session_id=session_id, outfit=outfit, accepted=bool(state and state.accepted),
+                          budget=BudgetOut.of(state), omitted=sorted(state.omitted) if state else [], turns=turns)
 
     @api.post("/sessions/{session_id}/messages", response_model=TurnOut,
               responses={429: {"description": "Too many messages from this client"}})
@@ -155,7 +156,8 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
               responses={404: {"description": "Unknown session or item"},
                          409: {"description": "The action doesn't fit the current outfit"}})
     def send_action(session_id: str, intent: FeedbackIntent) -> TurnOut:
-        """A button click (lock, unlock, reject, swap, nudge, accept). Skips the parser (FR-FB-7)."""
+        """A button click (lock, unlock, reject, swap, nudge, accept, budget, cheaper, remove). Skips the
+        parser (FR-FB-7). A budget can be set before the first outfit; the rest need one on screen."""
         if intent.item_id and catalog.get(intent.item_id) is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, f"No item {intent.item_id}.")
         reply = run_turn(session_id, "action", intent.model_dump(mode="json", exclude_none=True),
