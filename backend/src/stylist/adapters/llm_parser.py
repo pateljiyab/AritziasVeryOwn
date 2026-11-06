@@ -259,12 +259,19 @@ def short_error(exc: ValueError) -> str:
 class ClaudeParser(LLMParser):
     """Claude through structured outputs: the reply is constrained to the LLMParse schema."""
 
-    def __init__(self, api_key: str | None = None, model: str = CLAUDE_MODEL, client=None, timeout: float = 3.5):
+    def __init__(self, api_key: str | None = None, model: str = CLAUDE_MODEL, client=None, timeout: float = 6.0):
         import anthropic
+        import httpx2
 
         self.anthropic = anthropic
-        # No SDK retries: a failed call goes to keyword rules at once, keeping the turn fast (NFR-1).
-        self.client = client or anthropic.Anthropic(api_key=api_key, timeout=timeout, max_retries=0)
+        # Keep the connection to the API open between chat turns: the HTTP client closes idle
+        # connections after 5 s by default, and opening a new one from Render sometimes took long
+        # enough that a 3.5 s timeout sent the message to keyword rules. One SDK retry covers a
+        # dropped or stale connection; a reply that never comes still falls back after the timeout.
+        http = anthropic.DefaultHttpxClient(limits=httpx2.Limits(max_connections=20, max_keepalive_connections=5,
+                                                                 keepalive_expiry=300.0))
+        self.client = client or anthropic.Anthropic(api_key=api_key, timeout=anthropic.Timeout(timeout, connect=3.0),
+                                                    max_retries=1, http_client=http)
         self.model = model
         self.name = model
 

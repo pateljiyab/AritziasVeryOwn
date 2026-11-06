@@ -1,5 +1,7 @@
 # Aritzia's Very Own: AI Outfit Stylist
 
+**Live demo:** https://outfit-stylist.onrender.com (API docs: https://outfit-stylist-api.onrender.com/docs)
+
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier, keep it under $200, make it cheaper) until it's something you'd actually wear.
 
 Under the hood: a catalog from the Channel3 product API in SQLite, tagged with CLIP zero-shot classification; CLIP embeddings for query relevance; rule-based outfit scoring (vibe, formality, season, color harmony) with an exhaustive search over combinations; and a parser that turns free text into structured constraints with Claude Haiku 5.5 (structured outputs), falling back to keyword rules. Tested with pytest in GitHub Actions. A FastAPI REST API serves a React + TypeScript client, and Docker Compose runs both.
