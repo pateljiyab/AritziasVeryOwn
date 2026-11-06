@@ -1,6 +1,6 @@
 # Aritzia's Very Own: AI Outfit Stylist
 
-**Live demo:** https://outfit-stylist.onrender.com (API docs: https://outfit-stylist-api.onrender.com/docs)
+**Live demo:** https://aritziasveryown.onrender.com (API docs: https://outfit-stylist-api.onrender.com/docs)
 
 A conversational outfit stylist built on Aritzia's product catalog. You describe a mood, an occasion, or the weather, and it puts together a complete outfit from real, named Aritzia pieces. You keep steering it (swap a piece, lock one in, make it dressier, keep it under $200, make it cheaper) until it's something you'd actually wear.
 
@@ -29,7 +29,7 @@ Open http://localhost:8080 for the app and http://localhost:8080/docs for the AP
 
 `render.yaml` is a Render Blueprint for two services:
 - **`outfit-stylist-api`:** the API's Docker image, on the Starter plan ($7 a month, always on).
-- **`outfit-stylist`:** the client, as a free static site.
+- **`aritziasveryown`:** the client, as a free static site.
 
 1. In the Render dashboard, choose **New > Blueprint** and pick this repo.
 2. Enter `ANTHROPIC_API_KEY` when asked. Set a monthly spend limit in the Claude Console too.
