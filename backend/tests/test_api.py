@@ -216,6 +216,32 @@ def test_too_many_messages_is_429(store):
     assert act(client, sid, action="swap", slot="shoes").status_code != 429  # buttons make no LLM call
 
 
+def limited_client(store, monkeypatch, header=None):
+    if header:
+        monkeypatch.setenv("STYLIST_CLIENT_IP_HEADER", header)
+    client = TestClient(create_app(catalog=small_catalog(), embed=lambda text: None, store=store,
+                                   limiter=RateLimiter(limit=1)))
+    return client, client.post("/api/v1/sessions").json()["session_id"]
+
+
+def test_chat_limit_uses_the_configured_client_ip_header(store, monkeypatch):
+    client, sid = limited_client(store, monkeypatch, header="cf-connecting-ip")
+
+    send = lambda ip: client.post(f"/api/v1/sessions/{sid}/messages", json={"text": "dinner"},  # noqa: E731
+                                  headers={"CF-Connecting-IP": ip}).status_code
+    assert [send("1.1.1.1"), send("1.1.1.1"), send("2.2.2.2")] == [200, 429, 200]  # one quota per client
+
+
+def test_without_a_configured_header_forged_ones_are_ignored(store, monkeypatch):
+    monkeypatch.delenv("STYLIST_CLIENT_IP_HEADER", raising=False)
+    client, sid = limited_client(store, monkeypatch)
+
+    codes = [client.post(f"/api/v1/sessions/{sid}/messages", json={"text": "dinner"},
+                         headers={"X-Forwarded-For": f"10.0.0.{i}", "CF-Connecting-IP": f"10.0.1.{i}"}).status_code
+             for i in range(2)]
+    assert codes == [200, 429]  # the connection's address, whatever the headers say
+
+
 def test_rate_limiter_window_slides():
     now = [0.0]
     limiter = RateLimiter(limit=1, window=60, clock=lambda: now[0])

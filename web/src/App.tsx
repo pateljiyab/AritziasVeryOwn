@@ -103,6 +103,9 @@ function Asterisk({ className }: { className?: string }) {
 /** Matches the hero's fade-out transition in App.module.css. */
 const HERO_FADE_MS = 600;
 
+// Shown on both screens: the site uses the Aritzia name and product photos, so say plainly it isn't Aritzia's.
+const DISCLAIMER = "Independent student project, not affiliated with or endorsed by Aritzia.";
+
 /** The first screen. "Create Your Vision" fades it out and swaps in the studio. */
 function Hero({ leaving, onStart }: { leaving: boolean; onStart: () => void }) {
   return (
@@ -129,6 +132,7 @@ function Hero({ leaving, onStart }: { leaving: boolean; onStart: () => void }) {
             </svg>
           </button>
         </div>
+        <p className={styles.disclaimer}>{DISCLAIMER}</p>
       </div>
     </header>
   );
@@ -371,6 +375,9 @@ export default function App() {
             />
           </div>
         )}
+        <footer className={styles.footer}>
+          {DISCLAIMER} Product data from the Channel3 product API; product links go to the retailer.
+        </footer>
       </main>
     )
   );
