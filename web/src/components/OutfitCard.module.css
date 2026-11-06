@@ -3,7 +3,7 @@
   border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: border-color 0.3s;
 }
 .changed { border: 2px solid var(--highlight); }
-.locked { border: 2px solid var(--accent); }
+.locked { border: 2px solid var(--text); }
 
 .imageLink { position: relative; display: block; aspect-ratio: 3 / 4; background: var(--surface-2); }
 .image { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -20,8 +20,9 @@
 .name a { text-decoration: none; }
 .name a:hover { text-decoration: underline; }
 .price { font-weight: 600; margin-top: 4px; }
+.overLimit { color: var(--danger); }
 
-.actions { display: flex; gap: 6px; padding: 8px 12px 12px; flex-wrap: wrap; }
-.actions button { flex: 1; padding: 5px 8px; font-size: 0.8rem; }
+.actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 10px 12px 14px; }
+.actions button { min-height: 38px; padding: 6px 4px; font-size: 0.85rem; font-weight: 500; }
 .active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .reject:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
