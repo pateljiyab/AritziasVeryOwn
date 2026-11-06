@@ -8,6 +8,8 @@ services:
     env_file:
       - path: .env  # ANTHROPIC_API_KEY for the LLM parser; without it, chat uses keyword rules
         required: false
+    environment:
+      STYLIST_CLIENT_IP_HEADER: x-real-ip  # set by nginx (web/nginx.conf), for the per-IP chat limit
     volumes:
       - ./data:/app/data  # the catalog, LLM vibes, and sessions.db live on the host
     restart: unless-stopped

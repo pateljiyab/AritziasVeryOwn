@@ -241,6 +241,10 @@ export default function App() {
           />
         </main>
       )}
+      <footer className={styles.footer}>
+        Independent student project, not affiliated with or endorsed by Aritzia. Product data from the
+        Channel3 product API; product links go to the retailer.
+      </footer>
     </div>
   );
 }

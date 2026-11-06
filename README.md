@@ -23,6 +23,18 @@ Open http://localhost:8080 for the app and http://localhost:8080/docs for the AP
 - On first start, the API builds `data/catalog.db` from the committed files: the seed catalog, the CLIP tag snapshot (`data/clip_tags.json`), and the LLM vibe cache (`data/llm_vibes.json`). An existing database is used as is. `./data` is mounted into the container, so the database and sessions persist on your machine.
 - The image has no PyTorch, so outfits are scored without the CLIP relevance term (like `cli.py --no-clip`). Run the app outside Docker with `requirements-ml.txt` for the full scoring.
 
+## Deploy on Render
+
+`render.yaml` is a Render Blueprint for two services:
+- **`outfit-stylist-api`:** the API's Docker image, on the Starter plan ($7 a month, always on).
+- **`outfit-stylist`:** the client, as a free static site.
+
+1. In the Render dashboard, choose **New > Blueprint** and pick this repo.
+2. Enter `ANTHROPIC_API_KEY` when asked. Set a monthly spend limit in the Claude Console too.
+3. After the first deploy, check the two URLs. If Render added a suffix to a name, update `VITE_API_BASE` and `STYLIST_CORS_ORIGINS` in `render.yaml` to match.
+
+Both services redeploy when a merge to `main` passes CI. The API rebuilds its catalog from the committed files on every start, so it needs no disk. Chat sessions reset when it redeploys.
+
 ## Setup
 
 Requires Python 3.11+.

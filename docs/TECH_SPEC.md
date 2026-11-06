@@ -90,7 +90,8 @@ flowchart LR
 | Python packaging | `requirements.txt` (exact pins) + `requirements-ml.txt` (PyTorch, CPU wheels) | Plain pip. PyTorch stays out of CI and the core install. |
 | JS packaging | **npm** | Standard. |
 | Containers | **Docker** + **Docker Compose** | `docker compose up` runs the API (Python slim image, no PyTorch) and the client (built with Node, served by nginx, which also proxies `/api`). |
-| CI | **GitHub Actions** | On every PR and push to `main`, on Python 3.11 and 3.13: pytest, then a smoke test that runs `ingest.py`, `cli.py --demo --no-clip`, and `names_report.py` as scripts. |
+| CI | **GitHub Actions** | On every PR and push to `main`, on Python 3.11 and 3.13: pytest, then a smoke test that runs the jobs and `cli.py --demo --no-clip` as scripts. A `web` job type-checks and builds the client. |
+| Hosting | **Render**, from `render.yaml` | The API is a Docker web service (Starter plan, always on), and the client is a free static site on Render's CDN. Both deploy on merges to `main` once CI passes. |
 | Version control | **Git + GitHub** | Feature branches, small PRs, a protected `main`, and Conventional Commits. |
 | Project tracking | **GitHub Projects** | One issue per requirement, organized into day-sized milestones. |
 
@@ -118,7 +119,8 @@ flowchart LR
 | Chat messages are limited per client IP (20 a minute by default); buttons are not. | The site is public, and only chat makes an LLM call, so this caps what one script can spend. |
 | Evaluation sets are labeled before results are seen, and any reuse is disclosed. | The gold set was labeled before tagging ran. The G4 queries were used once while improving the resolver, so the report prints the pre-tuning baseline next to every result. |
 | Both tag snapshots are committed (`data/clip_tags.json`, `data/llm_vibes.json`), and `jobs/restore_tags.py` loads the CLIP one. | A fresh clone, CI, and the Docker image get the same tags as a full run, with no PyTorch, photo downloads, or API key. `tag.py` rewrites the snapshot after each full run. |
-| The Docker image leaves out PyTorch, and nginx serves the client and proxies `/api`. | The image stays small enough for cheap hosting (CLIP would add over 1 GB), and one origin means no CORS setup. nginx overwrites `X-Forwarded-For`, so the per-IP chat limit sees the real client and can't be dodged with a forged header. |
+| The Docker image leaves out PyTorch, and nginx serves the client and proxies `/api`. | The image stays small enough for cheap hosting (CLIP would add over 1 GB), and one origin means no CORS setup. nginx sets `X-Real-IP` from the connection, replacing anything the client sent. |
+| The chat limit reads the client IP from one header named in config (`STYLIST_CLIENT_IP_HEADER`): `x-real-ip` behind our nginx, `cf-connecting-ip` on Render. | Only the proxy in front can set those headers. `X-Forwarded-For` can't be trusted, because Render's proxy appends to whatever the client sends, so a script could forge its way past the limit. |
 | NumPy instead of FAISS, and SQLite instead of Postgres. | They are the right size for about 400 items, with an easy upgrade path. |
 
 ---

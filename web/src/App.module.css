@@ -12,6 +12,10 @@
   gap: 20px; padding: 20px 24px; align-items: start;
 }
 
+.footer {
+  padding: 12px 24px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border);
+}
+
 .startupError {
   margin: 48px auto; max-width: 480px; padding: 24px; text-align: center;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);

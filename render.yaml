@@ -1,0 +1,45 @@
+# Render Blueprint: the API (Docker web service) and the web client (static site).
+# In the Render dashboard: New > Blueprint, pick this repo, and enter ANTHROPIC_API_KEY when asked.
+#
+# The URLs below assume Render gives the services these names. If a name is taken, Render adds a
+# suffix: then fix VITE_API_BASE and STYLIST_CORS_ORIGINS to the real URLs and redeploy both.
+services:
+  - type: web
+    name: outfit-stylist-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: starter  # always on; the free plan sleeps after 15 idle minutes and takes ~1 min to wake
+    region: virginia
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: checksPass  # deploy main only after CI passes
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false  # a secret: entered in the dashboard, never committed
+      - key: STYLIST_CORS_ORIGINS
+        value: https://outfit-stylist.onrender.com
+      # Cloudflare, in front of Render, sets this header to the visitor's IP and replaces any
+      # value the client sends, so the per-IP chat limit can't be dodged with a forged header.
+      - key: STYLIST_CLIENT_IP_HEADER
+        value: cf-connecting-ip
+
+  - type: web
+    name: outfit-stylist
+    runtime: static
+    rootDir: web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: checksPass  # rootDir: only changes under web/ redeploy it
+    envVars:
+      - key: VITE_API_BASE
+        value: https://outfit-stylist-api.onrender.com
+      - key: NODE_VERSION  # Vite 7 needs Node 20.19+; match the Docker build and CI
+        value: "22"
+    routes:
+      - type: rewrite  # client-side routes all load the app
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*  # fingerprinted build files
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

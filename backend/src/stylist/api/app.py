@@ -12,8 +12,11 @@ Environment:
                              (default: the Vite dev server, http://localhost:5173)
     STYLIST_MESSAGES_PER_MINUTE
                              chat messages allowed per client IP per minute (default 20), so a
-                             script can't spend the LLM budget. Behind a proxy, run uvicorn with
-                             --proxy-headers so the client IP is the user's, not the proxy's.
+                             script can't spend the LLM budget
+    STYLIST_CLIENT_IP_HEADER request header that holds the client's IP, set by the proxy in front
+                             (Render: cf-connecting-ip; the Docker nginx: x-real-ip). Only name a
+                             header that proxy overwrites, or a client could forge it. Unset: the
+                             connection's address.
 
 Every turn is saved to data/sessions.db and logged as one JSON line (NFR-6).
 """
@@ -76,6 +79,13 @@ class RateLimiter:
         return True
 
 
+def client_ip(request: Request, header: str | None) -> str:
+    """The client's IP for the chat limit: from the trusted proxy's header if one is configured."""
+    if header and (value := request.headers.get(header, "").split(",")[0].strip()):
+        return value
+    return request.client.host if request.client else "unknown"
+
+
 def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store: SessionStore | None = None,
                parse: Parse | None = None, limiter: RateLimiter | None = None) -> FastAPI:
     """The app. With no arguments it loads the real catalog, CLIP, data/sessions.db, and the
@@ -85,6 +95,7 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
     store = store if store is not None else SessionStore()
     parse = parse if parse is not None else make_parser()
     limiter = limiter or RateLimiter(int(os.environ.get("STYLIST_MESSAGES_PER_MINUTE", "20")))
+    ip_header = os.environ.get("STYLIST_CLIENT_IP_HEADER") or None
 
     app = FastAPI(title="AI Outfit Stylist", version="0.3.0",
                   description="Conversational outfit stylist over the Aritzia catalog.")
@@ -145,7 +156,7 @@ def create_app(catalog: Catalog | None = None, embed: Embed | None = None, store
     def send_message(session_id: str, body: MessageIn, request: Request) -> TurnOut:
         """A chat message: a new request, or feedback on the outfit on screen. A message that
         can't be applied ("keep the dress" with no dress) comes back as a note, not an error."""
-        if not limiter.allow(request.client.host if request.client else "unknown"):
+        if not limiter.allow(client_ip(request, ip_header)):
             raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
                                 "That's a lot of messages. Wait a minute, then try again.")
         reply = run_turn(session_id, "message", {"text": body.text},

@@ -19,8 +19,8 @@ COPY backend/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=20s \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=2)"
+    CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", \"8000\")}/api/v1/health', timeout=2)"
 ENTRYPOINT ["docker-entrypoint.sh"]
-# --proxy-headers: the client IP (for the per-IP chat limit) comes from nginx's X-Forwarded-For.
-CMD ["uvicorn", "--factory", "--app-dir", "backend/src", "stylist.api.app:create_app", \
-     "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
+# PORT is set by hosts like Render; 8000 otherwise. The client IP for the chat limit comes from
+# STYLIST_CLIENT_IP_HEADER (see api/app.py), not from uvicorn's proxy handling.
+CMD ["sh", "-c", "exec uvicorn --factory --app-dir backend/src stylist.api.app:create_app --host 0.0.0.0 --port ${PORT:-8000}"]
