@@ -16,9 +16,8 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false  # a secret: entered in the dashboard, never committed
-      # The site's address. The old outfit-stylist site stays allowed until it's deleted.
-      - key: STYLIST_CORS_ORIGINS
-        value: https://aritziasveryown.onrender.com,https://outfit-stylist.onrender.com
+      - key: STYLIST_CORS_ORIGINS  # the site's address
+        value: https://aritziasveryown.onrender.com
       # Cloudflare, in front of Render, sets this header to the visitor's IP and replaces any
       # value the client sends, so the per-IP chat limit can't be dodged with a forged header.
       - key: STYLIST_CLIENT_IP_HEADER
